@@ -1,0 +1,17 @@
+segportal
+guacamole
+ztna
+tjse
+kubernetes
+rancher
+ldap
+mfa
+zero-trust
+remote-access
+vnc
+rdp
+clientless
+squid
+proxy
+brazil
+tribunal-de-justica

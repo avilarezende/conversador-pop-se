@@ -1,0 +1,1 @@
+Portal ZTNA do TJSE baseado em Apache Guacamole — acesso clientless LDAP+MFA, substituto VPN, deploy modular no Rancher/Kubernetes.

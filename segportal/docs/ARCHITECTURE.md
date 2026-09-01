@@ -4,7 +4,7 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Visão geral
 
-![Arquitetura](../images/architecture-overview.svg)
+![Arquitetura](images/architecture-overview.svg)
 
 | Componente | Função |
 |------------|--------|
@@ -16,7 +16,7 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Fluxo de autenticação
 
-![Fluxo LDAP + MFA](../images/auth-flow.svg)
+![Fluxo LDAP + MFA](images/auth-flow.svg)
 
 1. Usuário acessa `https://segportal.tjse.jus.br/guacamole`
 2. Guacamole autentica no Active Directory (`tjse.jus.br`) via LDAPS
@@ -25,7 +25,7 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Deploy Kubernetes
 
-![Pods K8s](../images/k8s-pods.svg)
+![Pods K8s](images/k8s-pods.svg)
 
 Cada componente roda em **pods separados** com HPA no Rancher:
 
