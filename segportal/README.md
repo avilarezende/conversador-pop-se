@@ -32,6 +32,19 @@ Mockup interativo: [docs/mockup/segportal-mockup.html](docs/mockup/segportal-moc
 | **Egress controlado** | Proxy interno com IP institucional do tribunal |
 | **Modular** | Pods separados, plugins futuros, HPA no Rancher |
 
+## Publicar repositório no GitHub
+
+O projeto inclui script para criar o repositório dedicado `avilarezende/segportal`:
+
+```bash
+cd segportal
+chmod +x scripts/publish-github.sh
+gh auth login   # use sua conta GitHub pessoal
+./scripts/publish-github.sh
+```
+
+Repositório alvo: **https://github.com/avilarezende/segportal**
+
 ## Guia rápido
 
 ```bash
