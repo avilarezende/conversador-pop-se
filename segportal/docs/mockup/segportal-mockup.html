@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SegPortal TJSE — Mockup Interativo</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --primary-dark: #002244;
+      --accent: #c9a227;
+      --bg: #f0f3f8;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --success: #059669;
+      --border: #e2e8f0;
+      --shadow: 0 4px 24px rgba(0, 51, 102, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .topbar-brand .logo {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .topbar-meta {
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 1rem 1.5rem 0;
+      background: var(--bg);
+    }
+
+    .nav-tab {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover { color: var(--primary); background: rgba(0,51,102,0.06); }
+    .nav-tab.active {
+      background: var(--card);
+      color: var(--primary);
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      display: none;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .screen.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .login-header h1 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-header p { color: var(--muted); font-size: 0.9rem; }
+
+    .form-group { margin-bottom: 1.25rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--primary);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.15);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-secondary:hover { background: rgba(0,51,102,0.06); }
+
+    .btn-connect {
+      background: var(--success);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .portal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .portal-header h2 { color: var(--primary); font-size: 1.25rem; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg);
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+
+    .user-chip .avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .resource-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .resource-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0,51,102,0.1);
+      transform: translateY(-2px);
+    }
+
+    .resource-type {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .type-rdp { background: #dbeafe; color: #1d4ed8; }
+    .type-vnc { background: #d1fae5; color: #047857; }
+    .type-ssh { background: #fef3c7; color: #b45309; }
+    .type-proxy { background: #ede9fe; color: #6d28d9; }
+
+    .resource-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .resource-card p { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+    .session-frame {
+      background: #1e293b;
+      border-radius: 8px;
+      aspect-ratio: 16/10;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .session-desktop {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .session-titlebar {
+      background: #0f172a;
+      padding: 0.4rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .session-titlebar .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-green { background: #22c55e; }
+
+    .session-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .session-toolbar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 100;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .mfa-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .nav-tabs { overflow-x: auto; }
+      .portal-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="logo">TJSE</div>
+      <span>SegPortal — Mockup Interativo</span>
+    </div>
+    <div class="topbar-meta">ZTNA · Guacamole 1.5.5 · LDAP + MFA</div>
+  </header>
+
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab active" data-screen="login" role="tab">1. Login</button>
+    <button class="nav-tab" data-screen="portal" role="tab">2. Portal</button>
+    <button class="nav-tab" data-screen="session" role="tab">3. Sessão</button>
+  </nav>
+
+  <!-- Login -->
+  <section id="screen-login" class="screen active">
+    <div class="card" style="max-width: 420px; margin: 0 auto;">
+      <div class="login-header">
+        <div class="badge">TRIBUNAL DE JUSTIÇA DE SERGIPE</div>
+        <h1>Portal de Acesso Seguro</h1>
+        <p>Autenticação LDAP + MFA obrigatório</p>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Usuário (sAMAccountName)</label>
+          <input type="text" id="username" placeholder="usuario.tjse" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Senha AD</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="form-group">
+          <label for="mfa">Código MFA</label>
+          <input type="text" id="mfa" placeholder="000000" maxlength="6" inputmode="numeric">
+          <p class="mfa-hint">Token do autenticador ou RADIUS corporativo</p>
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar no SegPortal</button>
+      </form>
+      <p class="footer-note">Domínio: tjse.jus.br · Sessão: 60 min inatividade</p>
+    </div>
+  </section>
+
+  <!-- Portal -->
+  <section id="screen-portal" class="screen">
+    <div class="card">
+      <div class="portal-header">
+        <h2>Recursos autorizados</h2>
+        <div class="user-chip">
+          <div class="avatar" id="user-avatar">U</div>
+          <span id="user-display">usuario.tjse</span>
+        </div>
+      </div>
+      <div class="resource-grid" id="resource-grid">
+        <div class="resource-card" data-resource="rdp-financeiro">
+          <span class="resource-type type-rdp">RDP</span>
+          <h3>Estação Financeiro</h3>
+          <p>Windows 11 — GG-SegPortal-Financeiro</p>
+          <button class="btn btn-connect">Conectar</button>
+        </div>
+        <div class="resource-card" data-resource="vnc-consulta">
+          <span class="resource-type type-vnc">VNC</span>
+          <h3>Terminal Processual</h3>
+          <p>Linux — GG-SegPortal-Consulta</p>
+          <button class="btn btn-connect">Conectar</button>
+        </div>
+        <div class="resource-card" data-resource="ssh-admin">
+          <span class="resource-type type-ssh">SSH</span>
+          <h3>Servidor Aplicação</h3>
+          <p>Admin — GG-SegPortal-Admin</p>
+          <button class="btn btn-connect">Conectar</button>
+        </div>
+        <div class="resource-card" data-resource="proxy-pje">
+          <span class="resource-type type-proxy">Proxy</span>
+          <h3>PJe / CNJ</h3>
+          <p>Navegação externa via IP TJSE</p>
+          <button class="btn btn-connect">Abrir</button>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem; text-align: right;">
+        <button class="btn btn-secondary" id="btn-logout">Encerrar sessão</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Session -->
+  <section id="screen-session" class="screen">
+    <div class="card">
+      <div class="portal-header">
+        <h2 id="session-title">Sessão RDP — Estação Financeiro</h2>
+        <span style="font-size: 0.85rem; color: var(--success);">● Conectado</span>
+      </div>
+      <div class="session-frame">
+        <div class="session-desktop">
+          <div class="session-titlebar">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span style="color: #64748b; font-size: 0.75rem; margin-left: 0.5rem;">FIN-WKS-042 — via guacd</span>
+          </div>
+          <div class="session-content">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
+            <span>Desktop remoto clientless (HTML5)</span>
+            <span style="font-size: 0.75rem;">Protocolo isolado · Pod guacd dedicado</span>
+          </div>
+        </div>
+      </div>
+      <div class="session-toolbar">
+        <button class="btn btn-secondary" id="btn-disconnect">Desconectar</button>
+        <button class="btn btn-secondary" id="btn-fullscreen">Tela cheia</button>
+        <button class="btn btn-secondary" id="btn-clipboard">Área de transferência</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const screens = document.querySelectorAll('.screen');
+    const tabs = document.querySelectorAll('.nav-tab');
+    const toast = document.getElementById('toast');
+    let currentUser = 'usuario.tjse';
+
+    const resources = {
+      'rdp-financeiro': 'Sessão RDP — Estação Financeiro',
+      'vnc-consulta': 'Sessão VNC — Terminal Processual',
+      'ssh-admin': 'Sessão SSH — Servidor Aplicação',
+      'proxy-pje': 'Navegação Proxy — PJe / CNJ'
+    };
+
+    function showScreen(name) {
+      screens.forEach(s => s.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+      document.getElementById('screen-' + name).classList.add('active');
+      document.querySelector('[data-screen="' + name + '"]').classList.add('active');
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => showScreen(tab.dataset.screen));
+    });
+
+    document.getElementById('login-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const user = document.getElementById('username').value.trim() || 'usuario.tjse';
+      const mfa = document.getElementById('mfa').value.trim();
+      if (!mfa || mfa.length < 6) {
+        showToast('Informe o código MFA de 6 dígitos');
+        return;
+      }
+      currentUser = user;
+      document.getElementById('user-display').textContent = user;
+      document.getElementById('user-avatar').textContent = user.charAt(0).toUpperCase();
+      showToast('Autenticação LDAP + MFA bem-sucedida');
+      setTimeout(() => showScreen('portal'), 800);
+    });
+
+    document.querySelectorAll('.resource-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.dataset.resource;
+        document.getElementById('session-title').textContent = resources[id];
+        showScreen('session');
+        showToast('Conexão estabelecida via guacd');
+      });
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      showToast('Sessão encerrada');
+      setTimeout(() => showScreen('login'), 600);
+    });
+
+    document.getElementById('btn-disconnect').addEventListener('click', () => {
+      showToast('Sessão desconectada');
+      setTimeout(() => showScreen('portal'), 600);
+    });
+
+    document.getElementById('btn-fullscreen').addEventListener('click', () => {
+      document.querySelector('.session-frame').requestFullscreen?.();
+    });
+
+    document.getElementById('btn-clipboard').addEventListener('click', () => {
+      showToast('Área de transferência sincronizada (mockup)');
+    });
+  </script>
+</body>
+</html>

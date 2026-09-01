@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacd
+  labels:
+    app.kubernetes.io/name: guacd
+    app.kubernetes.io/component: guacd
+spec:
+  type: ClusterIP
+  ports:
+    - name: guacd
+      port: 4822
+      targetPort: 4822
+  selector:
+    app.kubernetes.io/name: guacd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacd
+  labels:
+    app.kubernetes.io/name: guacd
+    app.kubernetes.io/component: guacd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: guacd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: guacd
+        app.kubernetes.io/component: guacd
+    spec:
+      containers:
+        - name: guacd
+          image: registry.tjse.jus.br/segportal/guacd:latest
+          ports:
+            - containerPort: 4822
+              name: guacd
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          livenessProbe:
+            tcpSocket:
+              port: 4822
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 4822
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: guacd
+  labels:
+    app.kubernetes.io/name: guacd
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: guacd
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

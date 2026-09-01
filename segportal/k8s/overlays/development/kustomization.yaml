@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Deployment
+      name: guacamole
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  - target:
+      kind: Deployment
+      name: guacd
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+
+images:
+  - name: registry.tjse.jus.br/segportal/guacamole
+    newTag: dev
+  - name: registry.tjse.jus.br/segportal/guacd
+    newTag: dev
+  - name: registry.tjse.jus.br/segportal/egress-proxy
+    newTag: dev
+
+configMapGenerator:
+  - name: segportal-common
+    behavior: merge
+    literals:
+      - GUACAMOLE_HOSTNAME=segportal-dev.tjse.jus.br
+      - SESSION_TIMEOUT_MINUTES=120

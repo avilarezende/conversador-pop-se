@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="hdr" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#003366"/>
+      <stop offset="100%" style="stop-color:#001a33"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <rect width="920" height="520" fill="#f4f7fa"/>
+  <rect width="920" height="56" fill="url(#hdr)"/>
+  <text x="24" y="36" fill="#fff" font-size="20" font-weight="700">SegPortal TJSE  Arquitetura ZTNA</text>
+  <text x="24" y="80" fill="#5c6b7a" font-size="13">Substituto VPN · Apache Guacamole · Rancher Kubernetes</text>
+
+  <!-- Usuário -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="120" width="120" height="70" rx="10" fill="#fff" stroke="#d8e0e8"/>
+    <text x="100" y="155" text-anchor="middle" font-size="28">=d</text>
+    <text x="100" y="178" text-anchor="middle" font-size="12" fill="#1a2b3c">Navegador</text>
+  </g>
+
+  <!-- Ingress -->
+  <g filter="url(#shadow)">
+    <rect x="200" y="120" width="120" height="70" rx="10" fill="#fff" stroke="#C4A035" stroke-width="2"/>
+    <text x="260" y="155" text-anchor="middle" font-size="12" font-weight="600" fill="#003366">Ingress</text>
+    <text x="260" y="175" text-anchor="middle" font-size="10" fill="#5c6b7a">TLS / mTLS</text>
+  </g>
+
+  <!-- Guacamole -->
+  <g filter="url(#shadow)">
+    <rect x="360" y="100" width="140" height="110" rx="10" fill="#003366"/>
+    <text x="430" y="140" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Guacamole</text>
+    <text x="430" y="160" text-anchor="middle" fill="#C4A035" font-size="10">Web UI + Auth</text>
+    <text x="430" y="180" text-anchor="middle" fill="#ccc" font-size="9">Pod (HPA 2-10)</text>
+  </g>
+
+  <!-- LDAP MFA -->
+  <g filter="url(#shadow)">
+    <rect x="360" y="240" width="100" height="60" rx="8" fill="#fff" stroke="#d8e0e8"/>
+    <text x="410" y="265" text-anchor="middle" font-size="11" font-weight="600">LDAP</text>
+    <text x="410" y="282" text-anchor="middle" font-size="9" fill="#5c6b7a">tjse.jus.br</text>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="480" y="240" width="100" height="60" rx="8" fill="#fff" stroke="#C4A035"/>
+    <text x="530" y="265" text-anchor="middle" font-size="11" font-weight="600">RADIUS</text>
+    <text x="530" y="282" text-anchor="middle" font-size="9" fill="#5c6b7a">MFA</text>
+  </g>
+
+  <!-- guacd -->
+  <g filter="url(#shadow)">
+    <rect x="560" y="100" width="120" height="90" rx="10" fill="#fff" stroke="#003366" stroke-width="2"/>
+    <text x="620" y="135" text-anchor="middle" font-size="12" font-weight="700" fill="#003366">guacd</text>
+    <text x="620" y="155" text-anchor="middle" font-size="10" fill="#5c6b7a">RDP · VNC · SSH</text>
+    <text x="620" y="175" text-anchor="middle" font-size="9" fill="#888">Pod (HPA 2-20)</text>
+  </g>
+
+  <!-- Postgres -->
+  <g filter="url(#shadow)">
+    <rect x="560" y="220" width="120" height="70" rx="10" fill="#fff" stroke="#d8e0e8"/>
+    <text x="620" y="255" text-anchor="middle" font-size="12" font-weight="600">PostgreSQL</text>
+    <text x="620" y="275" text-anchor="middle" font-size="9" fill="#5c6b7a">Metadados</text>
+  </g>
+
+  <!-- Proxy -->
+  <g filter="url(#shadow)">
+    <rect x="720" y="120" width="120" height="90" rx="10" fill="#fff" stroke="#C4A035" stroke-width="2"/>
+    <text x="780" y="155" text-anchor="middle" font-size="11" font-weight="700" fill="#003366">Proxy egress</text>
+    <text x="780" y="175" text-anchor="middle" font-size="10" fill="#5c6b7a">Squid</text>
+    <text x="780" y="195" text-anchor="middle" font-size="9" fill="#1b7f4a">IP TJSE</text>
+  </g>
+
+  <!-- Destinos internos -->
+  <g filter="url(#shadow)">
+    <rect x="720" y="250" width="160" height="50" rx="8" fill="#e3f0ff" stroke="#003366"/>
+    <text x="800" y="280" text-anchor="middle" font-size="11">Rede interna TJSE</text>
+  </g>
+
+  <!-- Setas -->
+  <path d="M160 155 L195 155" stroke="#003366" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M320 155 L355 155" stroke="#003366" stroke-width="2"/>
+  <path d="M500 155 L555 155" stroke="#003366" stroke-width="2"/>
+  <path d="M430 210 L410 235" stroke="#888" stroke-width="1.5"/>
+  <path d="M460 210 L510 235" stroke="#888" stroke-width="1.5"/>
+  <path d="M680 145 L715 145" stroke="#C4A035" stroke-width="2"/>
+  <path d="M680 175 L715 200" stroke="#003366" stroke-width="1.5"/>
+  <path d="M620 190 L620 215" stroke="#888" stroke-width="1.5"/>
+  <path d="M680 250 L715 270" stroke="#003366" stroke-width="1.5"/>
+
+  <!-- Legenda -->
+  <rect x="40" y="340" width="840" height="150" rx="10" fill="#fff" stroke="#d8e0e8"/>
+  <text x="60" y="370" font-size="14" font-weight="700" fill="#003366">Componentes Kubernetes (namespace segportal)</text>
+  <circle cx="70" cy="400" r="6" fill="#003366"/><text x="85" y="405" font-size="12">guacamole  interface e autenticação</text>
+  <circle cx="70" cy="425" r="6" fill="#C4A035"/><text x="85" y="430" font-size="12">guacd  protocolos remotos individualizados</text>
+  <circle cx="70" cy="450" r="6" fill="#5c6b7a"/><text x="85" y="455" font-size="12">postgres  sessões e conexões</text>
+  <circle cx="400" cy="400" r="6" fill="#1b7f4a"/><text x="415" y="405" font-size="12">proxy-egress  saída com IP institucional</text>
+  <circle cx="400" cy="425" r="6" fill="#888"/><text x="415" y="430" font-size="12">NetworkPolicies  isolamento entre pods</text>
+  <circle cx="400" cy="450" r="6" fill="#003366"/><text x="415" y="455" font-size="12">HPA  escalonamento dinâmico</text>
+</svg>

@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+k8s/**/secrets/*.yaml
+!k8s/**/secrets/*.example.yaml
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+docker-data/
+.DS_Store

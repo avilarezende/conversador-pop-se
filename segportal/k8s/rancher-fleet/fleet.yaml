@@ -1,0 +1,22 @@
+# Rancher Fleet — SegPortal TJSE GitOps bundle
+defaultNamespace: segportal
+
+targets:
+  - name: production
+    clusterSelector:
+      matchLabels:
+        env: production
+        region: sergipe
+    helm: {}
+  - name: staging
+    clusterSelector:
+      matchLabels:
+        env: staging
+    helm: {}
+
+diff:
+  comparePatches:
+    - apiVersion: apps/v1
+      kind: Deployment
+      operations:
+        - {"op": "remove", "path": "/spec/replicas"}

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: segportal-common
+  labels:
+    app.kubernetes.io/name: segportal
+    app.kubernetes.io/component: config
+data:
+  GUACD_HOSTNAME: guacd
+  GUACD_PORT: "4822"
+  LDAP_PORT: "636"
+  LDAP_ENCRYPTION_METHOD: ssl
+  LDAP_USERNAME_ATTRIBUTE: sAMAccountName
+  LDAP_USER_BASE_DN: OU=Usuarios,DC=tjse,DC=jus,DC=br
+  EGRESS_PROXY_HOST: proxy-egress
+  EGRESS_PROXY_PORT: "3128"
+  SESSION_TIMEOUT_MINUTES: "60"
+  MFA_ENABLED: "true"
+  MFA_RADIUS_PORT: "1812"
+  GUACAMOLE_HOSTNAME: segportal.tjse.jus.br

@@ -1,0 +1,82 @@
+"""Tests for SegPortal configuration files."""
+
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+@pytest.fixture
+def config_root() -> Path:
+    return ROOT / "config"
+
+
+class TestGuacamoleProperties:
+    def test_guacamole_properties_exists(self, config_root: Path) -> None:
+        path = config_root / "guacamole" / "guacamole.properties"
+        assert path.is_file()
+
+    def test_guacamole_properties_has_ldap(self, config_root: Path) -> None:
+        content = (config_root / "guacamole" / "guacamole.properties").read_text()
+        assert "ldap-hostname" in content
+        assert "ldap-user-base-dn" in content
+        assert "${LDAP_HOSTNAME}" in content
+
+    def test_guacamole_properties_has_postgresql(self, config_root: Path) -> None:
+        content = (config_root / "guacamole" / "guacamole.properties").read_text()
+        assert "postgresql-hostname" in content
+        assert "postgresql-database" in content
+
+    def test_guacamole_properties_has_session_timeout(self, config_root: Path) -> None:
+        content = (config_root / "guacamole" / "guacamole.properties").read_text()
+        assert "api-session-timeout" in content
+
+
+class TestLdapProperties:
+    def test_ldap_properties_exists(self, config_root: Path) -> None:
+        path = config_root / "ldap" / "ldap.properties"
+        assert path.is_file()
+
+    def test_ldap_domain_tjse(self, config_root: Path) -> None:
+        content = (config_root / "ldap" / "ldap.properties").read_text()
+        assert "tjse.jus.br" in content
+        assert "sAMAccountName" in content
+
+
+class TestSquidConfig:
+    def test_squid_conf_exists(self, config_root: Path) -> None:
+        path = config_root / "proxy" / "squid.conf"
+        assert path.is_file()
+
+    def test_squid_whitelist_tjse(self, config_root: Path) -> None:
+        content = (config_root / "proxy" / "squid.conf").read_text()
+        assert "tjse_whitelist" in content
+        assert ".tjse.jus.br" in content
+
+
+class TestDockerCompose:
+    def test_docker_compose_exists(self) -> None:
+        assert (ROOT / "docker-compose.yml").is_file()
+
+    def test_guacamole_build_context_root(self) -> None:
+        content = (ROOT / "docker-compose.yml").read_text()
+        assert "context: ." in content
+        assert "services/guacamole/Dockerfile" in content
+
+    def test_required_services(self) -> None:
+        content = (ROOT / "docker-compose.yml").read_text()
+        for service in ("postgres", "guacd", "guacamole", "proxy-egress"):
+            assert f"{service}:" in content
+
+
+class TestGuacamoleDockerfile:
+    def test_ldap_extension_version(self) -> None:
+        dockerfile = (ROOT / "services" / "guacamole" / "Dockerfile").read_text()
+        assert "guacamole-auth-ldap-1.5.5.jar" in dockerfile
+        assert "GUACAMOLE_VERSION=1.5.5" in dockerfile
+
+    def test_build_from_repo_root(self) -> None:
+        dockerfile = (ROOT / "services" / "guacamole" / "Dockerfile").read_text()
+        assert "COPY config/guacamole/" in dockerfile
+        assert "COPY services/guacamole/" in dockerfile
