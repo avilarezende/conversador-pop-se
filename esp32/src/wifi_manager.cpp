@@ -13,61 +13,75 @@
 namespace wifi_mgr {
 namespace {
 
-uint32_t last_attempt_ms = 0;
-bool started = false;
+enum class State : uint8_t { Idle, Connecting, Connected, Backoff };
 
-bool try_connect() {
-    if (WiFi.status() == WL_CONNECTED) {
-        return true;
-    }
+State state = State::Idle;
+uint32_t state_since_ms = 0;
+uint32_t last_log_ms = 0;
 
+void start_connect(uint32_t now) {
     Serial.printf("[wifi] Conectando a \"%s\"...\n", WIFI_SSID);
     WiFi.mode(WIFI_STA);
+    WiFi.setAutoReconnect(true);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-    const uint32_t start = millis();
-    while (WiFi.status() != WL_CONNECTED &&
-           (millis() - start) < WIFI_CONNECT_TIMEOUT_MS) {
-        delay(250);
-        Serial.print('.');
-        yield();
-    }
-    Serial.println();
-
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.printf("[wifi] OK  IP=%s  RSSI=%d dBm\n",
-                      WiFi.localIP().toString().c_str(), WiFi.RSSI());
-        return true;
-    }
-
-    Serial.println("[wifi] Falha na conexão");
-    WiFi.disconnect(true);
-    return false;
+    state = State::Connecting;
+    state_since_ms = now;
+    last_log_ms = now;
 }
 
 }  // namespace
 
 bool begin() {
-    started = true;
-    last_attempt_ms = millis();
-    return try_connect();
+    start_connect(millis());
+    return WiFi.status() == WL_CONNECTED;
 }
 
 bool ensure_connected() {
-    if (!started) {
-        return begin();
-    }
-    if (WiFi.status() == WL_CONNECTED) {
+    const uint32_t now = millis();
+    const wl_status_t st = WiFi.status();
+
+    if (st == WL_CONNECTED) {
+        if (state != State::Connected) {
+            Serial.printf("[wifi] OK  IP=%s  RSSI=%d dBm\n",
+                          WiFi.localIP().toString().c_str(), WiFi.RSSI());
+            state = State::Connected;
+            state_since_ms = now;
+        }
         return true;
     }
 
-    const uint32_t now = millis();
-    if (now - last_attempt_ms < WIFI_RECONNECT_INTERVAL_MS) {
+    if (state == State::Connected) {
+        Serial.println("[wifi] Conexão perdida");
+        state = State::Backoff;
+        state_since_ms = now;
         return false;
     }
-    last_attempt_ms = now;
-    Serial.println("[wifi] Reconectando...");
-    return try_connect();
+
+    if (state == State::Idle) {
+        start_connect(now);
+        return false;
+    }
+
+    if (state == State::Connecting) {
+        if (now - last_log_ms >= 1000) {
+            Serial.print('.');
+            last_log_ms = now;
+        }
+        if (now - state_since_ms >= WIFI_CONNECT_TIMEOUT_MS) {
+            Serial.println();
+            Serial.println("[wifi] Timeout — nova tentativa em breve");
+            WiFi.disconnect(false);
+            state = State::Backoff;
+            state_since_ms = now;
+        }
+        return false;
+    }
+
+    // Backoff
+    if (now - state_since_ms >= WIFI_RECONNECT_INTERVAL_MS) {
+        start_connect(now);
+    }
+    return false;
 }
 
 bool is_connected() {

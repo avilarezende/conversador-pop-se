@@ -78,6 +78,15 @@ Enquanto `avilarezende/esp32` não existir no GitHub, este projeto vive na pasta
 
 ## Publicar como repositório próprio
 
+Script (na sua máquina, com `gh` autenticado):
+
+```bash
+cd esp32
+./scripts/publish-github.sh
+```
+
+Ou manualmente:
+
 ```bash
 cd esp32
 git init -b main
