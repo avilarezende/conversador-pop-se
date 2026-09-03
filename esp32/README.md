@@ -39,7 +39,11 @@ pio run -e esp32-c3 -t upload
 pio run -e lilygo-t-display-s3 -t upload
 ```
 
-No T-Display-S3: pressione o botão **BOOT** (GPIO 0) para perguntar ao engine sobre o status dos links.
+No T-Display-S3:
+- **BOOT** (GPIO 0): pergunta ao engine (`/api/v1/chat`) sobre status dos links
+- **KEY** (GPIO 14): força refresh de `/health`
+
+Guia do agente dedicado: [docs/CLOUD_AGENT.md](docs/CLOUD_AGENT.md).
 
 ## Estrutura
 

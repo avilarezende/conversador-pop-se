@@ -8,11 +8,32 @@
 static uint32_t last_blink_ms = 0;
 static uint32_t last_poll_ms = 0;
 static bool led_on = false;
-static String last_ui_message = "Pronto";
+static bool ever_connected = false;
+static String last_ui_message = "Aguardando Wi-Fi...";
 
 #if defined(BOARD_HAS_BOOT_BTN)
 static const int BOOT_BTN = 0;
 #endif
+#if defined(BOARD_HAS_KEY_BTN)
+static const int KEY_BTN = 14;
+#endif
+
+static void refresh_ui(const PopseHealth& health) {
+    ui::show_status(wifi_mgr::is_connected(), wifi_mgr::ip_address(), wifi_mgr::rssi(), health,
+                    last_ui_message);
+}
+
+static void poll_health(bool force_message) {
+    const PopseHealth health = popse::fetch_health();
+    if (health.ok) {
+        if (force_message || last_ui_message == "Aguardando Wi-Fi...") {
+            last_ui_message = "health ok";
+        }
+    } else if (health.error.length()) {
+        last_ui_message = health.error;
+    }
+    refresh_ui(health);
+}
 
 void setup() {
     Serial.begin(SERIAL_BAUD);
@@ -26,6 +47,9 @@ void setup() {
 #if defined(BOARD_HAS_BOOT_BTN)
     pinMode(BOOT_BTN, INPUT_PULLUP);
 #endif
+#if defined(BOARD_HAS_KEY_BTN)
+    pinMode(KEY_BTN, INPUT_PULLUP);
+#endif
 
     Serial.println();
     Serial.println("ESP32 — PoP-SE companion");
@@ -33,24 +57,21 @@ void setup() {
     Serial.printf("CPU: %u MHz  Flash: %u MB\n",
                   ESP.getCpuFreqMHz(),
                   ESP.getFlashChipSize() / (1024 * 1024));
-    Serial.printf("LED GPIO: %d  display=%d\n", LED_GPIO, POPSE_HAS_DISPLAY);
+    Serial.printf("LED GPIO: %d  display=%d wifi_state=%s\n", LED_GPIO, POPSE_HAS_DISPLAY,
+                  wifi_mgr::state_label());
 
     ui::begin();
     ui::show_boot(ESP.getChipModel());
 
     wifi_mgr::begin();
     popse::begin();
-
-    const PopseHealth health = popse::fetch_health();
-    ui::show_status(wifi_mgr::is_connected(), wifi_mgr::ip_address(), wifi_mgr::rssi(), health,
-                    last_ui_message);
-    last_poll_ms = millis();
+    refresh_ui(popse::last_health());
+    last_poll_ms = 0;  // poll ASAP after first Wi-Fi connect
 }
 
 void loop() {
     const uint32_t now = millis();
-
-    wifi_mgr::ensure_connected();
+    const bool wifi_ok = wifi_mgr::ensure_connected();
 
 #if LED_GPIO >= 0
     if (now - last_blink_ms >= BLINK_INTERVAL_MS) {
@@ -60,34 +81,63 @@ void loop() {
     }
 #endif
 
-    if (now - last_poll_ms >= POPSE_POLL_INTERVAL_MS) {
-        last_poll_ms = now;
-        const PopseHealth health = popse::fetch_health();
-        if (health.ok) {
-            last_ui_message = "health ok";
-        } else if (health.error.length()) {
-            last_ui_message = health.error;
+    if (wifi_mgr::connection_changed()) {
+        if (wifi_ok) {
+            ever_connected = true;
+            last_ui_message = "Wi-Fi conectado";
+            poll_health(true);
+            last_poll_ms = now;
+        } else {
+            last_ui_message = "Wi-Fi perdido";
+            refresh_ui(popse::last_health());
         }
-        ui::show_status(wifi_mgr::is_connected(), wifi_mgr::ip_address(), wifi_mgr::rssi(), health,
-                        last_ui_message);
     }
 
-#if defined(BOARD_HAS_BOOT_BTN)
-    static bool prev_pressed = false;
-    const bool pressed = digitalRead(BOOT_BTN) == LOW;
-    if (pressed && !prev_pressed) {
-        Serial.println("[ui] Botao: consultar PoP-SE");
-        const PopseChatReply reply =
-            popse::ask("Qual o status geral dos links monitorados agora?");
-        if (reply.ok) {
-            last_ui_message = reply.reply;
-        } else {
-            last_ui_message = "chat: " + reply.error;
-        }
-        ui::show_status(wifi_mgr::is_connected(), wifi_mgr::ip_address(), wifi_mgr::rssi(),
-                        popse::last_health(), last_ui_message);
+    if (wifi_ok && (last_poll_ms == 0 || now - last_poll_ms >= POPSE_POLL_INTERVAL_MS)) {
+        last_poll_ms = now;
+        poll_health(false);
+    } else if (!wifi_ok && !ever_connected && (now - last_poll_ms >= 2000)) {
+        last_poll_ms = now;
+        last_ui_message = String("Wi-Fi ") + wifi_mgr::state_label();
+        refresh_ui(popse::last_health());
     }
-    prev_pressed = pressed;
+
+#if defined(BOARD_HAS_KEY_BTN)
+    static bool prev_key = false;
+    const bool key_pressed = digitalRead(KEY_BTN) == LOW;
+    if (key_pressed && !prev_key) {
+        Serial.println("[ui] KEY: refresh /health");
+        if (wifi_mgr::is_connected()) {
+            poll_health(true);
+            last_poll_ms = now;
+        } else {
+            last_ui_message = "Wi-Fi offline";
+            refresh_ui(popse::last_health());
+        }
+    }
+    prev_key = key_pressed;
+#endif
+
+#if defined(BOARD_HAS_BOOT_BTN)
+    static bool prev_boot = false;
+    const bool boot_pressed = digitalRead(BOOT_BTN) == LOW;
+    if (boot_pressed && !prev_boot) {
+        Serial.println("[ui] BOOT: consultar PoP-SE chat");
+        if (!wifi_mgr::is_connected()) {
+            last_ui_message = "Wi-Fi offline";
+            refresh_ui(popse::last_health());
+        } else {
+            const PopseChatReply reply =
+                popse::ask("Qual o status geral dos links monitorados agora?");
+            if (reply.ok) {
+                last_ui_message = reply.reply;
+            } else {
+                last_ui_message = "chat: " + reply.error;
+            }
+            refresh_ui(popse::last_health());
+        }
+    }
+    prev_boot = boot_pressed;
 #endif
 
     ui::tick();

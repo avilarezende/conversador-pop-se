@@ -18,6 +18,15 @@ enum class State : uint8_t { Idle, Connecting, Connected, Backoff };
 State state = State::Idle;
 uint32_t state_since_ms = 0;
 uint32_t last_log_ms = 0;
+bool changed_flag = false;
+bool was_connected = false;
+
+void mark_changed(bool connected_now) {
+    if (connected_now != was_connected) {
+        changed_flag = true;
+        was_connected = connected_now;
+    }
+}
 
 void start_connect(uint32_t now) {
     Serial.printf("[wifi] Conectando a \"%s\"...\n", WIFI_SSID);
@@ -47,6 +56,7 @@ bool ensure_connected() {
             state = State::Connected;
             state_since_ms = now;
         }
+        mark_changed(true);
         return true;
     }
 
@@ -54,8 +64,11 @@ bool ensure_connected() {
         Serial.println("[wifi] Conexão perdida");
         state = State::Backoff;
         state_since_ms = now;
+        mark_changed(false);
         return false;
     }
+
+    mark_changed(false);
 
     if (state == State::Idle) {
         start_connect(now);
@@ -77,7 +90,6 @@ bool ensure_connected() {
         return false;
     }
 
-    // Backoff
     if (now - state_since_ms >= WIFI_RECONNECT_INTERVAL_MS) {
         start_connect(now);
     }
@@ -86,6 +98,14 @@ bool ensure_connected() {
 
 bool is_connected() {
     return WiFi.status() == WL_CONNECTED;
+}
+
+bool connection_changed() {
+    if (!changed_flag) {
+        return false;
+    }
+    changed_flag = false;
+    return true;
 }
 
 String ip_address() {
@@ -100,6 +120,20 @@ int8_t rssi() {
         return 0;
     }
     return WiFi.RSSI();
+}
+
+const char* state_label() {
+    switch (state) {
+        case State::Connecting:
+            return "conectando";
+        case State::Connected:
+            return "ok";
+        case State::Backoff:
+            return "retry";
+        case State::Idle:
+        default:
+            return "idle";
+    }
 }
 
 }  // namespace wifi_mgr

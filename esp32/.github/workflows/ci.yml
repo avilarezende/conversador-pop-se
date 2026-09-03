@@ -19,5 +19,7 @@ jobs:
           python-version: "3.12"
       - name: Install PlatformIO
         run: pip install -U platformio
+      - name: PoP-SE API contract
+        run: python3 tests/test_popse_contract.py
       - name: Build ${{ matrix.env }}
         run: pio run -e ${{ matrix.env }}
