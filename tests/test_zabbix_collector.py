@@ -4,8 +4,6 @@ import httpx
 import pytest
 import respx
 
-from collectors.zabbix import collect_zabbix
-
 
 @pytest.mark.asyncio
 @respx.mock
@@ -15,6 +13,7 @@ async def test_collect_zabbix_maintenance(monkeypatch):
     monkeypatch.setenv("ZABBIX_PASSWORD", "secret")
 
     import importlib
+
     import collectors.zabbix as zmod
 
     importlib.reload(zmod)

@@ -68,7 +68,12 @@ class OpenAIProvider:
 
 class AzureOpenAIProvider:
     async def generate(self, system: str, user_prompt: str) -> str:
-        if not all([settings.azure_openai_api_key, settings.azure_openai_endpoint, settings.azure_openai_deployment]):
+        required = [
+            settings.azure_openai_api_key,
+            settings.azure_openai_endpoint,
+            settings.azure_openai_deployment,
+        ]
+        if not all(required):
             raise ValueError("Credenciais Azure OpenAI incompletas (AZURE_OPENAI_*)")
         endpoint = settings.azure_openai_endpoint.rstrip("/")
         url = (
