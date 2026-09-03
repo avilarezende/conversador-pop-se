@@ -1,0 +1,15 @@
+---
+description: Regras do agente de firmware ESP32 (PlatformIO)
+globs:
+  - "**/*.{cpp,h,hpp,ini,md}"
+alwaysApply: true
+---
+
+# Firmware ESP32
+
+- Stack: PlatformIO + Arduino framework. Não migrar para ESP-IDF puro sem pedido explícito.
+- Compilar com `pio run -e <env>` após mudanças relevantes.
+- Segredos apenas em `include/secrets.h` (nunca versionar).
+- Manter `src/main.cpp` enxuto; lógica nova em módulos.
+- Responder ao usuário em pt-BR; código e commits em inglês.
+- Consultar `AGENTS.md` na raiz para escopo e ambientes de placa.

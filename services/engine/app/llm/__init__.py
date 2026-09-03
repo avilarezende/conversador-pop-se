@@ -11,7 +11,10 @@ FALLBACK_MESSAGE = (
 async def generate_reply(system: str, user_message: str, context: str = "") -> str:
     prompt = user_message
     if context:
-        prompt = f"Contexto recuperado das fontes:\n{context}\n\nPergunta do usuário:\n{user_message}"
+        prompt = (
+            f"Contexto recuperado das fontes:\n{context}\n\n"
+            f"Pergunta do usuário:\n{user_message}"
+        )
 
     try:
         provider = get_provider()

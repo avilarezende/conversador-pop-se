@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [esp32dev, esp32-s3, esp32-c3, lilygo-t-display-s3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PlatformIO
+        run: pip install -U platformio
+      - name: PoP-SE API contract
+        run: python3 tests/test_popse_contract.py
+      - name: Build ${{ matrix.env }}
+        run: pio run -e ${{ matrix.env }}
