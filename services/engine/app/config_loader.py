@@ -1,6 +1,5 @@
 """Carrega YAML de configuração (clientes, módulos, fontes)."""
 
-from pathlib import Path
 from typing import Any
 
 import yaml
