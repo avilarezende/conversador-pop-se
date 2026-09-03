@@ -1,5 +1,7 @@
 """Armazenamento vetorial simples para RAG."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import chromadb

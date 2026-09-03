@@ -1,0 +1,6 @@
+{
+  "name": "Conversador PoP-SE",
+  "user": "ubuntu",
+  "install": "pip install --break-system-packages --upgrade pip && pip install --break-system-packages -r requirements-dev.txt aiosqlite",
+  "ports": [8000, 8080]
+}

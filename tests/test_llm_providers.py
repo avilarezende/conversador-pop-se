@@ -53,7 +53,7 @@ async def test_openai_provider(monkeypatch):
 @respx.mock
 async def test_gemini_provider(monkeypatch):
     monkeypatch.setattr(settings, "gemini_api_key", "gem-key")
-    monkeypatch.setattr(settings, "gemini_model", "gemini-1.5-flash")
+    monkeypatch.setattr(settings, "gemini_model", "gemini-flash-latest")
     respx.post(url__regex=r"https://generativelanguage\.googleapis\.com/.*generateContent.*").mock(
         return_value=httpx.Response(
             200, json={"candidates": [{"content": {"parts": [{"text": "Resposta Gemini"}]}}]}
