@@ -15,7 +15,15 @@ if [[ -n "$(git -C "$ROOT/.." rev-parse --show-toplevel 2>/dev/null || true)" ]]
    [[ "$(basename "$(git -C "$ROOT/.." rev-parse --show-toplevel)")" == "conversador-pop-se" ]]; then
   echo "==> Detectado monorepo conversador-pop-se; preparando repo Git isolado em /tmp"
   STAGE="$(mktemp -d /tmp/esp32-publish.XXXXXX)"
-  rsync -a --exclude '.pio' --exclude '.git' "$ROOT/" "$STAGE/"
+  # Copia sem .pio / .git (rsync pode não existir no ambiente)
+  (
+    cd "$ROOT"
+    tar -cf - \
+      --exclude='.pio' \
+      --exclude='.git' \
+      --exclude='include/secrets.h' \
+      . | tar -xf - -C "$STAGE"
+  )
   cd "$STAGE"
   git init -b main
   git add -A
