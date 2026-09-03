@@ -73,10 +73,37 @@ class TestDockerCompose:
 class TestGuacamoleDockerfile:
     def test_ldap_extension_version(self) -> None:
         dockerfile = (ROOT / "services" / "guacamole" / "Dockerfile").read_text()
-        assert "guacamole-auth-ldap-1.5.5.jar" in dockerfile
+        assert "guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.jar" in dockerfile
+        assert "guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.tar.gz" in dockerfile
         assert "GUACAMOLE_VERSION=1.5.5" in dockerfile
 
     def test_build_from_repo_root(self) -> None:
         dockerfile = (ROOT / "services" / "guacamole" / "Dockerfile").read_text()
         assert "COPY config/guacamole/" in dockerfile
         assert "COPY services/guacamole/" in dockerfile
+
+
+class TestDocumentationImages:
+    """Imagens JPG para exibição no GitHub."""
+
+    @pytest.fixture
+    def images_dir(self) -> Path:
+        return ROOT / "docs" / "images"
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "architecture-overview.jpg",
+            "auth-flow.jpg",
+            "k8s-pods.jpg",
+            "segportal-mockup.jpg",
+            "usage-login.jpg",
+            "usage-portal.jpg",
+            "usage-session.jpg",
+        ],
+    )
+    def test_jpg_images_exist(self, images_dir: Path, name: str) -> None:
+        assert (images_dir / name).is_file(), f"Imagem ausente: {name}"
+
+    def test_manual_exists(self) -> None:
+        assert (ROOT / "docs" / "MANUAL.md").is_file()

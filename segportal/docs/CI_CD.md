@@ -34,9 +34,10 @@ Badge no README aponta para este workflow.
 
 **Triggers:**
 
-- Push de tag `v*.*.*` → produção
-- Push em `develop` → staging
-- `workflow_dispatch` com escolha de ambiente
+- Tag `v*.*.*` → build, push e deploy produção
+- `workflow_dispatch` → escolha staging ou produção
+
+> O CD **não** roda em push para `main`/`develop` — apenas CI valida o código. Isso evita falhas quando secrets do registry interno não estão configurados no GitHub.
 
 | Job | Descrição |
 |-----|-----------|

@@ -1,87 +1,91 @@
 # Guia de uso — SegPortal TJSE
 
-Este documento descreve o fluxo do usuário final e exemplos visuais do portal ZTNA.
+Fluxo do usuário final com exemplos visuais. Para manual completo, veja [MANUAL.md](MANUAL.md).
 
-## Visão geral do fluxo
+---
 
-```mermaid
-flowchart LR
-    A[Navegador] --> B[Ingress TLS]
-    B --> C[Guacamole]
-    C --> D{LDAP + MFA}
-    D -->|OK| E[Portal de recursos]
-    E --> F[RDP / VNC / SSH]
-    E --> G[Proxy egress]
-    F --> H[guacd]
-    G --> I[IP TJSE]
-```
+## Visão geral
+
+![Mockup do portal](images/segportal-mockup.jpg)
+
+1. Usuário autentica no portal (LDAP + MFA)
+2. Visualiza recursos liberados pelo grupo AD
+3. Conecta via RDP, VNC ou SSH no navegador
+4. (Opcional) Acessa sites externos via proxy com IP TJSE
+
+---
 
 ## 1. Login no portal
 
-O usuário acessa `https://segportal.tjse.jus.br` e informa:
+Acesse `https://segportal.tjse.jus.br` e informe:
 
 1. **Usuário** — `sAMAccountName` do domínio `tjse.jus.br`
 2. **Senha** — credencial do Active Directory
 3. **Código MFA** — token do autenticador ou RADIUS corporativo
 
-![Tela de login](images/usage-login.png)
+![Tela de login](images/usage-login.jpg)
 
-Após autenticação bem-sucedida, o Guacamole emite um token de sessão com timeout configurável (padrão: 60 minutos de inatividade).
+Após autenticação, o Guacamole emite token de sessão com timeout de 60 minutos (inatividade).
 
-## 2. Portal de recursos autorizados
+---
 
-Na home, o usuário vê apenas conexões permitidas pelos **grupos AD** aos quais pertence:
+## 2. Portal de recursos
 
-![Portal de recursos](images/usage-portal.png)
+O usuário vê apenas conexões permitidas pelos **grupos AD**:
+
+![Portal de recursos](images/usage-portal.jpg)
 
 | Tipo | Uso típico |
 |------|------------|
 | **RDP** | Estações Windows, servidores de aplicação |
-| **VNC** | Terminais Linux, estações de consulta |
+| **VNC** | Terminais Linux, consulta processual |
 | **SSH** | Administração de servidores |
-| **Proxy** | Sites externos que exigem IP do tribunal |
+| **Proxy** | Sites externos com IP do tribunal |
 
-## 3. Sessão clientless (sem VPN)
+---
 
-Ao clicar em **Conectar**, o desktop remoto abre **dentro do navegador** — sem instalar cliente VPN ou RDP:
+## 3. Sessão clientless
 
-![Sessão ativa](images/usage-session.png)
+Ao clicar em **Conectar**, o desktop remoto abre no navegador — sem VPN ou cliente RDP:
 
-Cada sessão é **individualizada**: um processo guacd dedicado, sem compartilhamento de contexto entre usuários.
+![Sessão ativa](images/usage-session.jpg)
+
+Cada sessão é **individualizada**: processo guacd dedicado por usuário.
+
+---
 
 ## 4. Navegação externa (egress)
 
-Para recursos HTTP/HTTPS na whitelist, o tráfego passa pelo pod `proxy-egress` e sai com o **IP institucional** do TJSE — substituindo a necessidade de VPN para esses destinos.
+Tráfego HTTP/HTTPS autorizado passa pelo pod `proxy-egress` e sai com **IP institucional** do TJSE.
 
-```mermaid
-sequenceDiagram
-    participant U as Usuário
-    participant G as Guacamole
-    participant P as Proxy egress
-    participant E as Site externo
+![Arquitetura](images/architecture-overview.jpg)
 
-    U->>G: Solicita recurso HTTP
-    G->>P: Encaminha via política
-    P->>E: Requisição (IP TJSE)
-    E-->>P: Resposta
-    P-->>G: Conteúdo
-    G-->>U: Exibição no navegador
-```
+---
 
-## 5. Encerramento de sessão
+## 5. Fluxo de autenticação
 
-- **Logout** manual no menu do portal
-- **Timeout** por inatividade (`api-session-timeout`)
-- **Limite** de sessões simultâneas por usuário (`max-concurrent-connections`)
+![Fluxo LDAP + MFA](images/auth-flow.jpg)
+
+---
+
+## 6. Encerramento de sessão
+
+- **Logout** manual no menu
+- **Timeout** por inatividade
+- **Limite** de sessões simultâneas por usuário
+
+---
 
 ## Diagramas adicionais
 
-- [Arquitetura completa](images/architecture-overview.svg)
-- [Fluxo de autenticação](images/auth-flow.svg)
-- [Deploy Kubernetes](images/k8s-pods.svg)
-- [Mockup interativo](../mockup/segportal-mockup.html)
+| Diagrama | Arquivo |
+|----------|---------|
+| Arquitetura completa | [architecture-overview.jpg](images/architecture-overview.jpg) |
+| Fluxo de autenticação | [auth-flow.jpg](images/auth-flow.jpg) |
+| Pods Kubernetes | [k8s-pods.jpg](images/k8s-pods.jpg) |
+| Mockup do portal | [segportal-mockup.jpg](images/segportal-mockup.jpg) |
 
-## Perfis e grupos AD (exemplo)
+## Perfis e grupos AD
 
 | Grupo AD | Recursos |
 |----------|----------|
@@ -89,4 +93,4 @@ sequenceDiagram
 | `GG-SegPortal-Consulta` | VNC terminais processuais |
 | `GG-SegPortal-Admin` | SSH servidores + proxy egress |
 
-Configure o mapeamento em [CONFIGURATION.md](CONFIGURATION.md).
+Configuração: [CONFIGURATION.md](CONFIGURATION.md)

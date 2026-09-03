@@ -6,13 +6,18 @@ FROM guacamole/guacamole:${GUACAMOLE_VERSION}
 
 USER root
 
-# LDAP authentication extension (Apache Guacamole 1.5.5)
-# Artifact: guacamole-auth-ldap-1.5.5.jar
+# Re-declare build args for use in RUN (ARG before FROM is not available here)
+ARG GUACAMOLE_VERSION=1.5.5
 ARG LDAP_EXTENSION_VERSION=1.5.5
-RUN mkdir -p /etc/guacamole/extensions /etc/guacamole/lib \
+ARG GUACAMOLE_BINARY_BASE=https://dlcdn.apache.org/guacamole
+RUN mkdir -p /etc/guacamole/extensions /tmp/guac-ext \
     && curl -fsSL \
-      "https://archive.apache.org/dist/guacamole/${GUACAMOLE_VERSION}/binary/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.jar" \
-      -o "/etc/guacamole/extensions/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.jar"
+      "${GUACAMOLE_BINARY_BASE}/${GUACAMOLE_VERSION}/binary/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.tar.gz" \
+      -o /tmp/guac-ext/ldap.tar.gz \
+    && tar -xzf /tmp/guac-ext/ldap.tar.gz -C /tmp/guac-ext \
+    && cp "/tmp/guac-ext/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.jar" \
+      "/etc/guacamole/extensions/guacamole-auth-ldap-${LDAP_EXTENSION_VERSION}.jar" \
+    && rm -rf /tmp/guac-ext
 
 # TJSE branding and configuration
 COPY config/guacamole/guacamole.properties /etc/guacamole/guacamole.properties.template

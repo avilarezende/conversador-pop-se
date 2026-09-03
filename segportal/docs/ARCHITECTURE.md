@@ -4,7 +4,7 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Visão geral
 
-![Arquitetura](images/architecture-overview.svg)
+![Arquitetura](images/architecture-overview.jpg)
 
 | Componente | Função |
 |------------|--------|
@@ -16,7 +16,7 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Fluxo de autenticação
 
-![Fluxo LDAP + MFA](images/auth-flow.svg)
+![Fluxo LDAP + MFA](images/auth-flow.jpg)
 
 1. Usuário acessa `https://segportal.tjse.jus.br/guacamole`
 2. Guacamole autentica no Active Directory (`tjse.jus.br`) via LDAPS
@@ -25,14 +25,18 @@ SegPortal implementa **Zero Trust Network Access (ZTNA)** para o TJSE usando Apa
 
 ## Deploy Kubernetes
 
-![Pods K8s](images/k8s-pods.svg)
+![Pods K8s](images/k8s-pods.jpg)
 
 Cada componente roda em **pods separados** com HPA no Rancher:
 
-- `guacamole`: 2–8 réplicas (CPU)
-- `guacd`: 2–10 réplicas (CPU)
-- `proxy-egress`: 2 réplicas fixas
-- `postgres`: StatefulSet com PVC
+- `guacamole`: 2–10 réplicas (CPU)
+- `guacd`: 2–20 réplicas (CPU)
+- `proxy-egress`: 1–5 réplicas (CPU)
+- `postgres`: StatefulSet com PVC 20Gi
+
+## Mockup do portal
+
+![Mockup](images/segportal-mockup.jpg)
 
 ## Modularidade
 
@@ -60,6 +64,7 @@ O bundle `k8s/rancher-fleet/` sincroniza `k8s/overlays/production` nos clusters 
 
 ## Referências
 
+- [MANUAL.md](MANUAL.md)
 - [CONFIGURATION.md](CONFIGURATION.md)
 - [DEPLOYMENT.md](DEPLOYMENT.md)
 - [SECURITY.md](SECURITY.md)

@@ -2,8 +2,8 @@ name: CD
 
 on:
   push:
-  tags:
-    - "v*.*.*"
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       environment:
@@ -24,6 +24,7 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - service: guacamole
@@ -66,7 +67,7 @@ jobs:
 
   deploy-staging:
     needs: build-and-push
-    if: github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'staging'
+    if: github.event.inputs.environment == 'staging'
     runs-on: ubuntu-latest
     environment: staging
     steps:
@@ -76,8 +77,7 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Deploy to staging
-        run: |
-          kubectl apply -k k8s/overlays/staging
+        run: kubectl apply -k k8s/overlays/staging
 
   deploy-production:
     needs: build-and-push
@@ -91,5 +91,4 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Deploy to production
-        run: |
-          kubectl apply -k k8s/overlays/production
+        run: kubectl apply -k k8s/overlays/production
