@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Google Gemini (API key em https://aistudio.google.com/apikey)
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-flash-latest"
 
     # OpenAI (API key em https://platform.openai.com/api-keys)
     openai_api_key: str | None = None
