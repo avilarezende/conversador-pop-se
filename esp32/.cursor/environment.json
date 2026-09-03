@@ -1,4 +1,4 @@
 {
   "name": "ESP32 Firmware Agent",
-  "install": "python3 -m pip install --user -U platformio\nexport PATH=\"$HOME/.local/bin:$PATH\"\npio --version\npio pkg install -e esp32dev || true"
+  "install": "python3 -m pip install --user -U 'platformio' 'click>=8.0.4,<8.4'\nexport PATH=\"$HOME/.local/bin:$PATH\"\npio --version\npython3 tests/test_popse_contract.py\npio pkg install -e esp32dev\npio pkg install -e esp32-s3 || true\npio pkg install -e esp32-c3 || true\npio pkg install -e lilygo-t-display-s3 || true"
 }

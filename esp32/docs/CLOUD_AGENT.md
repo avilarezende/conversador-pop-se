@@ -9,7 +9,8 @@ Na máquina local (conta `avilarezende` com permissão de criar repos):
 ```bash
 # a partir deste monorepo / PR
 cd esp32
-./scripts/publish-github.sh
+make publish
+# equivalente: ./scripts/publish-github.sh
 ```
 
 URL esperada: https://github.com/avilarezende/esp32

@@ -86,8 +86,11 @@ Script (na sua máquina, com `gh` autenticado):
 
 ```bash
 cd esp32
-./scripts/publish-github.sh
+make publish
+# ou: ./scripts/publish-github.sh
 ```
+
+Atalhos: `make build-all`, `make contract`, `make test`.
 
 Ou manualmente:
 
