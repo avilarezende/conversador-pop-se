@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        env: [esp32dev, esp32-s3, esp32-c3]
+        env: [esp32dev, esp32-s3, esp32-c3, lilygo-t-display-s3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

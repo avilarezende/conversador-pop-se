@@ -1,78 +1,87 @@
-# ESP32
+# ESP32 — companion PoP-SE
 
-Repositório de firmware para placas **ESP32** (DevKit, S3, C3 e LilyGo T-Display-S3), gerenciado com [PlatformIO](https://platformio.org/).
+Firmware **PlatformIO + Arduino** para ESP32 (DevKit, S3, C3 e LilyGo T-Display-S3).
 
-Inclui **AGENTS.md** e regras em `.cursor/` para o Cloud Agent / agente de código do Cursor.
+Funções atuais:
+- Wi-Fi com reconexão
+- Polling de `GET /health` do Conversador PoP-SE
+- Consulta `POST /api/v1/chat` (botão BOOT nas placas com `BOARD_HAS_BOOT_BTN`)
+- UI Serial; no T-Display-S3, status no display ST7789
+
+Inclui **AGENTS.md** e `.cursor/` para o Cloud Agent / agente Cursor.
 
 ## Requisitos
 
-- [PlatformIO Core](https://docs.platformio.org/en/latest/core/installation/index.html) ou a extensão PlatformIO no VS Code / Cursor
-- Cabo USB e drivers da placa (CP210x, CH340 ou nativo USB-JTAG no S3/C3)
+- [PlatformIO Core](https://docs.platformio.org/en/latest/core/installation/index.html) ou extensão PlatformIO
+- Cabo USB e drivers (CP210x, CH340 ou USB-JTAG nativo no S3/C3)
+- Credenciais em `include/secrets.h` (copie de `secrets.h.example`)
+
+## Configuração
+
+```bash
+cp include/secrets.h.example include/secrets.h
+# edite WIFI_SSID, WIFI_PASSWORD, POPSE_ENGINE_URL
+```
+
+| Macro | Função |
+|-------|--------|
+| `WIFI_SSID` / `WIFI_PASSWORD` | Rede Wi-Fi |
+| `POPSE_ENGINE_URL` | Base do engine (ex. `http://192.168.1.10:8000`) |
+| `POPSE_USER_ID` | ID do dispositivo no chat |
+| `POPSE_POLL_INTERVAL_MS` | Intervalo do `/health` (default 30s) |
 
 ## Compilar e gravar
 
 ```bash
-# DevKit clássico (ESP32-WROOM)
-pio run -e esp32dev -t upload
-pio device monitor -e esp32dev
-
-# ESP32-S3
+pio run -e esp32dev -t upload && pio device monitor -e esp32dev
 pio run -e esp32-s3 -t upload
-
-# ESP32-C3
 pio run -e esp32-c3 -t upload
-
-# LilyGo T-Display-S3
 pio run -e lilygo-t-display-s3 -t upload
 ```
 
-O sketch inicial pisca o LED (GPIO 2 no DevKit; GPIO 38 no T-Display-S3) e imprime no Serial (115200 baud) modelo do chip, frequência da CPU e tamanho da flash.
-
-Para mudar o pino do LED, edite `include/config.h` ou use `-DLED_GPIO=N` em `build_flags` no `platformio.ini`.
-
-Credenciais Wi-Fi: copie `include/secrets.h.example` → `include/secrets.h`.
+No T-Display-S3: pressione o botão **BOOT** (GPIO 0) para perguntar ao engine sobre o status dos links.
 
 ## Estrutura
 
 ```
 esp32/
-├── AGENTS.md                 instruções do agente Cursor
-├── platformio.ini            ambientes das placas
-├── include/config.h          pinos e intervalos
-├── include/secrets.h.example modelo de segredos (não versionar secrets.h)
-├── src/main.cpp              firmware
-├── .cursor/environment.json  install do Cloud Agent (PlatformIO)
-└── .cursor/rules/            regras do agente
+├── AGENTS.md
+├── platformio.ini
+├── include/config.h
+├── include/wifi_manager.h
+├── include/popse_client.h
+├── include/status_ui.h
+├── include/secrets.h.example
+├── src/main.cpp
+├── src/wifi_manager.cpp
+├── src/popse_client.cpp
+├── src/status_ui.cpp
+└── .cursor/   environment + rules do agente
 ```
 
 ## Agente Cursor
 
 ### Local / IDE
 
-Abra esta pasta no Cursor. O arquivo `AGENTS.md` e `.cursor/rules/esp32-firmware.mdc` orientam o agente (PlatformIO, ambientes, segredos, estilo de commits).
+Abra a pasta `esp32/` (ou o repo `avilarezende/esp32`). `AGENTS.md` e `.cursor/rules/` orientam o agente.
 
 ### Cloud Agent
 
 1. Publique o repositório no GitHub (seção abaixo).
 2. Em [Cloud Agents](https://cursor.com/agents) → **New Agent**.
-3. Selecione o repositório `avilarezende/esp32`.
-4. Opcional: configure o Environment apontando para este repo (usa `.cursor/environment.json`).
-5. Exemplos de prompt: “adicione Wi-Fi com reconexão”, “cliente HTTP do status PoP-SE no display”.
+3. Selecione `avilarezende/esp32` (não o Conversador PoP-SE).
+4. Environment: `.cursor/environment.json` instala PlatformIO.
 
 ## Hospedagem temporária
 
-Enquanto `avilarezende/esp32` não existir no GitHub, este projeto vive na pasta `esp32/` do repositório [conversador-pop-se](https://github.com/avilarezende/conversador-pop-se) para versionamento. O Cloud Agent dedicado deve apontar para o repositório ESP32 separado, não para o chatbot.
+Enquanto `avilarezende/esp32` não existir no GitHub, este projeto vive na pasta `esp32/` do repositório [conversador-pop-se](https://github.com/avilarezende/conversador-pop-se). O Cloud Agent dedicado deve apontar para o repositório ESP32 separado.
 
 ## Publicar como repositório próprio
-
-Na sua máquina (com permissão de criar repos):
 
 ```bash
 cd esp32
 git init -b main
 git add -A
-git commit -m "Initial commit: ESP32 PlatformIO firmware and Cursor agent."
+git commit -m "Initial commit: ESP32 PoP-SE companion firmware."
 gh repo create avilarezende/esp32 --public --source=. --remote=origin --push
 ```
-
-Ou crie o repositório vazio na interface do GitHub e faça push da pasta `esp32/` para `main`.

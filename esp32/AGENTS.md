@@ -4,9 +4,10 @@ Você é o agente de firmware deste repositório. Trabalhe em português com o u
 
 ## Escopo
 
-- Firmware **ESP32 / ESP32-S3 / ESP32-C3** com **PlatformIO + Arduino** (`platformio.ini`, `src/`, `include/`).
-- Preferir mudanças pequenas e testáveis: compilar com `pio run -e <env>` antes de declarar pronto.
-- Não misturar este projeto com repositórios Python/Docker (ex.: Conversador PoP-SE), salvo integração HTTP/MQTT explicitamente pedida.
+- Firmware **ESP32 / ESP32-S3 / ESP32-C3 / LilyGo T-Display-S3** com **PlatformIO + Arduino**.
+- Features atuais: Wi-Fi + reconexão, cliente HTTP PoP-SE (`/health`, `/api/v1/chat`), UI Serial e display (T-Display-S3).
+- Preferir mudanças pequenas e testáveis: compilar com `pio run -e <env>` (idealmente as quatro envs) antes de declarar pronto.
+- Integração com Conversador PoP-SE via HTTP apenas; não alterar o código Python do chatbot neste repo de firmware.
 
 ## Ambientes
 
