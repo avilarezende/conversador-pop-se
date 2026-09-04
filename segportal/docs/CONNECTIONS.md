@@ -112,9 +112,37 @@ No Kubernetes o Job `segportal-bootstrap` (`k8s/bootstrap`) aplica o mesmo boots
 
 - Pedidos extras exigem justificativa e aprovação admin
 - Navegador padrão é compartilhado como *conexão*; sessões Guacamole continuam individualizadas
-- VNC sem senha **somente na rede interna** (não exponha a porta 5900)
-- `SECURE_CONNECTION=0` no Firefox porque o Guacamole não usa VNC com TLS
+- VNC **não** é exposto fora da rede Docker/K8s (só guacd acessa a porta 5900)
+- Senha VNC interna (`segport1`) alinhada entre container e conexão Guacamole — troque em produção via `VNC_PASSWORD`
 - Ajuste a whitelist do Squid para limitar destinos externos
+
+## Troubleshooting — “Navegador HTML5 não conecta”
+
+1. **Recrie o navegador e o bootstrap** (corrige imagem antiga `jlesage` e senha VNC ausente):
+
+```bash
+docker compose -f docker-compose.dev.yml up -d --build web-browser
+docker compose -f docker-compose.dev.yml run --rm segportal-bootstrap
+```
+
+2. Confira se a porta VNC está no ar:
+
+```bash
+docker compose -f docker-compose.dev.yml exec web-browser nc -z 127.0.0.1 5900 && echo OK
+docker compose -f docker-compose.dev.yml logs --tail=50 web-browser
+```
+
+3. Confira parâmetros da conexão no banco (`hostname=web-browser`, `port=5900`, `password=segport1`):
+
+```bash
+docker compose -f docker-compose.dev.yml exec -T postgres \
+  psql -U guacamole_user -d guacamole_db -c \
+  "SELECT parameter_name, parameter_value FROM guacamole_connection_parameter cp
+   JOIN guacamole_connection c ON c.connection_id=cp.connection_id
+   WHERE c.connection_name='Navegador Web SegPortal';"
+```
+
+4. Erro comum no Guacamole: *“The remote desktop server is currently unreachable”* → `web-browser` ainda subindo ou senha divergente. Aguarde o healthcheck e reaplique o bootstrap.
 
 ## Referências
 

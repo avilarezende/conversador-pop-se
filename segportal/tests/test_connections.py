@@ -52,9 +52,18 @@ class TestDefaultBrowserAndRequests:
 
     def test_web_browser_dockerfile(self) -> None:
         text = (ROOT / "services" / "web-browser" / "Dockerfile").read_text(encoding="utf-8")
-        assert "jlesage/firefox" in text
-        assert "SECURE_CONNECTION=0" in text
-        assert "VNC_LISTENING_PORT=5900" in text
+        assert "firefox-esr" in text
+        assert "x11vnc" in text
+        assert "VNC_PASSWORD=segport1" in text
+        assert "VNC_PORT=5900" in text
+        assert (ROOT / "services" / "web-browser" / "start-browser.sh").is_file()
+
+    def test_vnc_password_aligned(self) -> None:
+        sql = (ROOT / "scripts" / "sql" / "004-default-browser.sql").read_text(encoding="utf-8")
+        compose = (ROOT / "docker-compose.dev.yml").read_text(encoding="utf-8")
+        assert "('password', 'segport1')" in sql or "\"password\", \"segport1\"" in sql
+        assert "VNC_PASSWORD: segport1" in compose
+        assert "password" in sql.lower()
 
     def test_connections_doc(self) -> None:
         text = (ROOT / "docs" / "CONNECTIONS.md").read_text(encoding="utf-8")

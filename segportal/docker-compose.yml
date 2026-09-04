@@ -71,7 +71,7 @@ services:
       guacd:
         condition: service_healthy
       web-browser:
-        condition: service_started
+        condition: service_healthy
       segportal-bootstrap:
         condition: service_completed_successfully
     healthcheck:
@@ -102,10 +102,10 @@ services:
     environment:
       DISPLAY_WIDTH: "1280"
       DISPLAY_HEIGHT: "800"
-      KEEP_APP_RUNNING: "1"
-      SECURE_CONNECTION: "0"
-      VNC_LISTENING_PORT: "5900"
-      FF_OPEN_URL: https://www.tjse.jus.br
+      VNC_PORT: "5900"
+      # Deve coincidir com o parâmetro password da conexão Guacamole (004-default-browser.sql)
+      VNC_PASSWORD: ${VNC_PASSWORD:-segport1}
+      FF_OPEN_URL: ${FF_OPEN_URL:-https://www.tjse.jus.br}
       http_proxy: http://proxy-egress:3128
       https_proxy: http://proxy-egress:3128
       HTTP_PROXY: http://proxy-egress:3128
@@ -116,6 +116,12 @@ services:
     shm_size: "1gb"
     depends_on:
       - proxy-egress
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5900 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   # Schema + papéis + "Navegador Web SegPortal" para todos — automático no boot
   segportal-bootstrap:

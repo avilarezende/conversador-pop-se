@@ -36,13 +36,19 @@ services:
     environment:
       DISPLAY_WIDTH: "1280"
       DISPLAY_HEIGHT: "800"
-      KEEP_APP_RUNNING: "1"
-      SECURE_CONNECTION: "0"
-      VNC_LISTENING_PORT: "5900"
+      VNC_PORT: "5900"
+      # Deve coincidir com o parâmetro password da conexão Guacamole (004-default-browser.sql)
+      VNC_PASSWORD: segport1
       FF_OPEN_URL: https://www.tjse.jus.br
     expose:
       - "5900"
     shm_size: "1gb"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5900 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   segportal-bootstrap:
     image: postgres:16-alpine
@@ -81,7 +87,7 @@ services:
       guacd:
         condition: service_started
       web-browser:
-        condition: service_started
+        condition: service_healthy
       segportal-bootstrap:
         condition: service_completed_successfully
     healthcheck:

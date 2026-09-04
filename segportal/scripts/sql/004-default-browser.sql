@@ -42,34 +42,35 @@ WHERE NOT EXISTS (
   WHERE m.user_group_id = ug.user_group_id AND m.member_entity_id = ge_member.entity_id
 );
 
--- Conexão VNC → serviço web-browser (Firefox)
+-- Conexão VNC → serviço web-browser (Firefox ESR + x11vnc)
 INSERT INTO guacamole_connection (connection_name, protocol, max_connections, max_connections_per_user)
-SELECT 'Navegador Web SegPortal', 'vnc', 50, 1
+SELECT 'Navegador Web SegPortal', 'vnc', 50, 2
 WHERE NOT EXISTS (
   SELECT 1 FROM guacamole_connection WHERE connection_name = 'Navegador Web SegPortal'
 );
 
--- Garante limites atualizados se a conexão já existia
 UPDATE guacamole_connection
 SET max_connections = 50,
-    max_connections_per_user = 1,
+    max_connections_per_user = 2,
     protocol = 'vnc'
 WHERE connection_name = 'Navegador Web SegPortal';
 
--- Parâmetros VNC (sem senha — VNC do container sem autenticação na rede interna)
+-- Parâmetros VNC (senha deve coincidir com VNC_PASSWORD do container web-browser)
 INSERT INTO guacamole_connection_parameter (connection_id, parameter_name, parameter_value)
 SELECT c.connection_id, p.name, p.value
 FROM guacamole_connection c
 CROSS JOIN (VALUES
   ('hostname', 'web-browser'),
   ('port', '5900'),
+  ('password', 'segport1'),
   ('read-only', 'false'),
   ('swap-red-blue', 'false'),
   ('cursor', 'local'),
   ('color-depth', '24'),
   ('clipboard-encoding', 'UTF-8'),
   ('disable-paste', 'false'),
-  ('disable-copy', 'false')
+  ('disable-copy', 'false'),
+  ('enable-sftp', 'false')
 ) AS p(name, value)
 WHERE c.connection_name = 'Navegador Web SegPortal'
   AND NOT EXISTS (
@@ -77,13 +78,14 @@ WHERE c.connection_name = 'Navegador Web SegPortal'
     WHERE cp.connection_id = c.connection_id AND cp.parameter_name = p.name
   );
 
--- Atualiza hostname/port se já existirem (garante apontar para o serviço correto)
+-- Atualiza parâmetros críticos se já existirem (corrige deploys antigos)
 UPDATE guacamole_connection_parameter cp
 SET parameter_value = v.value
 FROM guacamole_connection c
 JOIN (VALUES
   ('hostname', 'web-browser'),
-  ('port', '5900')
+  ('port', '5900'),
+  ('password', 'segport1')
 ) AS v(name, value) ON TRUE
 WHERE c.connection_name = 'Navegador Web SegPortal'
   AND cp.connection_id = c.connection_id
@@ -114,7 +116,7 @@ WHERE e.type = 'USER_GROUP' AND e.name IN ('segportal-users', 'segportal-admins'
       AND cp.permission = 'READ'::guacamole_object_permission_type
   );
 
--- READ direto a TODOS os usuários (padrão absoluto no boot)
+-- READ direto a TODOS os usuários
 INSERT INTO guacamole_connection_permission (entity_id, connection_id, permission)
 SELECT e.entity_id, c.connection_id, 'READ'::guacamole_object_permission_type
 FROM guacamole_entity e

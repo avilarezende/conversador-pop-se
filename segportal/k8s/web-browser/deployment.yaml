@@ -28,12 +28,12 @@ spec:
               value: "1280"
             - name: DISPLAY_HEIGHT
               value: "800"
-            - name: KEEP_APP_RUNNING
-              value: "1"
-            - name: SECURE_CONNECTION
-              value: "0"
-            - name: VNC_LISTENING_PORT
+            - name: VNC_PORT
               value: "5900"
+            # Mesma senha do parâmetro Guacamole (004-default-browser.sql).
+            # Sobrescreva via Secret segportal-secrets/VNC_PASSWORD em produção.
+            - name: VNC_PASSWORD
+              value: "segport1"
             - name: FF_OPEN_URL
               value: https://www.tjse.jus.br
             - name: http_proxy
@@ -49,7 +49,7 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 5900
-            initialDelaySeconds: 20
+            initialDelaySeconds: 25
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
