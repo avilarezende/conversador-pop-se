@@ -1,18 +1,12 @@
-# SegPortal — modo de demonstração local (SEM LDAP e SEM MFA)
-# Login:
-#   Admin   → guacadmin / guacadmin
-#   Usuário → usuario   / usuario   (após seed-roles)
-# Navegador HTML padrão: "Navegador Web SegPortal" (após seed 004)
+# SegPortal — demonstração local (SEM LDAP / SEM MFA)
+# No boot o navegador Firefox via VNC já fica habilitado para todos.
 #
 # Uso:
 #   docker compose -f docker-compose.dev.yml up --build
-#   docker compose -f docker-compose.dev.yml exec -T postgres \
-#     psql -U guacamole_user -d guacamole_db < scripts/sql/003-segportal-roles.sql
-#   docker compose -f docker-compose.dev.yml exec -T postgres \
-#     psql -U guacamole_user -d guacamole_db < scripts/sql/004-default-browser.sql
-#   docker compose -f docker-compose.dev.yml exec -T postgres \
-#     psql -U guacamole_user -d guacamole_db < scripts/sql/005-connection-requests.sql
 #   Acesse: http://localhost:8080/guacamole
+#   Admin:   guacadmin / guacadmin
+#   Usuário: usuario / usuario
+#   Conexão padrão: "Navegador Web SegPortal"
 
 services:
   postgres:
@@ -42,10 +36,31 @@ services:
     environment:
       DISPLAY_WIDTH: "1280"
       DISPLAY_HEIGHT: "800"
+      KEEP_APP_RUNNING: "1"
+      SECURE_CONNECTION: "0"
+      VNC_LISTENING_PORT: "5900"
       FF_OPEN_URL: https://www.tjse.jus.br
     expose:
       - "5900"
     shm_size: "1gb"
+
+  segportal-bootstrap:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: devpassword
+      SEGPORTAL_BOOTSTRAP_WAIT_SECONDS: "300"
+      GUACAMOLE_VERSION: "1.5.5"
+    volumes:
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/sh", "/scripts/bootstrap-segportal.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   guacamole:
     image: guacamole/guacamole:1.5.5
@@ -60,7 +75,6 @@ services:
       POSTGRES_PASSWORD: devpassword
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
-      POSTGRES_INIT_DB: "true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,6 +82,8 @@ services:
         condition: service_started
       web-browser:
         condition: service_started
+      segportal-bootstrap:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
       interval: 15s

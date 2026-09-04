@@ -34,10 +34,13 @@ O portal lista apenas os recursos liberados para o seu **grupo do Active Directo
 
 | Ícone / tipo | O que é | Exemplo de uso |
 |--------------|---------|----------------|
+| **Navegador Web SegPortal** | Firefox HTML5 (padrão para todos) | Sites internos e externos |
 | **RDP** | Área de trabalho Windows remota | Estações do financeiro, protocolo |
 | **VNC** | Tela Linux remota | Terminais de consulta processual |
 | **SSH** | Terminal de servidor | Administração de sistemas |
-| **Proxy** | Navegação web externa | Sites que exigem IP do tribunal |
+| **Proxy** | Navegação web externa (legado) | Sites que exigem IP do tribunal |
+
+Todo usuário autenticado já encontra o **Navegador Web SegPortal** liberado — não precisa pedir acesso a esse recurso.
 
 ### 2.3 Como usar uma conexão remota
 

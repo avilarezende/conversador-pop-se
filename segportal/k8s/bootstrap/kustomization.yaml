@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: segportal
+
+resources:
+  - job.yaml
+
+configMapGenerator:
+  - name: segportal-bootstrap-scripts
+    files:
+      - bootstrap-segportal.sh=files/bootstrap-segportal.sh
+      - sql/003-segportal-roles.sql=files/sql/003-segportal-roles.sql
+      - sql/004-default-browser.sql=files/sql/004-default-browser.sql
+      - sql/005-connection-requests.sql=files/sql/005-connection-requests.sql
+
+generatorOptions:
+  disableNameSuffixHash: true

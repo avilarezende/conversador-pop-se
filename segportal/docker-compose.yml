@@ -1,5 +1,5 @@
-# SegPortal TJSE — local development stack
-# Guacamole image builds from repository root (see services/guacamole/Dockerfile).
+# SegPortal TJSE — stack local
+# No boot: web-browser (Firefox/VNC) + bootstrap cria a conexão padrão para todos.
 
 services:
   postgres:
@@ -11,7 +11,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/01-init-guacamole.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-guacamole_user} -d ${POSTGRES_DB:-guacamole_db}"]
       interval: 10s
@@ -44,7 +43,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
-      # LDAP opcional (false = só usuários locais; guacadmin sempre válido)
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
       LDAP_HOSTNAME: ${LDAP_HOSTNAME:-}
       LDAP_PORT: ${LDAP_PORT:-636}
@@ -74,6 +72,8 @@ services:
         condition: service_healthy
       web-browser:
         condition: service_started
+      segportal-bootstrap:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
       interval: 15s
@@ -102,6 +102,9 @@ services:
     environment:
       DISPLAY_WIDTH: "1280"
       DISPLAY_HEIGHT: "800"
+      KEEP_APP_RUNNING: "1"
+      SECURE_CONNECTION: "0"
+      VNC_LISTENING_PORT: "5900"
       FF_OPEN_URL: https://www.tjse.jus.br
       http_proxy: http://proxy-egress:3128
       https_proxy: http://proxy-egress:3128
@@ -113,6 +116,25 @@ services:
     shm_size: "1gb"
     depends_on:
       - proxy-egress
+
+  # Schema + papéis + "Navegador Web SegPortal" para todos — automático no boot
+  segportal-bootstrap:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-guacamole_db}
+      POSTGRES_USER: ${POSTGRES_USER:-guacamole_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SEGPORTAL_BOOTSTRAP_WAIT_SECONDS: "300"
+      GUACAMOLE_VERSION: "1.5.5"
+    volumes:
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/sh", "/scripts/bootstrap-segportal.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres-data:

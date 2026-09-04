@@ -11,6 +11,7 @@ resources:
   - ../guacamole
   - ../proxy-egress
   - ../web-browser
+  - ../bootstrap
   - ../ingress
 
 commonLabels:

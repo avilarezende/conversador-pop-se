@@ -66,8 +66,21 @@ class TestDockerCompose:
 
     def test_required_services(self) -> None:
         content = (ROOT / "docker-compose.yml").read_text()
-        for service in ("postgres", "guacd", "guacamole", "proxy-egress", "web-browser"):
+        for service in (
+            "postgres",
+            "guacd",
+            "guacamole",
+            "proxy-egress",
+            "web-browser",
+            "segportal-bootstrap",
+        ):
             assert f"{service}:" in content
+
+    def test_dev_compose_auto_browser(self) -> None:
+        content = (ROOT / "docker-compose.dev.yml").read_text()
+        assert "segportal-bootstrap:" in content
+        assert "web-browser:" in content
+        assert "Navegador Web SegPortal" in content
 
 
 class TestGuacamoleDockerfile:

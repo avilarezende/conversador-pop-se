@@ -4,10 +4,11 @@ Utilitários de inicialização e validação do projeto.
 
 | Script | Descrição |
 |--------|-----------|
-| [init-db.sh](init-db.sh) | Aplica schema PostgreSQL do Guacamole 1.5.5 |
-| [init-db-dev.sh](init-db-dev.sh) | Schema + admin para stack `docker-compose.dev.yml` |
-| [seed-roles.sh](seed-roles.sh) | Cria papéis admin/usuário e grupos de negócio |
-| [seed-browser-and-requests.sh](seed-browser-and-requests.sh) | Navegador padrão + tabela de pedidos |
+| [bootstrap-segportal.sh](bootstrap-segportal.sh) | **Padrão no boot** — schema + papéis + navegador HTML + pedidos |
+| [init-db.sh](init-db.sh) | Só schema PostgreSQL do Guacamole 1.5.5 (legado/manual) |
+| [init-db-dev.sh](init-db-dev.sh) | Schema + admin para uso manual |
+| [seed-roles.sh](seed-roles.sh) | Só papéis admin/usuário |
+| [seed-browser-and-requests.sh](seed-browser-and-requests.sh) | Atalho → chama `bootstrap-segportal.sh` |
 | [request-connection.sh](request-connection.sh) | Usuário solicita terminal/aplicação |
 | [approve-connection-request.sh](approve-connection-request.sh) | Admin aprova/rejeita pedido |
 | [change-local-password.sh](change-local-password.sh) | Altera senha de usuário local (ex.: guacadmin) |
@@ -16,16 +17,13 @@ Utilitários de inicialização e validação do projeto.
 
 ## Uso
 
+O compose sobe `segportal-bootstrap` sozinho. Reexecução manual:
+
 ```bash
 export POSTGRES_PASSWORD=...
-./scripts/init-db.sh
-./scripts/seed-roles.sh
+./scripts/bootstrap-segportal.sh
 
 # Admin padrão
 ./scripts/change-local-password.sh guacadmin 'NovaSenhaForte!'
-./scripts/delete-local-user.sh guacadmin --disable
-
 ./scripts/validate-k8s.sh
 ```
-
-O `init-db.sh` também é montado no container PostgreSQL do `docker-compose.yml` para bootstrap local.

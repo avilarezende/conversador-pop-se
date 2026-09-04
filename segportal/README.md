@@ -37,6 +37,8 @@
 | **guacd** | Proxy de protocolos RDP, VNC e SSH | `guacd` (HPA 2–20) |
 | **PostgreSQL** | Metadados de conexões e sessões | `postgres` (StatefulSet) |
 | **Proxy egress** | Navegação HTTP com IP institucional TJSE | `proxy-egress` (HPA 1–5) |
+| **Web browser** | Firefox via VNC — navegador HTML padrão | `web-browser` (HPA 2–10) |
+| **Bootstrap** | Conexão padrão + papéis no banco | Job `segportal-bootstrap` |
 
 ![Fluxo de autenticação LDAP + MFA](docs/images/auth-flow.jpg)
 
@@ -66,19 +68,26 @@ git clone https://github.com/avilarezende/segportal.git
 cd segportal
 cp .env.example .env
 # Edite .env com credenciais de homologação (LDAP, PostgreSQL, RADIUS)
-docker compose up -d
+docker compose up --build
 ```
 
 Acesse: **http://localhost:8080/guacamole**
+
+No primeiro boot o serviço `segportal-bootstrap` cria o schema (se preciso), papéis e a conexão **Navegador Web SegPortal** (Firefox via VNC) liberada para todos. Demo sem LDAP:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+# guacadmin / guacadmin  ·  usuario / usuario
+```
+
+Detalhes: [docs/CONNECTIONS.md](docs/CONNECTIONS.md)
 
 ### Deploy em produção (Kubernetes / Rancher)
 
 ```bash
 # 1. Criar secrets (ver docs/CONFIGURATION.md)
 kubectl apply -k k8s/overlays/production
-
-# 2. Inicializar banco (primeira vez)
-./scripts/init-db.sh
+# Job segportal-bootstrap aplica navegador padrão automaticamente
 ```
 
 ---

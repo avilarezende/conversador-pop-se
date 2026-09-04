@@ -47,12 +47,33 @@ class TestKustomizeOverlays:
         assert "proxy-egress" in deployments
         assert "web-browser" in deployments
 
+    def test_bootstrap_job_present(self, overlay: Path) -> None:
+        docs = parse_manifests(kustomize_build(overlay))
+        jobs = {d["metadata"]["name"] for d in docs if d.get("kind") == "Job"}
+        assert "segportal-bootstrap" in jobs
+        cms = {d["metadata"]["name"] for d in docs if d.get("kind") == "ConfigMap"}
+        assert "segportal-bootstrap-scripts" in cms
+
     def test_ingress_host(self, overlay: Path) -> None:
         docs = parse_manifests(kustomize_build(overlay))
         ingresses = [d for d in docs if d.get("kind") == "Ingress"]
         assert len(ingresses) >= 1
         rules = ingresses[0]["spec"]["rules"]
         assert any("tjse.jus.br" in r["host"] for r in rules)
+
+
+class TestBootstrapK8sFiles:
+    def test_bootstrap_files_in_sync(self) -> None:
+        """Cópias em k8s/bootstrap/files devem espelhar scripts/ (limite do kustomize)."""
+        for rel in (
+            "bootstrap-segportal.sh",
+            "sql/003-segportal-roles.sql",
+            "sql/004-default-browser.sql",
+            "sql/005-connection-requests.sql",
+        ):
+            src = (ROOT / "scripts" / rel).read_text(encoding="utf-8")
+            dst = (ROOT / "k8s" / "bootstrap" / "files" / rel).read_text(encoding="utf-8")
+            assert src == dst, f"Desatualizado: k8s/bootstrap/files/{rel}"
 
 
 class TestFleetManifests:

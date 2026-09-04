@@ -28,6 +28,12 @@ spec:
               value: "1280"
             - name: DISPLAY_HEIGHT
               value: "800"
+            - name: KEEP_APP_RUNNING
+              value: "1"
+            - name: SECURE_CONNECTION
+              value: "0"
+            - name: VNC_LISTENING_PORT
+              value: "5900"
             - name: FF_OPEN_URL
               value: https://www.tjse.jus.br
             - name: http_proxy
@@ -40,6 +46,16 @@ spec:
               value: http://proxy-egress:3128
             - name: no_proxy
               value: localhost,127.0.0.1,guacd,guacamole,postgres,.tjse.jus.br
+          readinessProbe:
+            tcpSocket:
+              port: 5900
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5900
+            initialDelaySeconds: 60
+            periodSeconds: 20
           resources:
             requests:
               cpu: 250m

@@ -1,30 +1,37 @@
 # Navegadores e pedidos de conexão — SegPortal TJSE
 
-## Navegador HTML padrão (todos os usuários)
+## Navegador HTML padrão (habilitado automaticamente)
 
-Todo usuário autenticado recebe, por padrão, a conexão **Navegador Web SegPortal**:
+Ao subir o SegPortal (`docker compose up` ou deploy K8s), o serviço **`web-browser`** (Firefox via VNC) sobe junto e o Job/serviço **`segportal-bootstrap`** cria a conexão **Navegador Web SegPortal** com permissão **READ para todos os usuários**.
 
-- Protocolo: VNC → pod `web-browser` (Firefox)
-- Cliente: HTML5 no Guacamole (sem instalar navegador/VPN)
-- Sites internos e externos (externos saem pelo `proxy-egress` com IP TJSE, quando configurado)
+Não é necessário seed manual.
 
-### Como habilitar (demo)
+- Protocolo: VNC → `web-browser:5900` (Firefox)
+- Cliente: HTML5 no Guacamole (sem VPN/cliente)
+- Sites internos e externos (externos via `proxy-egress` / IP TJSE quando configurado)
+
+### Demo local
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d
-# schema + papéis
-docker compose -f docker-compose.dev.yml exec -T postgres \
-  psql -U guacamole_user -d guacamole_db < scripts/sql/003-segportal-roles.sql
-# navegador + pedidos
-docker compose -f docker-compose.dev.yml exec -T postgres \
-  psql -U guacamole_user -d guacamole_db < scripts/sql/004-default-browser.sql
-docker compose -f docker-compose.dev.yml exec -T postgres \
-  psql -U guacamole_user -d guacamole_db < scripts/sql/005-connection-requests.sql
+docker compose -f docker-compose.dev.yml up --build
+# Aguarde o serviço segportal-bootstrap concluir (exit 0)
+# http://localhost:8080/guacamole
+# guacadmin / guacadmin  ou  usuario / usuario
+# → abra "Navegador Web SegPortal"
 ```
 
-Ou: `./scripts/seed-browser-and-requests.sh`
+Stack completo (com `.env`):
 
-No portal, a conexão **Navegador Web SegPortal** aparece para admin e usuário.
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Reaplicar bootstrap (idempotente):
+
+```bash
+./scripts/bootstrap-segportal.sh
+```
 
 ---
 
@@ -85,19 +92,23 @@ Componentes:
 
 | Componente | Função |
 |------------|--------|
-| `services/web-browser` | Firefox em container com VNC |
+| `services/web-browser` | Firefox em container com VNC (sobe no compose/K8s) |
+| `scripts/bootstrap-segportal.sh` | Schema + conexão padrão + permissões (automático) |
 | `guacd` | Protocolo VNC → stream HTML5 |
 | `proxy-egress` | Saída controlada para externos |
-| SQL `004-default-browser.sql` | Conexão + permissão a todos |
+| SQL `004-default-browser.sql` | Conexão + READ a todos os usuários |
+
+No Kubernetes o Job `segportal-bootstrap` (`k8s/bootstrap`) aplica o mesmo bootstrap após o Postgres.
 
 ---
 
 ## Segurança
 
-- Pedidos exigem justificativa e aprovação admin
-- Navegador padrão é compartilhado como *conexão*; sessões continuam individualizadas no Guacamole
+- Pedidos extras exigem justificativa e aprovação admin
+- Navegador padrão é compartilhado como *conexão*; sessões Guacamole continuam individualizadas
+- VNC sem senha **somente na rede interna** (não exponha a porta 5900)
+- `SECURE_CONNECTION=0` no Firefox porque o Guacamole não usa VNC com TLS
 - Ajuste a whitelist do Squid para limitar destinos externos
-- Não exponha a porta VNC do `web-browser` fora do cluster (só guacd acessa)
 
 ## Referências
 
