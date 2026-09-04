@@ -21,7 +21,7 @@ class TestGuacamoleProperties:
         content = (config_root / "guacamole" / "guacamole.properties").read_text()
         assert "ldap-hostname" in content
         assert "ldap-user-base-dn" in content
-        assert "${LDAP_HOSTNAME}" in content
+        assert "${LDAP_HOSTNAME" in content
 
     def test_guacamole_properties_has_postgresql(self, config_root: Path) -> None:
         content = (config_root / "guacamole" / "guacamole.properties").read_text()

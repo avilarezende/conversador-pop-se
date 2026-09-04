@@ -72,14 +72,16 @@ O portal lista apenas os recursos liberados para o seu **grupo do Active Directo
 
 ## 3. Administração
 
-### 3.0 Papéis: admin vs usuário
+### 3.0 Papéis e admin padrão
 
 | Papel | Quem | O que faz |
 |-------|------|-----------|
-| **Administrador** | `GG-SegPortal-Admin` / `guacadmin` | Vê sessões de todos, configura conexões e usuários |
-| **Usuário** | `GG-SegPortal-Usuarios` / `usuario` | Só seus recursos; sem Settings admin |
+| **Administrador** | `guacadmin` (local) ou `GG-SegPortal-Admin` | Vê sessões, configura conexões e **apontamentos LDAP** |
+| **Usuário** | usuários locais ou `GG-SegPortal-Usuarios` | Só seus recursos |
 
-Detalhes: [ROLES.md](ROLES.md)
+O admin **`guacadmin` / `guacadmin`** é criado automaticamente e **não depende do LDAP**.  
+Como alterar senha ou excluir: **[LOCAL_ADMIN.md](LOCAL_ADMIN.md)**.  
+Papéis: [ROLES.md](ROLES.md).
 
 ### 3.1 Arquitetura resumida
 

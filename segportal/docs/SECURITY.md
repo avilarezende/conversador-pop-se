@@ -13,11 +13,12 @@ Controles de segurança do portal ZTNA baseado em Guacamole.
 
 | Camada | Controle |
 |--------|----------|
-| Identidade | Active Directory `tjse.jus.br` via LDAPS (porta 636) |
-| MFA | RADIUS corporativo (PAP) — obrigatório em produção |
+| Local (JDBC) | Sempre ativo — admin padrão `guacadmin` independente do LDAP |
+| Identidade AD | Opcional (`LDAP_ENABLED=true`) via LDAPS |
+| MFA | RADIUS corporativo — opcional |
 | Sessão | Timeout 60 min inatividade, máx. 3 conexões simultâneas |
 
-Conta de serviço `svc-segportal` com permissões mínimas de leitura no AD.
+Conta de serviço `svc-segportal` só é necessária quando LDAP está habilitado.
 
 ## Papéis e isolamento
 

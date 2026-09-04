@@ -1,12 +1,23 @@
 # Mockup do portal
 
-O mockup visual do SegPortal está disponível como imagem JPG para visualização no GitHub:
+O mockup visual do SegPortal está disponível como imagem JPG e preview HTML:
 
-**[segportal-mockup.jpg](../images/segportal-mockup.jpg)**
+- **[segportal-mockup.jpg](../images/segportal-mockup.jpg)** — imagem estática para o GitHub
+- **[segportal-preview.html](segportal-preview.html)** — preview interativo com papéis
 
-A imagem mostra as três telas principais:
-1. Login (LDAP + MFA)
-2. Portal de recursos autorizados
-3. Sessão clientless no navegador
+### Preview interativo (papéis)
 
-Para o manual completo com exemplos, consulte [MANUAL.md](../MANUAL.md).
+```bash
+cd docs/mockup
+python3 -m http.server 8765
+# http://localhost:8765/segportal-preview.html
+```
+
+| Papel | Login | Senha | MFA |
+|-------|-------|-------|-----|
+| Administrador | `guacadmin` | `guacadmin` | `123456` |
+| Usuário | `usuario` | `usuario` | `123456` |
+
+O admin vê o painel de sessões e configuração; o usuário vê apenas o recurso do seu contexto.
+
+Para o manual completo: [ROLES.md](../ROLES.md) e [MANUAL.md](../MANUAL.md).

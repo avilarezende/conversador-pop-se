@@ -1,0 +1,73 @@
+# =============================================================================
+# SegPortal — Apontamentos LDAP (editáveis pelo administrador)
+# =============================================================================
+# Este arquivo é a referência de configuração LDAP do portal.
+# Em Kubernetes, mapeie para um ConfigMap/Secret e reinicie o pod guacamole
+# após alterações. Se `enabled: false`, o portal opera só com usuários locais
+# (banco PostgreSQL / JDBC) — o admin padrão guacadmin continua válido.
+#
+# Documentação: docs/LOCAL_ADMIN.md e docs/CONFIGURATION.md
+# =============================================================================
+
+ldap:
+  # Liga/desliga autenticação LDAP. false = somente usuários locais.
+  enabled: false
+
+  # Servidor e rede
+  hostname: ldap.tjse.jus.br
+  port: 636
+  # none | ssl | starttls
+  encryption_method: ssl
+  network_timeout_ms: 5000
+  read_timeout_ms: 30000
+
+  # Domínio / base
+  domain: tjse.jus.br
+  # Base DN do domínio (ex.: DC=tjse,DC=jus,DC=br)
+  base_dn: DC=tjse,DC=jus,DC=br
+  user_base_dn: OU=Usuarios,DC=tjse,DC=jus,DC=br
+  group_base_dn: OU=Grupos,DC=tjse,DC=jus,DC=br
+
+  # Identificador do usuário (uid / sAMAccountName / cn / userPrincipalName)
+  username_attribute: sAMAccountName
+  # Atributo de membro de grupo
+  member_attribute: member
+  user_search_filter: "(objectClass=user)"
+  group_search_filter: "(objectClass=group)"
+
+  # Conta de serviço (bind de busca) — senha via Secret, não neste arquivo
+  search_bind_dn: CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
+  # search_bind_password: <<< SECRET >>>
+
+  # Certificados TLS (caminhos montados no container)
+  # Deixe vazio para usar o truststore padrão da JVM.
+  tls:
+    # Certificado do servidor LDAP (opcional se a CA for pública/corporativa)
+    server_certificate_file: ""
+    # Cadeia de CAs (PEM) — recomendado em AD interno
+    ca_chain_file: /etc/guacamole/certs/ldap-ca-chain.pem
+    # Truststore Java gerado pelo entrypoint a partir da cadeia
+    truststore_file: /etc/guacamole/certs/ldap-truststore.jks
+    truststore_password_env: LDAP_TRUSTSTORE_PASSWORD
+    # verify | allow (apenas homologação)
+    verify_hostname: true
+
+  # Grupos AD → papéis SegPortal
+  role_groups:
+    admin: GG-SegPortal-Admin
+    user: GG-SegPortal-Usuarios
+
+# -----------------------------------------------------------------------------
+# Usuários locais (JDBC) — sempre disponíveis, independente do LDAP
+# -----------------------------------------------------------------------------
+local_users:
+  enabled: true
+  # Admin padrão criado pelo schema Guacamole (002-create-admin-user.sql)
+  default_admin:
+    username: guacadmin
+    # Senha inicial padrão do Guacamole — ALTERAR no primeiro acesso
+    initial_password: guacadmin
+    must_change_password: true
+    notes: >
+      Conta local independente do LDAP. Continua funcionando com LDAP
+      ligado ou desligado. Ver docs/LOCAL_ADMIN.md para trocar senha ou excluir.

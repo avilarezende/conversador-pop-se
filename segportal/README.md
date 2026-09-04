@@ -88,8 +88,9 @@ kubectl apply -k k8s/overlays/production
 | Item | Arquivo / variável | Detalhes |
 |------|-------------------|----------|
 | **Papéis admin / usuário** | `config/roles/roles.yaml` | [ROLES.md](docs/ROLES.md) |
-| LDAP AD | `LDAP_HOSTNAME`, `LDAP_USER_BASE_DN` | [CONFIGURATION.md](docs/CONFIGURATION.md#2-active-directory-ldap) |
-| MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#3-mfa-via-radius) |
+| **Admin local padrão** | `guacadmin` / `guacadmin` | [LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md) |
+| LDAP (opcional) | `LDAP_ENABLED`, `config/ldap/ldap-settings.yaml` | [CONFIGURATION.md](docs/CONFIGURATION.md#3-active-directory-ldap--opcional) |
+| MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#4-mfa-via-radius) |
 | Sessões | `SESSION_TIMEOUT_MINUTES` | Timeout e limite de conexões |
 | Proxy egress | `config/proxy/squid.conf` | Whitelist de domínios externos |
 | Secrets K8s | `k8s/*/secret.example.yaml` | Copiar e preencher antes do deploy |
@@ -123,13 +124,15 @@ segportal/
 
 ## Segurança
 
-- Autenticação **LDAP + MFA** obrigatória
-- Sessões **individualizadas** por usuário (sem terminal compartilhado)
+- Autenticação **local** sempre disponível (admin `guacadmin` independente do LDAP)
+- LDAP **opcional** — apontamentos configuráveis pelo administrador
+- MFA via RADIUS quando habilitado
+- Sessões **individualizadas** por usuário
 - **NetworkPolicies** isolam pods no Kubernetes
 - TLS obrigatório em produção
 - Secrets nunca commitados no repositório
 
-Detalhes: [docs/SECURITY.md](docs/SECURITY.md)
+Detalhes: [docs/SECURITY.md](docs/SECURITY.md) · [docs/LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md)
 
 ---
 
@@ -138,6 +141,7 @@ Detalhes: [docs/SECURITY.md](docs/SECURITY.md)
 | Documento | Conteúdo |
 |-----------|----------|
 | [MANUAL.md](docs/MANUAL.md) | Manual do usuário e administrador |
+| [LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md) | Admin padrão, senha, exclusão e LDAP opcional |
 | [ROLES.md](docs/ROLES.md) | Papéis admin e usuário (RBAC) |
 | [USAGE.md](docs/USAGE.md) | Fluxo de uso com exemplos visuais |
 | [CONFIGURATION.md](docs/CONFIGURATION.md) | Configuração LDAP, MFA, proxy e K8s |

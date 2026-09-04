@@ -1,160 +1,156 @@
 # Configuração — SegPortal TJSE
 
-Guia passo a passo para configurar LDAP, MFA, Guacamole, proxy de egress e Kubernetes.
+Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy e Kubernetes.
 
 ---
 
 ## Índice
 
 1. [Pré-requisitos](#1-pré-requisitos)
-2. [Active Directory (LDAP)](#2-active-directory-ldap)
-3. [MFA via RADIUS](#3-mfa-via-radius)
-4. [Guacamole e PostgreSQL](#4-guacamole-e-postgresql)
-5. [Proxy de egress (Squid)](#5-proxy-de-egress-squid)
-6. [Branding TJSE](#6-branding-tjse)
-7. [Kubernetes / Rancher](#7-kubernetes--rancher)
-8. [Inicialização do banco](#8-inicialização-do-banco)
-9. [Cadastro de conexões](#9-cadastro-de-conexões)
-10. [Validação pós-configuração](#10-validação-pós-configuração)
+2. [Admin padrão e usuários locais](#2-admin-padrão-e-usuários-locais)
+3. [Active Directory (LDAP) — opcional](#3-active-directory-ldap--opcional)
+4. [MFA via RADIUS](#4-mfa-via-radius)
+5. [Guacamole e PostgreSQL](#5-guacamole-e-postgresql)
+6. [Proxy de egress (Squid)](#6-proxy-de-egress-squid)
+7. [Branding TJSE](#7-branding-tjse)
+8. [Kubernetes / Rancher](#8-kubernetes--rancher)
+9. [Inicialização do banco](#9-inicialização-do-banco)
+10. [Cadastro de conexões](#10-cadastro-de-conexões)
+11. [Validação pós-configuração](#11-validação-pós-configuração)
 
 ---
 
 ## 1. Pré-requisitos
 
-Antes de configurar, garanta:
-
 | Item | Requisito |
 |------|-----------|
-| Rede | Cluster Kubernetes acessa `ldap.tjse.jus.br:636` e `radius.tjse.jus.br:1812` |
-| AD | Conta de serviço com permissão de leitura em usuários e grupos |
-| DNS | `segportal.tjse.jus.br` apontando para o Ingress |
-| TLS | Certificado válido para o hostname do portal |
-| Registry | Imagens publicadas em `registry.tjse.jus.br/segportal` (ou ajustar overlays) |
+| Docker / Kubernetes | Ambiente para subir os pods |
+| DNS / TLS | `segportal.tjse.jus.br` (produção) |
+| LDAP (opcional) | AD acessível + conta de serviço + cadeia CA |
+| RADIUS (opcional) | MFA corporativo |
+
+**LDAP não é obrigatório.** Sem ele, o portal funciona com usuários locais e o admin padrão.
 
 ---
 
-## 2. Active Directory (LDAP)
+## 2. Admin padrão e usuários locais
 
-### 2.1 Criar conta de serviço no AD
+Documento completo: **[LOCAL_ADMIN.md](LOCAL_ADMIN.md)**
 
-Crie uma conta dedicada, por exemplo:
+| Campo | Valor |
+|-------|-------|
+| Usuário | `guacadmin` |
+| Senha inicial | `guacadmin` |
+| Depende de LDAP? | **Não** |
+
+### Alterar senha
+
+```bash
+./scripts/change-local-password.sh guacadmin 'NovaSenhaForte!'
+```
+
+Ou pela UI: login → Preferences → alterar senha.
+
+### Desativar / excluir
+
+```bash
+./scripts/delete-local-user.sh guacadmin --disable   # recomendado
+./scripts/delete-local-user.sh guacadmin --delete    # permanente
+```
+
+Só exclua depois de criar outro administrador.
+
+### Gerenciar usuários locais (sem LDAP)
+
+1. Login como `guacadmin`
+2. **Settings → Users → New User**
+3. Defina senha e permissões / grupos
+
+Com `LDAP_ENABLED=false` (padrão), essa é a única forma de autenticação.
+
+---
+
+## 3. Active Directory (LDAP) — opcional
+
+O administrador configura os apontamentos LDAP. Referência editável:
+
+- `config/ldap/ldap-settings.yaml`
+- Variáveis em `.env` / ConfigMap / Secret
+
+### 3.1 Campos configuráveis
+
+| Campo | Variável | Descrição |
+|-------|----------|-----------|
+| Liga LDAP | `LDAP_ENABLED` | `true` / `false` (padrão `false`) |
+| Servidor | `LDAP_HOSTNAME` | Ex.: `ldap.tjse.jus.br` |
+| Porta | `LDAP_PORT` | `636` (LDAPS) ou `389` |
+| Criptografia | `LDAP_ENCRYPTION_METHOD` | `ssl`, `starttls` ou `none` |
+| Domínio | `ldap.domain` em yaml | `tjse.jus.br` |
+| Base usuários | `LDAP_USER_BASE_DN` | `OU=Usuarios,DC=tjse,DC=jus,DC=br` |
+| Base grupos | `LDAP_GROUP_BASE_DN` | `OU=Grupos,DC=tjse,DC=jus,DC=br` |
+| UID / atributo | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName`, `uid`, `cn`, `userPrincipalName` |
+| Filtro usuário | `LDAP_USER_SEARCH_FILTER` | `(objectClass=user)` |
+| Filtro grupo | `LDAP_GROUP_SEARCH_FILTER` | `(objectClass=group)` |
+| Atributo membro | `LDAP_MEMBER_ATTRIBUTE` | `member` |
+| Bind DN | `LDAP_SEARCH_BIND_DN` | Conta de serviço |
+| Senha bind | `LDAP_SEARCH_BIND_PASSWORD` | **Secret** |
+| Cadeia CA | `LDAP_CA_CHAIN_FILE` | PEM em `/etc/guacamole/certs/` |
+| Cert. servidor | `LDAP_SERVER_CERTIFICATE_FILE` | Opcional |
+| Truststore | `LDAP_TRUSTSTORE_FILE` | Gerado pelo entrypoint |
+
+### 3.2 Procedimento do administrador
+
+1. Coloque a cadeia CA em `config/ldap/certs/ldap-ca-chain.pem`
+2. Preencha `.env` (ou Secret Rancher) com servidor, porta, domain/DN, uid, bind
+3. Defina `LDAP_ENABLED=true`
+4. Reinicie o Guacamole: `kubectl -n segportal rollout restart deployment/guacamole`
+5. Teste login AD **mantendo** o `guacadmin` local
+
+Se `LDAP_ENABLED=false`, o `entrypoint.sh` remove todas as chaves `ldap-*` e o portal fica só com JDBC.
+
+### 3.3 Conta de serviço no AD
 
 ```
 CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
 ```
 
-Permissões mínimas:
-- Leitura em `OU=Usuarios,DC=tjse,DC=jus,DC=br`
-- Leitura em `OU=Grupos,DC=tjse,DC=jus,DC=br`
+Permissões mínimas: leitura em usuários e grupos.
 
-### 2.2 Variáveis de ambiente
+### 3.4 Grupos AD → papéis
 
-Copie `.env.example` para `.env` e preencha:
+| Grupo AD | Papel |
+|----------|-------|
+| `GG-SegPortal-Admin` | Administrador |
+| `GG-SegPortal-Usuarios` | Usuário |
+| `GG-SegPortal-Financeiro` / `Consulta` / `Externo` | Negócio |
 
-```bash
-LDAP_HOSTNAME=ldap.tjse.jus.br
-LDAP_PORT=636
-LDAP_ENCRYPTION_METHOD=ssl
-LDAP_USER_BASE_DN=OU=Usuarios,DC=tjse,DC=jus,DC=br
-LDAP_USERNAME_ATTRIBUTE=sAMAccountName
-LDAP_SEARCH_BIND_DN=CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
-LDAP_SEARCH_BIND_PASSWORD=<senha_da_conta_servico>
-```
-
-### 2.3 Arquivo de referência
-
-O mapeamento LDAP está em `config/ldap/ldap.properties`. O `entrypoint.sh` do Guacamole renderiza este arquivo com `envsubst` na inicialização do container.
-
-### 2.4 Grupos AD → papéis e recursos SegPortal
-
-| Grupo AD | Papel | Recursos |
-|----------|-------|----------|
-| `GG-SegPortal-Admin` | **Administrador** | Gestão completa + visão de sessões |
-| `GG-SegPortal-Usuarios` | **Usuário** | Base de acesso (sem admin) |
-| `GG-SegPortal-Financeiro` | Negócio | RDP — estações financeiro |
-| `GG-SegPortal-Consulta` | Negócio | VNC — terminais de consulta |
-| `GG-SegPortal-Externo` | Negócio | Proxy egress (IP TJSE) |
-
-Documento dedicado: **[ROLES.md](ROLES.md)** · definição em `config/roles/roles.yaml`.
-
-**Passos no Guacamole (após primeiro login admin):**
-
-1. Acesse **Settings → Groups**
-2. Crie grupos com os mesmos nomes dos grupos AD (`segportal-admins`, `segportal-users`, etc.)
-3. No grupo admin, conceda permissões de sistema (`ADMINISTER`, `CREATE_*`)
-4. Em **Settings → Connections**, associe cada conexão ao grupo de negócio com permissão `READ`
-5. Usuários normais **não** recebem permissões de sistema
-
-Seed automático (demo JDBC):
-
-```bash
-./scripts/seed-roles.sh
-# ou: psql ... < scripts/sql/003-segportal-roles.sql
-```
+Ver [ROLES.md](ROLES.md). Seed: `./scripts/seed-roles.sh`.
 
 ---
 
-## 3. MFA via RADIUS
-
-### 3.1 Habilitar MFA
+## 4. MFA via RADIUS
 
 ```bash
 MFA_ENABLED=true
 MFA_RADIUS_HOST=radius.tjse.jus.br
 MFA_RADIUS_PORT=1812
-MFA_RADIUS_SECRET=<shared_secret_do_radius>
+MFA_RADIUS_SECRET=<shared_secret>
 ```
 
-### 3.2 Como funciona
-
-1. Usuário informa login e senha AD no portal.
-2. Guacamole valida credenciais no LDAP.
-3. Em seguida, envia `Access-Request` ao servidor RADIUS corporativo.
-4. O RADIUS valida o segundo fator (TOTP, token hardware ou push).
-5. Somente com `Access-Accept` a sessão é liberada.
-
-### 3.3 Teste do RADIUS
-
-```bash
-# Exemplo com radclient (instalar freeradius-utils)
-echo "User-Name=joao.silva,User-Password=senha,OTP=123456" | \
-  radclient -x radius.tjse.jus.br:1812 auth <shared_secret>
-```
+Recomendado somente com LDAP habilitado. Com `MFA_ENABLED=false`, o entrypoint remove as chaves `radius-*`.
 
 ---
 
-## 4. Guacamole e PostgreSQL
-
-### 4.1 Variáveis principais
+## 5. Guacamole e PostgreSQL
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `POSTGRES_DB` | Nome do banco | `guacamole_db` |
-| `POSTGRES_USER` | Usuário PostgreSQL | `guacamole_user` |
-| `POSTGRES_PASSWORD` | Senha do banco | *(obrigatório)* |
-| `GUACAMOLE_HOSTNAME` | Hostname público | `segportal.tjse.jus.br` |
-| `SESSION_TIMEOUT_MINUTES` | Timeout inatividade | `60` |
+| `POSTGRES_DB` | Banco | `guacamole_db` |
+| `POSTGRES_USER` | Usuário | `guacamole_user` |
+| `POSTGRES_PASSWORD` | Senha | *(obrigatório)* |
+| `SESSION_TIMEOUT_MINUTES` | Timeout | `60` |
 
-### 4.2 Arquivo `config/guacamole/guacamole.properties`
-
-Principais chaves (renderizadas pelo entrypoint):
-
-```properties
-guacd-hostname: guacd
-guacd-port: 4822
-postgresql-hostname: postgres
-postgresql-database: guacamole_db
-api-session-timeout: 60
-user-session-timeout: 60
-```
-
-### 4.3 Imagem Docker
-
-O `services/guacamole/Dockerfile`:
-
-- Base: `guacamole/guacamole:1.5.5`
-- Extensão LDAP: `guacamole-auth-ldap-1.5.5.jar`
-- **Build a partir da raiz do repositório:**
+Build da imagem:
 
 ```bash
 docker build -f services/guacamole/Dockerfile -t segportal/guacamole:latest .
@@ -162,171 +158,66 @@ docker build -f services/guacamole/Dockerfile -t segportal/guacamole:latest .
 
 ---
 
-## 5. Proxy de egress (Squid)
+## 6. Proxy de egress (Squid)
 
-O proxy permite que usuários autorizados acessem sites externos **com o IP institucional do TJSE**, sem VPN.
-
-### 5.1 Configuração
-
-Arquivo: `config/proxy/squid.conf` (copiado para `services/egress-proxy/squid.conf` na imagem).
-
-Domínios liberados por padrão:
-- `.tjse.jus.br`
-- `.jus.br`
-- `.gov.br`
-- `.pje.jus.br`
-
-### 5.2 Adicionar novo domínio
-
-Edite `config/proxy/squid.conf`:
-
-```squid
-acl novo_dominio dstdomain .exemplo.gov.br
-http_access allow novo_dominio
-```
-
-Reconstrua e redeploy o pod `proxy-egress`.
-
-### 5.3 Variáveis
-
-```bash
-EGRESS_PROXY_HOST=proxy-egress
-EGRESS_PROXY_PORT=3128
-```
+Arquivo: `config/proxy/squid.conf` / `services/egress-proxy/squid.conf`.
 
 ---
 
-## 6. Branding TJSE
+## 7. Branding TJSE
 
-Arquivos em `services/guacamole/branding/`:
-
-| Arquivo | Função |
-|---------|--------|
-| `tjse-logo.svg` | Logotipo na tela de login |
-| `guac-login.css` | Cores institucionais (#003366, #c9a227) |
-| `translations/pt.json` | Textos em português |
-
-Substitua `tjse-logo.svg` pelo logotipo oficial do tribunal antes de produção.
+Arquivos em `services/guacamole/branding/`.
 
 ---
 
-## 7. Kubernetes / Rancher
-
-### 7.1 Criar namespace e secrets
+## 8. Kubernetes / Rancher
 
 ```bash
 kubectl create namespace segportal
-
 kubectl -n segportal create secret generic segportal-secrets \
-  --from-literal=POSTGRES_PASSWORD='SUA_SENHA' \
-  --from-literal=LDAP_SEARCH_BIND_PASSWORD='SENHA_LDAP' \
-  --from-literal=MFA_RADIUS_SECRET='SECRET_RADIUS'
-```
-
-Ou copie e preencha os exemplos:
-- `k8s/postgres/secret.example.yaml`
-- `k8s/guacamole/secret.example.yaml`
-
-### 7.2 Overlays por ambiente
-
-| Overlay | Hostname | Uso |
-|---------|----------|-----|
-| `development` | `segportal-dev.tjse.jus.br` | Desenvolvimento |
-| `staging` | `segportal-stg.tjse.jus.br` | Homologação |
-| `production` | `segportal.tjse.jus.br` | Produção |
-
-```bash
-# Homologação
-kubectl apply -k k8s/overlays/staging
-
-# Produção
+  --from-literal=POSTGRES_PASSWORD='...' \
+  --from-literal=LDAP_SEARCH_BIND_PASSWORD='...' \
+  --from-literal=MFA_RADIUS_SECRET='...'
 kubectl apply -k k8s/overlays/production
 ```
 
-### 7.3 GitOps (Rancher Fleet)
-
-O arquivo `k8s/rancher-fleet/fleet.yaml` sincroniza automaticamente o overlay de produção nos clusters com label `env=production`.
-
-### 7.4 Escalonamento (HPA)
-
-| Pod | Mínimo | Máximo | Métrica |
-|-----|--------|--------|---------|
-| guacamole | 2 | 10 | CPU 70% |
-| guacd | 2 | 20 | CPU 60% |
-| proxy-egress | 1 | 5 | CPU 75% |
+ConfigMap `segportal-common` traz `LDAP_ENABLED=false` por padrão. Para ligar LDAP, edite o ConfigMap/Secret e monte o volume de certificados CA.
 
 ---
 
-## 8. Inicialização do banco
-
-Execute **uma vez** após o PostgreSQL estar disponível:
+## 9. Inicialização do banco
 
 ```bash
-export POSTGRES_PASSWORD=<senha>
-export POSTGRES_HOST=postgres   # ou localhost em dev
+export POSTGRES_PASSWORD=...
 ./scripts/init-db.sh
+./scripts/seed-roles.sh
 ```
 
-O script aplica o schema oficial Guacamole 1.5.5 para PostgreSQL.
-
-**Usuário admin padrão** (altere imediatamente após primeiro acesso):
-- Usuário: `guacadmin`
-- Senha: `guacadmin`
+Cria schema + `guacadmin` + papéis/grupos.
 
 ---
 
-## 9. Cadastro de conexões
+## 10. Cadastro de conexões
 
-### 9.1 Via interface web
-
-1. Login como admin em `/guacamole`
-2. **Settings → Connections → New Connection**
-3. Preencha protocolo (RDP/VNC/SSH), host, porta e credenciais
-4. Associe ao grupo AD correspondente
-
-### 9.2 Exemplo de conexão RDP
-
-| Campo | Valor exemplo |
-|-------|---------------|
-| Nome | Estação Financeiro |
-| Protocolo | RDP |
-| Hostname | `10.10.20.50` |
-| Porta | `3389` |
-| Grupo | `GG-SegPortal-Financeiro` |
+Login admin → **Settings → Connections → New Connection** → associe ao grupo de negócio.
 
 ---
 
-## 10. Validação pós-configuração
+## 11. Validação pós-configuração
 
-### Checklist
-
-- [ ] Login LDAP com usuário de teste funciona
-- [ ] MFA é solicitado e aceito
-- [ ] Conexão RDP/VNC abre no navegador
-- [ ] Proxy egress responde na porta 3128
-- [ ] Timeout de sessão respeitado após inatividade
-- [ ] Usuário sem grupo AD não vê recursos indevidos
-- [ ] Certificado TLS válido no Ingress
-- [ ] Logs sem erros de bind LDAP
-
-### Comandos de verificação
+- [ ] Login `guacadmin` funciona **sem** LDAP
+- [ ] Senha do admin alterada
+- [ ] (Se LDAP) login AD + cadeia CA válida
+- [ ] Usuário normal vê só o próprio contexto
+- [ ] Admin vê sessões / Settings
 
 ```bash
-# Testes automatizados
-pip install -r requirements-dev.txt
 pytest tests -v
-
-# Validar manifests K8s
 ./scripts/validate-k8s.sh
-
-# Status dos pods
-kubectl -n segportal get pods,svc,ingress,hpa
 ```
-
----
 
 ## Referências
 
-- [MANUAL.md](MANUAL.md) — manual do usuário e administrador
-- [DEPLOYMENT.md](DEPLOYMENT.md) — deploy detalhado no Rancher
-- [SECURITY.md](SECURITY.md) — controles de segurança
+- [LOCAL_ADMIN.md](LOCAL_ADMIN.md) — senha e exclusão do admin padrão
+- [ROLES.md](ROLES.md) — papéis
+- [SECURITY.md](SECURITY.md)

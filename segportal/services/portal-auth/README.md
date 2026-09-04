@@ -1,18 +1,35 @@
-# portal-auth (futuro)
+# Portal Auth / Admin settings
 
-Módulo reservado para integrações de autenticação complementares ao Guacamole LDAP/MFA do SegPortal TJSE.
+Módulo de apoio para autenticação e **configuração administrativa** do SegPortal.
 
-## Escopo planejado
+## Responsabilidades
 
-- Validação de claims OIDC/SAML para federação com IdP corporativo
-- Webhook de auditoria pós-login (SIEM)
-- Políticas de sessão por perfil AD
+1. Validação MFA (RADIUS) quando habilitada
+2. Referência dos apontamentos LDAP editáveis pelo administrador
+3. Manutenção do modelo “LDAP opcional + usuários locais sempre ativos”
 
-## Estado atual
+## LDAP configurável
 
-A autenticação é realizada nativamente pelo **Guacamole** com a extensão `guacamole-auth-ldap` 1.5.5 e **RADIUS** para MFA. Este diretório documenta a evolução futura; não há serviço implantado nesta versão.
+Fonte da verdade humana: `config/ldap/ldap-settings.yaml`
 
-## Referências
+Campos principais: servidor, porta, criptografia, domínio, base DN, atributo UID,
+bind DN, certificado do servidor e cadeia de CAs.
 
-- [CONFIGURATION.md](../../docs/CONFIGURATION.md) — LDAP e MFA
-- [SECURITY.md](../../docs/SECURITY.md) — controles de autenticação
+Comportamento no container (`services/guacamole/entrypoint.sh`):
+
+- `LDAP_ENABLED=false` → remove `ldap-*` do `guacamole.properties` (só JDBC)
+- `LDAP_ENABLED=true` → aplica apontamentos e importa CA no truststore Java
+
+## Admin padrão
+
+Sempre existe a conta local `guacadmin` (senha inicial `guacadmin`), independente do LDAP.
+
+- Trocar senha: `scripts/change-local-password.sh`
+- Desativar/excluir: `scripts/delete-local-user.sh`
+
+Documentação: `docs/LOCAL_ADMIN.md`.
+
+## Extensão futura
+
+API/UI administrativa (FastAPI) para gravar `ldap-settings` em ConfigMap/Secret
+sem redeploy manual — encaixar neste diretório quando o time avançar a esteira.

@@ -42,8 +42,9 @@ CREATE_USER_GROUP
 
 | Ambiente | Login | Observação |
 |----------|-------|------------|
-| Produção (LDAP) | Conta AD membro de `GG-SegPortal-Admin` | MFA obrigatório |
-| Demo local | `guacadmin` / `guacadmin` | Alterar senha após primeiro acesso |
+| Qualquer (local) | `guacadmin` / `guacadmin` | **Independente do LDAP** — alterar senha no 1º acesso |
+| Produção (LDAP) | Conta AD em `GG-SegPortal-Admin` | MFA se habilitado |
+| Demo seed | `guacadmin` no grupo `segportal-admins` | Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |
 
 ---
 
