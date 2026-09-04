@@ -1,13 +1,17 @@
 # SegPortal — modo de demonstração local (SEM LDAP e SEM MFA)
-# Login após seed-roles.sh:
-#   Admin   → guacadmin / guacadmin  (vê sessões, configura conexões)
-#   Usuário → usuario   / usuario    (somente o próprio contexto)
+# Login:
+#   Admin   → guacadmin / guacadmin
+#   Usuário → usuario   / usuario   (após seed-roles)
+# Navegador HTML padrão: "Navegador Web SegPortal" (após seed 004)
 #
 # Uso:
 #   docker compose -f docker-compose.dev.yml up --build
-#   # após o schema inicializar:
 #   docker compose -f docker-compose.dev.yml exec -T postgres \
 #     psql -U guacamole_user -d guacamole_db < scripts/sql/003-segportal-roles.sql
+#   docker compose -f docker-compose.dev.yml exec -T postgres \
+#     psql -U guacamole_user -d guacamole_db < scripts/sql/004-default-browser.sql
+#   docker compose -f docker-compose.dev.yml exec -T postgres \
+#     psql -U guacamole_user -d guacamole_db < scripts/sql/005-connection-requests.sql
 #   Acesse: http://localhost:8080/guacamole
 
 services:
@@ -30,26 +34,40 @@ services:
     image: guacamole/guacd:1.5.5
     restart: unless-stopped
 
+  web-browser:
+    build:
+      context: services/web-browser
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DISPLAY_WIDTH: "1280"
+      DISPLAY_HEIGHT: "800"
+      FF_OPEN_URL: https://www.tjse.jus.br
+    expose:
+      - "5900"
+    shm_size: "1gb"
+
   guacamole:
     image: guacamole/guacamole:1.5.5
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      # PostgreSQL
       POSTGRES_HOSTNAME: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DATABASE: guacamole_db
       POSTGRES_USER: guacamole_user
       POSTGRES_PASSWORD: devpassword
-      # guacd
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
-      # Inicializa o schema automaticamente (imagem oficial)
       POSTGRES_INIT_DB: "true"
     depends_on:
       postgres:
         condition: service_healthy
+      guacd:
+        condition: service_started
+      web-browser:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
       interval: 15s

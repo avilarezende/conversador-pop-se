@@ -72,6 +72,8 @@ services:
         condition: service_healthy
       guacd:
         condition: service_healthy
+      web-browser:
+        condition: service_started
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
       interval: 15s
@@ -91,6 +93,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  web-browser:
+    build:
+      context: services/web-browser
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DISPLAY_WIDTH: "1280"
+      DISPLAY_HEIGHT: "800"
+      FF_OPEN_URL: https://www.tjse.jus.br
+      http_proxy: http://proxy-egress:3128
+      https_proxy: http://proxy-egress:3128
+      HTTP_PROXY: http://proxy-egress:3128
+      HTTPS_PROXY: http://proxy-egress:3128
+      no_proxy: localhost,127.0.0.1,guacd,guacamole,postgres,proxy-egress
+    expose:
+      - "5900"
+    shm_size: "1gb"
+    depends_on:
+      - proxy-egress
 
 volumes:
   postgres-data:

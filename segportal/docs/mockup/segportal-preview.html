@@ -271,24 +271,48 @@
         <div id="admin-panel" class="hidden" style="margin-bottom:18px; border:1px solid var(--border); border-radius:10px; padding:14px; background:#f8fafc;">
           <h3 style="font-size:14px; color:var(--primary); margin-bottom:10px;">Painel administrativo</h3>
           <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
-            Visualização de sessões ativas e configuração de aplicações dos clientes.
+            Sessões, aplicações e aprovação de pedidos de terminais.
           </p>
           <div class="card" style="margin:0 0 8px 0;">
             <div class="icon" style="background:#ffebee;">👁</div>
             <div class="card-body">
               <h3>Sessões ativas (todos)</h3>
-              <p>usuario · Estação Financeiro · há 4 min</p>
+              <p>usuario · Navegador Web · há 2 min</p>
             </div>
             <button class="connect" type="button" style="background:#c62828">Encerrar</button>
+          </div>
+          <div class="card" style="margin:0 0 8px 0;">
+            <div class="icon" style="background:#fff8e1;">✅</div>
+            <div class="card-body">
+              <h3>Pedidos pendentes</h3>
+              <p>usuario · RDP 10.10.20.51 · “Sistema empenho”</p>
+            </div>
+            <button class="connect" type="button" onclick="alert('Pedido aprovado (simulado)')">Aprovar</button>
           </div>
           <div class="card" style="margin:0;">
             <div class="icon" style="background:#e8eaf6;">⚙</div>
             <div class="card-body">
-              <h3>Configurar aplicações</h3>
-              <p>Conexões · grupos · permissões de clientes</p>
+              <h3>Configurar aplicações / LDAP</h3>
+              <p>Conexões · grupos · apontamentos</p>
             </div>
             <button class="connect" type="button">Settings</button>
           </div>
+        </div>
+        <div id="request-panel" class="hidden" style="margin-bottom:18px; border:1px dashed var(--border); border-radius:10px; padding:14px;">
+          <h3 style="font-size:14px; color:var(--primary); margin-bottom:8px;">Solicitar terminal / aplicação</h3>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+            O administrador precisa autorizar antes da conexão aparecer na sua lista.
+          </p>
+          <label>Nome</label>
+          <input id="req-name" placeholder="Meu RDP Financeiro" />
+          <label>Protocolo</label>
+          <input id="req-proto" value="rdp" />
+          <label>Host</label>
+          <input id="req-host" placeholder="10.10.20.50" />
+          <label>Justificativa</label>
+          <input id="req-why" placeholder="Acesso ao sistema X" />
+          <button class="primary" type="button" onclick="submitRequest()">Enviar pedido</button>
+          <p class="hint" id="req-msg" style="display:none; color:var(--ok);">Pedido enviado — aguardando admin</p>
         </div>
         <div id="resource-list"></div>
       </div>
@@ -335,14 +359,16 @@
       guacadmin: { pass: 'guacadmin', role: 'admin' },
       usuario: { pass: 'usuario', role: 'user' }
     };
+    const defaultBrowser = { icon: 'WEB', bg: '#e3f2fd', title: 'Navegador Web SegPortal', desc: 'HTML5 · sites internos e externos · padrão para todos' };
     const userResources = [
+      defaultBrowser,
       { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' }
     ];
     const adminResources = [
+      defaultBrowser,
       { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' },
       { icon: 'VNC', bg: '#e8f5e9', title: 'Terminal Consulta Processual', desc: 'Linux · GG-SegPortal-Consulta' },
-      { icon: 'SSH', bg: '#f3e5f5', title: 'Servidor Aplicações', desc: 'Administração · GG-SegPortal-Admin' },
-      { icon: 'WEB', bg: '#fff3e0', title: 'Navegação externa (IP TJSE)', desc: 'Proxy egress · whitelist' }
+      { icon: 'SSH', bg: '#f3e5f5', title: 'Servidor Aplicações', desc: 'Administração · GG-SegPortal-Admin' }
     ];
 
     function fillRole(role) {
@@ -379,6 +405,7 @@
         ? 'Papel: admin · visão global de sessões'
         : 'Papel: usuário · apenas o próprio contexto';
       document.getElementById('admin-panel').classList.toggle('hidden', !isAdmin);
+      document.getElementById('request-panel').classList.toggle('hidden', isAdmin);
 
       const stats = isAdmin
         ? [
@@ -422,6 +449,14 @@
       } else {
         err.style.display = 'block';
       }
+    }
+    function submitRequest() {
+      const msg = document.getElementById('req-msg');
+      if (!document.getElementById('req-name').value || !document.getElementById('req-host').value) {
+        alert('Preencha nome e host');
+        return;
+      }
+      msg.style.display = 'block';
     }
     function openSession(title) {
       document.getElementById('session-title').textContent = title;

@@ -7,6 +7,9 @@ Utilitários de inicialização e validação do projeto.
 | [init-db.sh](init-db.sh) | Aplica schema PostgreSQL do Guacamole 1.5.5 |
 | [init-db-dev.sh](init-db-dev.sh) | Schema + admin para stack `docker-compose.dev.yml` |
 | [seed-roles.sh](seed-roles.sh) | Cria papéis admin/usuário e grupos de negócio |
+| [seed-browser-and-requests.sh](seed-browser-and-requests.sh) | Navegador padrão + tabela de pedidos |
+| [request-connection.sh](request-connection.sh) | Usuário solicita terminal/aplicação |
+| [approve-connection-request.sh](approve-connection-request.sh) | Admin aprova/rejeita pedido |
 | [change-local-password.sh](change-local-password.sh) | Altera senha de usuário local (ex.: guacadmin) |
 | [delete-local-user.sh](delete-local-user.sh) | Desativa ou exclui usuário local |
 | [validate-k8s.sh](validate-k8s.sh) | Valida overlays Kustomize (dev/staging/prod) |

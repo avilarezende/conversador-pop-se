@@ -45,6 +45,7 @@ class TestKustomizeOverlays:
         assert "guacamole" in deployments
         assert "guacd" in deployments
         assert "proxy-egress" in deployments
+        assert "web-browser" in deployments
 
     def test_ingress_host(self, overlay: Path) -> None:
         docs = parse_manifests(kustomize_build(overlay))

@@ -64,6 +64,7 @@ jobs:
           - guacamole
           - guacd
           - egress-proxy
+          - web-browser
     steps:
       - uses: actions/checkout@v4
 
@@ -73,8 +74,8 @@ jobs:
       - name: Build ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: services/${{ matrix.service == 'egress-proxy' && 'egress-proxy' || matrix.service }}/Dockerfile
+          context: ${{ matrix.service == 'guacamole' && '.' || format('services/{0}', matrix.service) }}
+          file: services/${{ matrix.service }}/Dockerfile
           push: false
           load: true
           tags: ${{ env.REGISTRY }}/${{ matrix.service }}:ci

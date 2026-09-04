@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-browser
+  namespace: segportal
+  labels:
+    app: web-browser
+    component: default-browser
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-browser
+  template:
+    metadata:
+      labels:
+        app: web-browser
+        component: default-browser
+    spec:
+      containers:
+        - name: firefox
+          image: registry.tjse.jus.br/segportal/web-browser:latest
+          ports:
+            - containerPort: 5900
+              name: vnc
+          env:
+            - name: DISPLAY_WIDTH
+              value: "1280"
+            - name: DISPLAY_HEIGHT
+              value: "800"
+            - name: FF_OPEN_URL
+              value: https://www.tjse.jus.br
+            - name: http_proxy
+              value: http://proxy-egress:3128
+            - name: https_proxy
+              value: http://proxy-egress:3128
+            - name: HTTP_PROXY
+              value: http://proxy-egress:3128
+            - name: HTTPS_PROXY
+              value: http://proxy-egress:3128
+            - name: no_proxy
+              value: localhost,127.0.0.1,guacd,guacamole,postgres,.tjse.jus.br
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-browser
+  namespace: segportal
+spec:
+  selector:
+    app: web-browser
+  ports:
+    - port: 5900
+      targetPort: 5900
+      name: vnc
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-browser
+  namespace: segportal
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-browser
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

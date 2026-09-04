@@ -11,6 +11,8 @@ images:
     newTag: staging
   - name: registry.tjse.jus.br/segportal/egress-proxy
     newTag: staging
+  - name: registry.tjse.jus.br/segportal/web-browser
+    newTag: staging
 
 configMapGenerator:
   - name: segportal-common

@@ -34,7 +34,7 @@ class TestRolesConfig:
     def test_user_restricted_from_other_sessions(self, roles: dict) -> None:
         restrictions = roles["roles"]["user"]["restrictions"]
         assert "no_view_other_sessions" in restrictions
-        assert "no_configure_connections" in restrictions
+        assert "no_configure_connections_without_approval" in restrictions
 
     def test_ad_groups_mapped(self, roles: dict) -> None:
         assert roles["roles"]["admin"]["ad_group"] == "GG-SegPortal-Admin"

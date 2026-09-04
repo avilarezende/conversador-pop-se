@@ -27,6 +27,8 @@ images:
     newTag: dev
   - name: registry.tjse.jus.br/segportal/egress-proxy
     newTag: dev
+  - name: registry.tjse.jus.br/segportal/web-browser
+    newTag: dev
 
 configMapGenerator:
   - name: segportal-common

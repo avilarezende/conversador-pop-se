@@ -143,6 +143,7 @@ Detalhes: [docs/SECURITY.md](docs/SECURITY.md) · [docs/LOCAL_ADMIN.md](docs/LOC
 | [MANUAL.md](docs/MANUAL.md) | Manual do usuário e administrador |
 | [LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md) | Admin padrão, senha, exclusão e LDAP opcional |
 | [ROLES.md](docs/ROLES.md) | Papéis admin e usuário (RBAC) |
+| [CONNECTIONS.md](docs/CONNECTIONS.md) | Navegador padrão e pedidos de terminais |
 | [USAGE.md](docs/USAGE.md) | Fluxo de uso com exemplos visuais |
 | [CONFIGURATION.md](docs/CONFIGURATION.md) | Configuração LDAP, MFA, proxy e K8s |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitetura e decisões de design |

@@ -66,7 +66,7 @@ class TestDockerCompose:
 
     def test_required_services(self) -> None:
         content = (ROOT / "docker-compose.yml").read_text()
-        for service in ("postgres", "guacd", "guacamole", "proxy-egress"):
+        for service in ("postgres", "guacd", "guacamole", "proxy-egress", "web-browser"):
             assert f"{service}:" in content
 
 

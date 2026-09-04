@@ -10,6 +10,7 @@ resources:
   - ../guacd
   - ../guacamole
   - ../proxy-egress
+  - ../web-browser
   - ../ingress
 
 commonLabels:

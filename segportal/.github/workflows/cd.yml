@@ -33,6 +33,8 @@ jobs:
             dockerfile: services/guacd/Dockerfile
           - service: egress-proxy
             dockerfile: services/egress-proxy/Dockerfile
+          - service: web-browser
+            dockerfile: services/web-browser/Dockerfile
     steps:
       - uses: actions/checkout@v4
 
@@ -58,7 +60,7 @@ jobs:
       - name: Build and push ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.service == 'guacamole' && '.' || format('services/{0}', matrix.service) }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
