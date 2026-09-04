@@ -65,20 +65,32 @@ LDAP_SEARCH_BIND_PASSWORD=<senha_da_conta_servico>
 
 O mapeamento LDAP está em `config/ldap/ldap.properties`. O `entrypoint.sh` do Guacamole renderiza este arquivo com `envsubst` na inicialização do container.
 
-### 2.4 Grupos AD → recursos SegPortal
+### 2.4 Grupos AD → papéis e recursos SegPortal
 
-| Grupo AD | Recursos Guacamole sugeridos |
-|----------|------------------------------|
-| `GG-SegPortal-Financeiro` | Conexões RDP do setor financeiro |
-| `GG-SegPortal-Consulta` | Conexões VNC de consulta processual |
-| `GG-SegPortal-Admin` | SSH servidores + bookmark proxy egress |
-| `GG-SegPortal-Externo` | Apenas navegação HTTP via proxy |
+| Grupo AD | Papel | Recursos |
+|----------|-------|----------|
+| `GG-SegPortal-Admin` | **Administrador** | Gestão completa + visão de sessões |
+| `GG-SegPortal-Usuarios` | **Usuário** | Base de acesso (sem admin) |
+| `GG-SegPortal-Financeiro` | Negócio | RDP — estações financeiro |
+| `GG-SegPortal-Consulta` | Negócio | VNC — terminais de consulta |
+| `GG-SegPortal-Externo` | Negócio | Proxy egress (IP TJSE) |
+
+Documento dedicado: **[ROLES.md](ROLES.md)** · definição em `config/roles/roles.yaml`.
 
 **Passos no Guacamole (após primeiro login admin):**
 
 1. Acesse **Settings → Groups**
-2. Crie grupos com os mesmos nomes dos grupos AD
-3. Em **Settings → Connections**, associe cada conexão ao grupo correspondente
+2. Crie grupos com os mesmos nomes dos grupos AD (`segportal-admins`, `segportal-users`, etc.)
+3. No grupo admin, conceda permissões de sistema (`ADMINISTER`, `CREATE_*`)
+4. Em **Settings → Connections**, associe cada conexão ao grupo de negócio com permissão `READ`
+5. Usuários normais **não** recebem permissões de sistema
+
+Seed automático (demo JDBC):
+
+```bash
+./scripts/seed-roles.sh
+# ou: psql ... < scripts/sql/003-segportal-roles.sql
+```
 
 ---
 

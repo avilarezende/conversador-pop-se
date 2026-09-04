@@ -1,9 +1,13 @@
 # SegPortal — modo de demonstração local (SEM LDAP e SEM MFA)
-# Use para testar o portal no navegador sem infraestrutura corporativa.
-# Login padrão: guacadmin / guacadmin  (altere imediatamente em produção)
+# Login após seed-roles.sh:
+#   Admin   → guacadmin / guacadmin  (vê sessões, configura conexões)
+#   Usuário → usuario   / usuario    (somente o próprio contexto)
 #
 # Uso:
 #   docker compose -f docker-compose.dev.yml up --build
+#   # após o schema inicializar:
+#   docker compose -f docker-compose.dev.yml exec -T postgres \
+#     psql -U guacamole_user -d guacamole_db < scripts/sql/003-segportal-roles.sql
 #   Acesse: http://localhost:8080/guacamole
 
 services:

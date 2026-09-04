@@ -19,6 +19,15 @@ Controles de segurança do portal ZTNA baseado em Guacamole.
 
 Conta de serviço `svc-segportal` com permissões mínimas de leitura no AD.
 
+## Papéis e isolamento
+
+| Papel | Grupo | Visão de sessões | Configuração |
+|-------|-------|------------------|--------------|
+| **Administrador** | `segportal-admins` / `GG-SegPortal-Admin` | Todas (`ADMINISTER`) | Completa |
+| **Usuário** | `segportal-users` / `GG-SegPortal-Usuarios` | Apenas a própria | Nenhuma |
+
+Usuários normais recebem somente `READ` nas conexões dos grupos de negócio. Detalhes: [ROLES.md](ROLES.md).
+
 ## Comunicação
 
 - **TLS** em todo tráfego externo (Ingress + cert-manager)

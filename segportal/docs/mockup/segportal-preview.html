@@ -200,8 +200,11 @@
 </head>
 <body>
   <div class="topbar">
-    <span><strong>SegPortal TJSE</strong> — preview estático (UX). Para Guacamole real use Docker local.</span>
-    <span>Demo: usuário <code>demo</code> · senha <code>demo</code> · MFA <code>123456</code></span>
+    <span><strong>SegPortal TJSE</strong> — preview de papéis (admin × usuário).</span>
+    <span>
+      Admin: <code>guacadmin</code>/<code>guacadmin</code> ·
+      Usuário: <code>usuario</code>/<code>usuario</code> · MFA <code>123456</code>
+    </span>
   </div>
 
   <div class="shell">
@@ -224,15 +227,20 @@
       <div class="content">
         <div class="panel">
           <h2>Autenticação</h2>
-          <div class="error" id="login-error">Credenciais inválidas. Use demo / demo / 123456</div>
+          <div class="error" id="login-error">Credenciais inválidas. Use guacadmin ou usuario (+ MFA 123456)</div>
+          <label>Papel de teste</label>
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <button type="button" class="connect" style="flex:1" onclick="fillRole('admin')">Admin</button>
+            <button type="button" class="connect" style="flex:1; background:#5c6b7a" onclick="fillRole('user')">Usuário</button>
+          </div>
           <label>Usuário (sAMAccountName)</label>
-          <input id="user" value="demo" />
+          <input id="user" value="usuario" />
           <label>Senha do domínio</label>
-          <input id="pass" type="password" value="demo" />
+          <input id="pass" type="password" value="usuario" />
           <label>Código MFA</label>
           <input id="mfa" value="123456" />
           <button class="primary" type="button" onclick="doLogin()">Entrar no portal</button>
-          <p class="hint">Simulação LDAP + MFA · não conecta ao AD real</p>
+          <p class="hint">Admin vê sessões e configura · Usuário só o próprio contexto</p>
         </div>
       </div>
       <div class="footer">
@@ -248,57 +256,44 @@
           <div class="logo">TJSE</div>
           <div>
             <h1 style="font-size:18px;">SegPortal</h1>
-            <p style="font-size:13px; opacity:.9;">Recursos autorizados</p>
+            <p style="font-size:13px; opacity:.9;" id="portal-subtitle">Recursos autorizados</p>
           </div>
         </div>
         <div class="nav">
+          <span class="badge" id="role-badge">Usuário</span>
           <span class="badge">MFA verificado</span>
-          <span style="font-size:13px;" id="who">demo@tjse.jus.br</span>
+          <span style="font-size:13px;" id="who">usuario@tjse.jus.br</span>
           <button type="button" onclick="logout()">Sair</button>
         </div>
       </div>
       <div class="content">
-        <div class="stats">
-          <div class="stat"><div class="n">4</div><div class="l">Recursos</div></div>
-          <div class="stat"><div class="n">0</div><div class="l">Sessões</div></div>
-          <div class="stat"><div class="n" style="color:var(--ok);">●</div><div class="l">LDAP OK</div></div>
-          <div class="stat"><div class="n">IP TJSE</div><div class="l">Egress</div></div>
-        </div>
-        <div class="card">
-          <div class="icon">RDP</div>
-          <div class="card-body">
-            <h3>Estação Financeiro</h3>
-            <p>Windows · GG-SegPortal-Financeiro</p>
+        <div class="stats" id="stats-row"></div>
+        <div id="admin-panel" class="hidden" style="margin-bottom:18px; border:1px solid var(--border); border-radius:10px; padding:14px; background:#f8fafc;">
+          <h3 style="font-size:14px; color:var(--primary); margin-bottom:10px;">Painel administrativo</h3>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+            Visualização de sessões ativas e configuração de aplicações dos clientes.
+          </p>
+          <div class="card" style="margin:0 0 8px 0;">
+            <div class="icon" style="background:#ffebee;">👁</div>
+            <div class="card-body">
+              <h3>Sessões ativas (todos)</h3>
+              <p>usuario · Estação Financeiro · há 4 min</p>
+            </div>
+            <button class="connect" type="button" style="background:#c62828">Encerrar</button>
           </div>
-          <button class="connect" type="button" onclick="openSession('Estação Financeiro — RDP')">Conectar</button>
-        </div>
-        <div class="card">
-          <div class="icon" style="background:#e8f5e9;">VNC</div>
-          <div class="card-body">
-            <h3>Terminal Consulta Processual</h3>
-            <p>Linux · sessão individualizada</p>
+          <div class="card" style="margin:0;">
+            <div class="icon" style="background:#e8eaf6;">⚙</div>
+            <div class="card-body">
+              <h3>Configurar aplicações</h3>
+              <p>Conexões · grupos · permissões de clientes</p>
+            </div>
+            <button class="connect" type="button">Settings</button>
           </div>
-          <button class="connect" type="button" onclick="openSession('Consulta Processual — VNC')">Conectar</button>
         </div>
-        <div class="card">
-          <div class="icon" style="background:#f3e5f5;">SSH</div>
-          <div class="card-body">
-            <h3>Servidor Aplicações</h3>
-            <p>Administração restrita</p>
-          </div>
-          <button class="connect" type="button" onclick="openSession('Servidor Aplicações — SSH')">Conectar</button>
-        </div>
-        <div class="card">
-          <div class="icon" style="background:#fff3e0;">WEB</div>
-          <div class="card-body">
-            <h3>Navegação externa (IP do tribunal)</h3>
-            <p>Proxy egress · whitelist</p>
-          </div>
-          <button class="connect" type="button" onclick="openSession('Proxy egress — IP TJSE')">Abrir</button>
-        </div>
+        <div id="resource-list"></div>
       </div>
       <div class="footer">
-        <span>Timeout 60 min</span>
+        <span id="footer-role">Papel: usuário · contexto próprio</span>
         <span>Guacamole HTML5 clientless</span>
       </div>
     </div>
@@ -310,7 +305,7 @@
           <div class="logo" style="font-size:14px; padding:6px 10px;">TJSE</div>
           <div>
             <h1 style="font-size:16px;" id="session-title">Sessão</h1>
-            <p style="font-size:12px; opacity:.9;">Sessão isolada · demo</p>
+            <p style="font-size:12px; opacity:.9;" id="session-meta">Sessão isolada</p>
           </div>
         </div>
         <div class="nav">
@@ -323,7 +318,7 @@
           <div>
             <p style="font-size:42px; margin-bottom:10px;">🖥</p>
             <p><strong>Área Guacamole (simulada)</strong></p>
-            <p style="margin-top:8px; font-size:12px;">No ambiente real: stream HTML5 via guacd (RDP/VNC/SSH)</p>
+            <p style="margin-top:8px; font-size:12px;">Sessão individualizada · sem compartilhamento entre usuários</p>
           </div>
         </div>
       </div>
@@ -335,25 +330,94 @@
   </div>
 
   <script>
+    let currentRole = 'user';
+    const accounts = {
+      guacadmin: { pass: 'guacadmin', role: 'admin' },
+      usuario: { pass: 'usuario', role: 'user' }
+    };
+    const userResources = [
+      { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' }
+    ];
+    const adminResources = [
+      { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' },
+      { icon: 'VNC', bg: '#e8f5e9', title: 'Terminal Consulta Processual', desc: 'Linux · GG-SegPortal-Consulta' },
+      { icon: 'SSH', bg: '#f3e5f5', title: 'Servidor Aplicações', desc: 'Administração · GG-SegPortal-Admin' },
+      { icon: 'WEB', bg: '#fff3e0', title: 'Navegação externa (IP TJSE)', desc: 'Proxy egress · whitelist' }
+    ];
+
+    function fillRole(role) {
+      if (role === 'admin') {
+        document.getElementById('user').value = 'guacadmin';
+        document.getElementById('pass').value = 'guacadmin';
+      } else {
+        document.getElementById('user').value = 'usuario';
+        document.getElementById('pass').value = 'usuario';
+      }
+      document.getElementById('mfa').value = '123456';
+      document.getElementById('login-error').style.display = 'none';
+    }
+
     function show(id) {
       ['login','portal','session'].forEach(v => {
         document.getElementById('view-' + v).classList.toggle('hidden', v !== id);
       });
       const urls = {
         login: 'https://segportal.tjse.jus.br/guacamole',
-        portal: 'https://segportal.tjse.jus.br/guacamole/#/client',
+        portal: 'https://segportal.tjse.jus.br/guacamole/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
         session: 'https://segportal.tjse.jus.br/guacamole/#/client/SESSION'
       };
       document.getElementById('url').textContent = urls[id];
     }
+
+    function renderPortal() {
+      const isAdmin = currentRole === 'admin';
+      document.getElementById('role-badge').textContent = isAdmin ? 'Administrador' : 'Usuário';
+      document.getElementById('portal-subtitle').textContent = isAdmin
+        ? 'Gestão do portal · sessões e aplicações'
+        : 'Recursos do seu contexto';
+      document.getElementById('footer-role').textContent = isAdmin
+        ? 'Papel: admin · visão global de sessões'
+        : 'Papel: usuário · apenas o próprio contexto';
+      document.getElementById('admin-panel').classList.toggle('hidden', !isAdmin);
+
+      const stats = isAdmin
+        ? [
+            ['12', 'Recursos'],
+            ['3', 'Sessões ativas'],
+            ['●', 'LDAP OK'],
+            ['Admin', 'Papel']
+          ]
+        : [
+            ['1', 'Recursos'],
+            ['0', 'Minhas sessões'],
+            ['●', 'LDAP OK'],
+            ['Usuário', 'Papel']
+          ];
+      document.getElementById('stats-row').innerHTML = stats.map(([n,l]) =>
+        `<div class="stat"><div class="n"${n==='●'?' style="color:var(--ok)"':''}>${n}</div><div class="l">${l}</div></div>`
+      ).join('');
+
+      const list = isAdmin ? adminResources : userResources;
+      document.getElementById('resource-list').innerHTML = list.map(r => `
+        <div class="card">
+          <div class="icon" style="background:${r.bg}">${r.icon}</div>
+          <div class="card-body"><h3>${r.title}</h3><p>${r.desc}</p></div>
+          <button class="connect" type="button" onclick="openSession('${r.title}')">Conectar</button>
+        </div>
+      `).join('');
+    }
+
     function doLogin() {
       const u = document.getElementById('user').value.trim();
       const p = document.getElementById('pass').value;
       const m = document.getElementById('mfa').value.trim();
       const err = document.getElementById('login-error');
-      if (u === 'demo' && p === 'demo' && m === '123456') {
+      const acc = accounts[u];
+      if (acc && acc.pass === p && m === '123456') {
         err.style.display = 'none';
+        currentRole = acc.role;
         document.getElementById('who').textContent = u + '@tjse.jus.br';
+        renderPortal();
         show('portal');
       } else {
         err.style.display = 'block';
@@ -361,6 +425,8 @@
     }
     function openSession(title) {
       document.getElementById('session-title').textContent = title;
+      document.getElementById('session-meta').textContent =
+        currentRole === 'admin' ? 'Sessão isolada · visão admin' : 'Sessão isolada · contexto próprio';
       show('session');
     }
     function backPortal() { show('portal'); }

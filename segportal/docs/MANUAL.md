@@ -72,6 +72,15 @@ O portal lista apenas os recursos liberados para o seu **grupo do Active Directo
 
 ## 3. Administração
 
+### 3.0 Papéis: admin vs usuário
+
+| Papel | Quem | O que faz |
+|-------|------|-----------|
+| **Administrador** | `GG-SegPortal-Admin` / `guacadmin` | Vê sessões de todos, configura conexões e usuários |
+| **Usuário** | `GG-SegPortal-Usuarios` / `usuario` | Só seus recursos; sem Settings admin |
+
+Detalhes: [ROLES.md](ROLES.md)
+
 ### 3.1 Arquitetura resumida
 
 ![Arquitetura](images/architecture-overview.jpg)

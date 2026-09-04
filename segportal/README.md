@@ -87,8 +87,9 @@ kubectl apply -k k8s/overlays/production
 
 | Item | Arquivo / variável | Detalhes |
 |------|-------------------|----------|
-| LDAP AD | `LDAP_HOSTNAME`, `LDAP_USER_BASE_DN` | [CONFIGURATION.md](docs/CONFIGURATION.md#1-active-directory-ldap) |
-| MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#2-mfa-via-radius) |
+| **Papéis admin / usuário** | `config/roles/roles.yaml` | [ROLES.md](docs/ROLES.md) |
+| LDAP AD | `LDAP_HOSTNAME`, `LDAP_USER_BASE_DN` | [CONFIGURATION.md](docs/CONFIGURATION.md#2-active-directory-ldap) |
+| MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#3-mfa-via-radius) |
 | Sessões | `SESSION_TIMEOUT_MINUTES` | Timeout e limite de conexões |
 | Proxy egress | `config/proxy/squid.conf` | Whitelist de domínios externos |
 | Secrets K8s | `k8s/*/secret.example.yaml` | Copiar e preencher antes do deploy |
@@ -137,6 +138,7 @@ Detalhes: [docs/SECURITY.md](docs/SECURITY.md)
 | Documento | Conteúdo |
 |-----------|----------|
 | [MANUAL.md](docs/MANUAL.md) | Manual do usuário e administrador |
+| [ROLES.md](docs/ROLES.md) | Papéis admin e usuário (RBAC) |
 | [USAGE.md](docs/USAGE.md) | Fluxo de uso com exemplos visuais |
 | [CONFIGURATION.md](docs/CONFIGURATION.md) | Configuração LDAP, MFA, proxy e K8s |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitetura e decisões de design |
