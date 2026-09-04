@@ -1,6 +1,6 @@
 # Configuração — SegPortal TJSE
 
-Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy e Kubernetes.
+Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy, navegador padrão e Kubernetes.
 
 ---
 
@@ -11,11 +11,11 @@ Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy e
 3. [Active Directory (LDAP) — opcional](#3-active-directory-ldap--opcional)
 4. [MFA via RADIUS](#4-mfa-via-radius)
 5. [Guacamole e PostgreSQL](#5-guacamole-e-postgresql)
-6. [Proxy de egress (Squid)](#6-proxy-de-egress-squid)
-7. [Branding TJSE](#7-branding-tjse)
-8. [Kubernetes / Rancher](#8-kubernetes--rancher)
-9. [Inicialização do banco](#9-inicialização-do-banco)
-10. [Cadastro de conexões](#10-cadastro-de-conexões)
+6. [Navegador HTML padrão (automático)](#6-navegador-html-padrão-automático)
+7. [Proxy de egress (Squid)](#7-proxy-de-egress-squid)
+8. [Branding TJSE](#8-branding-tjse)
+9. [Kubernetes / Rancher](#9-kubernetes--rancher)
+10. [Pedidos de conexão](#10-pedidos-de-conexão)
 11. [Validação pós-configuração](#11-validação-pós-configuração)
 
 ---
@@ -43,80 +43,31 @@ Documento completo: **[LOCAL_ADMIN.md](LOCAL_ADMIN.md)**
 | Senha inicial | `guacadmin` |
 | Depende de LDAP? | **Não** |
 
-### Alterar senha
-
 ```bash
 ./scripts/change-local-password.sh guacadmin 'NovaSenhaForte!'
+./scripts/delete-local-user.sh guacadmin --disable
 ```
 
-Ou pela UI: login → Preferences → alterar senha.
-
-### Desativar / excluir
-
-```bash
-./scripts/delete-local-user.sh guacadmin --disable   # recomendado
-./scripts/delete-local-user.sh guacadmin --delete    # permanente
-```
-
-Só exclua depois de criar outro administrador.
-
-### Gerenciar usuários locais (sem LDAP)
-
-1. Login como `guacadmin`
-2. **Settings → Users → New User**
-3. Defina senha e permissões / grupos
-
-Com `LDAP_ENABLED=false` (padrão), essa é a única forma de autenticação.
+Com `LDAP_ENABLED=false` (padrão), a autenticação é só JDBC/local.
 
 ---
 
 ## 3. Active Directory (LDAP) — opcional
 
-O administrador configura os apontamentos LDAP. Referência editável:
-
-- `config/ldap/ldap-settings.yaml`
-- Variáveis em `.env` / ConfigMap / Secret
-
-### 3.1 Campos configuráveis
+Referência: `config/ldap/ldap-settings.yaml` e variáveis `.env` / ConfigMap / Secret.
 
 | Campo | Variável | Descrição |
 |-------|----------|-----------|
 | Liga LDAP | `LDAP_ENABLED` | `true` / `false` (padrão `false`) |
 | Servidor | `LDAP_HOSTNAME` | Ex.: `ldap.tjse.jus.br` |
 | Porta | `LDAP_PORT` | `636` (LDAPS) ou `389` |
-| Criptografia | `LDAP_ENCRYPTION_METHOD` | `ssl`, `starttls` ou `none` |
-| Domínio | `ldap.domain` em yaml | `tjse.jus.br` |
-| Base usuários | `LDAP_USER_BASE_DN` | `OU=Usuarios,DC=tjse,DC=jus,DC=br` |
-| Base grupos | `LDAP_GROUP_BASE_DN` | `OU=Grupos,DC=tjse,DC=jus,DC=br` |
-| UID / atributo | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName`, `uid`, `cn`, `userPrincipalName` |
-| Filtro usuário | `LDAP_USER_SEARCH_FILTER` | `(objectClass=user)` |
-| Filtro grupo | `LDAP_GROUP_SEARCH_FILTER` | `(objectClass=group)` |
-| Atributo membro | `LDAP_MEMBER_ATTRIBUTE` | `member` |
-| Bind DN | `LDAP_SEARCH_BIND_DN` | Conta de serviço |
-| Senha bind | `LDAP_SEARCH_BIND_PASSWORD` | **Secret** |
-| Cadeia CA | `LDAP_CA_CHAIN_FILE` | PEM em `/etc/guacamole/certs/` |
-| Cert. servidor | `LDAP_SERVER_CERTIFICATE_FILE` | Opcional |
-| Truststore | `LDAP_TRUSTSTORE_FILE` | Gerado pelo entrypoint |
+| Domínio | yaml `ldap.domain` | `tjse.jus.br` |
+| Base usuários / grupos | `LDAP_USER_BASE_DN` / `LDAP_GROUP_BASE_DN` | DNs do AD |
+| Atributo UID | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName` |
+| Bind | `LDAP_SEARCH_BIND_DN` / `LDAP_SEARCH_BIND_PASSWORD` | Conta de serviço |
+| CA | `LDAP_CA_CHAIN_FILE` | PEM em `/etc/guacamole/certs/` |
 
-### 3.2 Procedimento do administrador
-
-1. Coloque a cadeia CA em `config/ldap/certs/ldap-ca-chain.pem`
-2. Preencha `.env` (ou Secret Rancher) com servidor, porta, domain/DN, uid, bind
-3. Defina `LDAP_ENABLED=true`
-4. Reinicie o Guacamole: `kubectl -n segportal rollout restart deployment/guacamole`
-5. Teste login AD **mantendo** o `guacadmin` local
-
-Se `LDAP_ENABLED=false`, o `entrypoint.sh` remove todas as chaves `ldap-*` e o portal fica só com JDBC.
-
-### 3.3 Conta de serviço no AD
-
-```
-CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
-```
-
-Permissões mínimas: leitura em usuários e grupos.
-
-### 3.4 Grupos AD → papéis
+Procedimento: preencher CA e secrets → `LDAP_ENABLED=true` → reiniciar Guacamole → testar login AD **mantendo** `guacadmin` local.
 
 | Grupo AD | Papel |
 |----------|-------|
@@ -124,7 +75,7 @@ Permissões mínimas: leitura em usuários e grupos.
 | `GG-SegPortal-Usuarios` | Usuário |
 | `GG-SegPortal-Financeiro` / `Consulta` / `Externo` | Negócio |
 
-Ver [ROLES.md](ROLES.md). Seed: `./scripts/seed-roles.sh`.
+Ver [ROLES.md](ROLES.md).
 
 ---
 
@@ -132,12 +83,12 @@ Ver [ROLES.md](ROLES.md). Seed: `./scripts/seed-roles.sh`.
 
 ```bash
 MFA_ENABLED=true
-MFA_RADIUS_HOST=radius.tjse.jus.br
+MFA_RADIUS_HOSTNAME=radius.tjse.jus.br
 MFA_RADIUS_PORT=1812
 MFA_RADIUS_SECRET=<shared_secret>
 ```
 
-Recomendado somente com LDAP habilitado. Com `MFA_ENABLED=false`, o entrypoint remove as chaves `radius-*`.
+Recomendado com LDAP. Com `MFA_ENABLED=false`, o entrypoint remove chaves `radius-*`.
 
 ---
 
@@ -150,66 +101,76 @@ Recomendado somente com LDAP habilitado. Com `MFA_ENABLED=false`, o entrypoint r
 | `POSTGRES_PASSWORD` | Senha | *(obrigatório)* |
 | `SESSION_TIMEOUT_MINUTES` | Timeout | `60` |
 
-Build da imagem:
+O serviço **`segportal-bootstrap`** aplica schema (se necessário), papéis e o navegador padrão — não dependa de seed manual.
 
 ```bash
-docker build -f services/guacamole/Dockerfile -t segportal/guacamole:latest .
+./scripts/bootstrap-segportal.sh   # idempotente
 ```
 
 ---
 
-## 6. Proxy de egress (Squid)
+## 6. Navegador HTML padrão (automático)
 
-Arquivo: `config/proxy/squid.conf` / `services/egress-proxy/squid.conf`.
+| Item | Valor |
+|------|-------|
+| Serviço | `web-browser` (Firefox / VNC `:5900`) |
+| Conexão Guacamole | **Navegador Web SegPortal** |
+| Permissão | `READ` para todos os usuários no boot |
+| Docs | [CONNECTIONS.md](CONNECTIONS.md) |
+
+Compose e Job K8s (`k8s/bootstrap`) já incluem o bootstrap. Imagem: `services/web-browser/Dockerfile` (`SECURE_CONNECTION=0`, sem senha VNC na rede interna).
+
+![Fluxo do navegador padrão](images/usage-browser.jpg)
 
 ---
 
-## 7. Branding TJSE
+## 7. Proxy de egress (Squid)
+
+Arquivos: `config/proxy/squid.conf` e `services/egress-proxy/`. Serviço Compose/K8s: `proxy-egress`.
+
+Revise a whitelist antes de produção.
+
+---
+
+## 8. Branding TJSE
 
 Arquivos em `services/guacamole/branding/`.
 
 ---
 
-## 8. Kubernetes / Rancher
+## 9. Kubernetes / Rancher
 
 ```bash
 kubectl create namespace segportal
-kubectl -n segportal create secret generic segportal-secrets \
-  --from-literal=POSTGRES_PASSWORD='...' \
-  --from-literal=LDAP_SEARCH_BIND_PASSWORD='...' \
-  --from-literal=MFA_RADIUS_SECRET='...'
+# secrets a partir de k8s/*/secret.example.yaml
 kubectl apply -k k8s/overlays/production
+# Job segportal-bootstrap cria navegador padrão
+kubectl -n segportal wait --for=condition=complete job/segportal-bootstrap --timeout=300s
 ```
-
-ConfigMap `segportal-common` traz `LDAP_ENABLED=false` por padrão. Para ligar LDAP, edite o ConfigMap/Secret e monte o volume de certificados CA.
 
 ---
 
-## 9. Inicialização do banco
+## 10. Pedidos de conexão
+
+Usuário solicita; admin aprova. Política: `config/connections/requests.yaml`.
 
 ```bash
-export POSTGRES_PASSWORD=...
-./scripts/init-db.sh
-./scripts/seed-roles.sh
+./scripts/request-connection.sh usuario "RDP X" rdp 10.10.20.51 3389 "Justificativa"
+./scripts/approve-connection-request.sh 1
 ```
 
-Cria schema + `guacadmin` + papéis/grupos.
-
----
-
-## 10. Cadastro de conexões
-
-Login admin → **Settings → Connections → New Connection** → associe ao grupo de negócio.
+Cadastro manual na UI (Settings → Connections) continua válido para o admin.
 
 ---
 
 ## 11. Validação pós-configuração
 
 - [ ] Login `guacadmin` funciona **sem** LDAP
-- [ ] Senha do admin alterada
-- [ ] (Se LDAP) login AD + cadeia CA válida
-- [ ] Usuário normal vê só o próprio contexto
-- [ ] Admin vê sessões / Settings
+- [ ] Conexão **Navegador Web SegPortal** aparece para admin e usuário
+- [ ] Senha do admin alterada em produção
+- [ ] (Se LDAP) login AD + CA válida
+- [ ] Usuário normal não vê Settings administrativos
+- [ ] Admin consegue aprovar pedidos
 
 ```bash
 pytest tests -v
@@ -218,6 +179,8 @@ pytest tests -v
 
 ## Referências
 
-- [LOCAL_ADMIN.md](LOCAL_ADMIN.md) — senha e exclusão do admin padrão
-- [ROLES.md](ROLES.md) — papéis
+- [LOCAL_ADMIN.md](LOCAL_ADMIN.md)
+- [ROLES.md](ROLES.md)
+- [CONNECTIONS.md](CONNECTIONS.md)
 - [SECURITY.md](SECURITY.md)
+- [MANUAL.md](MANUAL.md)

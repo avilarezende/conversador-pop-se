@@ -113,6 +113,8 @@ class TestDocumentationImages:
             "usage-login.jpg",
             "usage-portal.jpg",
             "usage-session.jpg",
+            "usage-browser.jpg",
+            "admin-approvals.jpg",
         ],
     )
     def test_jpg_images_exist(self, images_dir: Path, name: str) -> None:
@@ -120,3 +122,15 @@ class TestDocumentationImages:
 
     def test_manual_exists(self) -> None:
         assert (ROOT / "docs" / "MANUAL.md").is_file()
+
+    def test_docs_mention_default_browser(self) -> None:
+        for rel in (
+            "docs/MANUAL.md",
+            "docs/USAGE.md",
+            "docs/CONNECTIONS.md",
+            "docs/CONFIGURATION.md",
+            "docs/ROLES.md",
+            "README.md",
+        ):
+            text = (ROOT / rel).read_text(encoding="utf-8")
+            assert "Navegador Web SegPortal" in text, f"Falta navegador padrão em {rel}"

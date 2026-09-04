@@ -25,7 +25,7 @@ flowchart LR
 |-----|-----------|
 | `lint-and-test` | Ruff + pytest |
 | `validate-k8s` | `kubectl kustomize` + kubeconform |
-| `docker-build` | Build guacamole, guacd, egress-proxy (sem push) |
+| `docker-build` | Build guacamole, guacd, egress-proxy, **web-browser** (sem push) |
 | `compose-config` | Valida `docker-compose.yml` |
 
 Badge no README aponta para este workflow.
@@ -59,9 +59,12 @@ Badge no README aponta para este workflow.
 registry.tjse.jus.br/segportal/guacamole:<tag>
 registry.tjse.jus.br/segportal/guacd:<tag>
 registry.tjse.jus.br/segportal/egress-proxy:<tag>
+registry.tjse.jus.br/segportal/web-browser:<tag>
 ```
 
 Tags: SHA do commit, `latest`, ou versão semântica (`v1.0.0`).
+
+O Job `segportal-bootstrap` (navegador HTML padrão) é aplicado nos overlays K8s após o deploy.
 
 ## Pull Requests
 

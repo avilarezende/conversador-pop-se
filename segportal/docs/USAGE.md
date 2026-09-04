@@ -1,6 +1,6 @@
 # Guia de uso — SegPortal TJSE
 
-Fluxo do usuário final com exemplos visuais. Para manual completo, veja [MANUAL.md](MANUAL.md).
+Fluxo visual do usuário final. Manual completo: [MANUAL.md](MANUAL.md).
 
 ---
 
@@ -8,89 +8,88 @@ Fluxo do usuário final com exemplos visuais. Para manual completo, veja [MANUAL
 
 ![Mockup do portal](images/segportal-mockup.jpg)
 
-1. Usuário autentica no portal (LDAP + MFA)
-2. Visualiza recursos liberados pelo grupo AD
-3. Conecta via RDP, VNC ou SSH no navegador
-4. (Opcional) Acessa sites externos via proxy com IP TJSE
+1. Autenticar no portal (local e/ou LDAP + MFA opcional)
+2. Ver recursos liberados — **sempre** inclui o Navegador Web SegPortal
+3. Conectar no navegador HTML5 (sem VPN)
+4. Se precisar de RDP/VNC/SSH extra, **solicitar** e aguardar aprovação do admin
 
 ---
 
-## 1. Login no portal
+## 1. Login
 
-Acesse `https://segportal.tjse.jus.br` e informe:
-
-1. **Usuário** — `sAMAccountName` do domínio `tjse.jus.br`
-2. **Senha** — credencial do Active Directory
-3. **Código MFA** — token do autenticador ou RADIUS corporativo
+Acesse `https://segportal.tjse.jus.br` (ou `http://localhost:8080/guacamole` na demo).
 
 ![Tela de login](images/usage-login.jpg)
 
-Após autenticação, o Guacamole emite token de sessão com timeout de 60 minutos (inatividade).
+| Campo | Produção | Demo local |
+|-------|----------|------------|
+| Usuário | `sAMAccountName` do AD ou local | `usuario` ou `guacadmin` |
+| Senha | AD / local | `usuario` / `guacadmin` |
+| MFA | Se habilitado | Não exigido no compose.dev |
 
 ---
 
 ## 2. Portal de recursos
 
-O usuário vê apenas conexões permitidas pelos **grupos AD**:
-
 ![Portal de recursos](images/usage-portal.jpg)
 
-| Tipo | Uso típico |
-|------|------------|
-| **RDP** | Estações Windows, servidores de aplicação |
-| **VNC** | Terminais Linux, consulta processual |
-| **SSH** | Administração de servidores |
-| **Proxy** | Sites externos com IP do tribunal |
+| Tipo | Uso |
+|------|-----|
+| **Navegador Web SegPortal** | Firefox HTML5 — **padrão automático para todos** |
+| **RDP / VNC / SSH** | Terminais liberados por grupo ou após aprovação |
 
 ---
 
-## 3. Sessão clientless
+## 3. Navegador HTML padrão
 
-Ao clicar em **Conectar**, o desktop remoto abre no navegador — sem VPN ou cliente RDP:
+![Fluxo do navegador padrão](images/usage-browser.jpg)
 
-![Sessão ativa](images/usage-session.jpg)
+No boot, o serviço `web-browser` sobe e o `segportal-bootstrap` cria a conexão com `READ` para todos. Não há seed manual.
 
-Cada sessão é **individualizada**: processo guacd dedicado por usuário.
+![Sessão clientless](images/usage-session.jpg)
 
----
-
-## 4. Navegação externa (egress)
-
-Tráfego HTTP/HTTPS autorizado passa pelo pod `proxy-egress` e sai com **IP institucional** do TJSE.
-
-![Arquitetura](images/architecture-overview.jpg)
+Tráfego externo passa pelo `proxy-egress` (IP institucional TJSE), quando configurado.
 
 ---
 
-## 5. Fluxo de autenticação
+## 4. Pedido de terminal adicional
 
-![Fluxo LDAP + MFA](images/auth-flow.jpg)
+Usuário solicita → admin aprova → conexão aparece só para o solicitante.
+
+```bash
+./scripts/request-connection.sh usuario "RDP Financeiro" rdp 10.10.20.51 3389 "Justificativa"
+```
+
+Admin:
+
+```bash
+./scripts/approve-connection-request.sh 1
+```
+
+![Painel de aprovações](images/admin-approvals.jpg)
 
 ---
 
-## 6. Encerramento de sessão
+## 5. Encerramento
 
-- **Logout** manual no menu
-- **Timeout** por inatividade
-- **Limite** de sessões simultâneas por usuário
+- **Encerrar sessão** no menu da conexão
+- Timeout por inatividade
+- Logout do portal
 
 ---
 
-## Diagramas adicionais
+## Diagramas e imagens
 
-| Diagrama | Arquivo |
-|----------|---------|
-| Arquitetura completa | [architecture-overview.jpg](images/architecture-overview.jpg) |
-| Fluxo de autenticação | [auth-flow.jpg](images/auth-flow.jpg) |
-| Pods Kubernetes | [k8s-pods.jpg](images/k8s-pods.jpg) |
-| Mockup do portal | [segportal-mockup.jpg](images/segportal-mockup.jpg) |
+| Imagem | Conteúdo |
+|--------|----------|
+| [segportal-mockup.jpg](images/segportal-mockup.jpg) | Visão geral das telas |
+| [usage-login.jpg](images/usage-login.jpg) | Login |
+| [usage-portal.jpg](images/usage-portal.jpg) | Lista de recursos |
+| [usage-browser.jpg](images/usage-browser.jpg) | Navegador padrão |
+| [usage-session.jpg](images/usage-session.jpg) | Sessão HTML5 |
+| [admin-approvals.jpg](images/admin-approvals.jpg) | Aprovações admin |
+| [architecture-overview.jpg](images/architecture-overview.jpg) | Arquitetura |
+| [auth-flow.jpg](images/auth-flow.jpg) | Autenticação |
+| [k8s-pods.jpg](images/k8s-pods.jpg) | Pods Kubernetes |
 
-## Perfis e grupos AD
-
-| Grupo AD | Recursos |
-|----------|----------|
-| `GG-SegPortal-Financeiro` | RDP estações financeiro |
-| `GG-SegPortal-Consulta` | VNC terminais processuais |
-| `GG-SegPortal-Admin` | SSH servidores + proxy egress |
-
-Configuração: [CONFIGURATION.md](CONFIGURATION.md)
+Preview interativo: [mockup/segportal-preview.html](mockup/segportal-preview.html)

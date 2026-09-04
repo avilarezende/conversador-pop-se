@@ -1,11 +1,11 @@
 # Scripts — SegPortal TJSE
 
-Utilitários de inicialização e validação do projeto.
+Utilitários de inicialização, bootstrap e operação do portal.
 
 | Script | Descrição |
 |--------|-----------|
 | [bootstrap-segportal.sh](bootstrap-segportal.sh) | **Padrão no boot** — schema + papéis + navegador HTML + pedidos |
-| [init-db.sh](init-db.sh) | Só schema PostgreSQL do Guacamole 1.5.5 (legado/manual) |
+| [init-db.sh](init-db.sh) | Schema PostgreSQL do Guacamole 1.5.5 (legado/manual) |
 | [init-db-dev.sh](init-db-dev.sh) | Schema + admin para uso manual |
 | [seed-roles.sh](seed-roles.sh) | Só papéis admin/usuário |
 | [seed-browser-and-requests.sh](seed-browser-and-requests.sh) | Atalho → chama `bootstrap-segportal.sh` |
@@ -17,13 +17,14 @@ Utilitários de inicialização e validação do projeto.
 
 ## Uso
 
-O compose sobe `segportal-bootstrap` sozinho. Reexecução manual:
+O Compose sobe `segportal-bootstrap` sozinho. Reexecução manual:
 
 ```bash
 export POSTGRES_PASSWORD=...
 ./scripts/bootstrap-segportal.sh
 
-# Admin padrão
 ./scripts/change-local-password.sh guacadmin 'NovaSenhaForte!'
 ./scripts/validate-k8s.sh
 ```
+
+Documentação: [docs/MANUAL.md](../docs/MANUAL.md) · [docs/CONNECTIONS.md](../docs/CONNECTIONS.md) · [docs/CONFIGURATION.md](../docs/CONFIGURATION.md)

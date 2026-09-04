@@ -6,9 +6,19 @@ Manual de referência para **usuários finais** e **administradores** do portal 
 
 ## 1. O que é o SegPortal?
 
-O SegPortal permite acessar sistemas do TJSE e alguns recursos externos **pelo navegador**, sem instalar VPN ou clientes RDP/VNC. Funciona como substituto da VPN interna, com autenticação forte (LDAP + MFA) e sessões isoladas por usuário.
+O SegPortal permite acessar sistemas do TJSE e sites (internos e externos) **pelo navegador**, sem VPN nem clientes RDP/VNC. É um portal **clientless** baseado em Apache Guacamole, com autenticação local e/ou LDAP, MFA opcional e sessões isoladas por usuário.
 
 ![Mockup do portal](images/segportal-mockup.jpg)
+
+**Destaque:** todo usuário autenticado já possui o **Navegador Web SegPortal** (Firefox via VNC → HTML5), habilitado automaticamente no boot do ambiente.
+
+| Público | Documento |
+|---------|-----------|
+| Usuário final (passo a passo visual) | [USAGE.md](USAGE.md) |
+| Navegador padrão e pedidos de terminal | [CONNECTIONS.md](CONNECTIONS.md) |
+| Papéis admin / usuário | [ROLES.md](ROLES.md) |
+| Admin local e LDAP opcional | [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |
+| Configuração técnica | [CONFIGURATION.md](CONFIGURATION.md) |
 
 ---
 
@@ -17,126 +27,152 @@ O SegPortal permite acessar sistemas do TJSE e alguns recursos externos **pelo n
 ### 2.1 Como entrar no portal
 
 1. Abra o navegador (Chrome, Edge ou Firefox atualizado).
-2. Acesse: **https://segportal.tjse.jus.br**
+2. Acesse: **https://segportal.tjse.jus.br** (produção) ou `http://localhost:8080/guacamole` (demo local).
 3. Informe:
-   - **Usuário** — seu login do domínio (`sAMAccountName`, ex.: `joao.silva`)
-   - **Senha** — mesma senha do computador/rede do TJSE
-   - **Código MFA** — token do autenticador ou aprovação RADIUS corporativo
+   - **Usuário** — login do domínio (`sAMAccountName`) **ou** usuário local
+   - **Senha** — credencial do AD ou senha local
+   - **Código MFA** — quando o MFA estiver habilitado no ambiente
 4. Clique em **Entrar no portal**.
 
 ![Tela de login](images/usage-login.jpg)
 
+**Demo local (sem LDAP):**
+
+| Papel | Usuário | Senha |
+|-------|---------|-------|
+| Administrador | `guacadmin` | `guacadmin` |
+| Usuário | `usuario` | `usuario` |
+
 ### 2.2 O que aparece após o login
 
-O portal lista apenas os recursos liberados para o seu **grupo do Active Directory**:
+O portal lista apenas os recursos liberados ao seu perfil/grupo:
 
 ![Portal de recursos](images/usage-portal.jpg)
 
-| Ícone / tipo | O que é | Exemplo de uso |
-|--------------|---------|----------------|
-| **Navegador Web SegPortal** | Firefox HTML5 (padrão para todos) | Sites internos e externos |
-| **RDP** | Área de trabalho Windows remota | Estações do financeiro, protocolo |
-| **VNC** | Tela Linux remota | Terminais de consulta processual |
-| **SSH** | Terminal de servidor | Administração de sistemas |
-| **Proxy** | Navegação web externa (legado) | Sites que exigem IP do tribunal |
+| Tipo | O que é | Observação |
+|------|---------|------------|
+| **Navegador Web SegPortal** | Firefox HTML5 | **Padrão para todos** — já liberado |
+| **RDP** | Desktop Windows remoto | Mediante grupo ou aprovação |
+| **VNC** | Desktop Linux remoto | Mediante grupo ou aprovação |
+| **SSH** | Terminal de servidor | Mediante grupo ou aprovação |
 
-Todo usuário autenticado já encontra o **Navegador Web SegPortal** liberado — não precisa pedir acesso a esse recurso.
+![Navegador HTML padrão](images/usage-browser.jpg)
 
-### 2.3 Como usar uma conexão remota
+### 2.3 Usar o Navegador Web SegPortal
 
-1. Clique em **Conectar** no recurso desejado.
-2. Aguarde a sessão abrir na área central do navegador.
-3. Utilize mouse e teclado normalmente — é como estar na máquina remota.
-4. Ao terminar, clique em **Encerrar sessão** ou feche a aba do recurso.
+1. Clique em **Conectar** em **Navegador Web SegPortal**.
+2. O Firefox abre dentro do Guacamole (HTML5).
+3. Navegue em sites internos do TJSE ou externos (externos saem pelo `proxy-egress` com IP institucional, quando configurado).
+4. Ao terminar, **Encerrar sessão**.
 
-![Sessão clientless](images/usage-session.jpg)
+![Sessão do navegador](images/usage-session.jpg)
 
-> **Importante:** cada sessão é exclusiva. Outro usuário não compartilha a mesma área de trabalho.
+### 2.4 Solicitar outro terminal ou aplicação
 
-### 2.4 Regras de sessão
+Usuários **não** criam conexões sozinhos. Para RDP/VNC/SSH adicionais:
 
-| Regra | Valor padrão | O que significa |
-|-------|--------------|-----------------|
-| Timeout por inatividade | 60 minutos | Sessão encerra se não houver uso |
-| Sessões simultâneas | 3 por usuário | Limite de conexões abertas ao mesmo tempo |
-| MFA | Obrigatório | Segundo fator exigido em todo login |
+1. Abra um pedido (script, chamado ou formulário do portal).
+2. Informe nome, protocolo, host e justificativa.
+3. Aguarde o **administrador aprovar**.
+4. Após aprovação, a conexão aparece só para você.
 
-### 2.5 Problemas comuns (usuário)
+```bash
+./scripts/request-connection.sh usuario "RDP Empenho" rdp 10.10.20.51 3389 \
+  "Acesso ao sistema de empenho"
+```
+
+Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
+
+### 2.5 Regras de sessão
+
+| Regra | Valor padrão | Significado |
+|-------|--------------|-------------|
+| Timeout por inatividade | 60 minutos | Sessão encerra sem uso |
+| Sessões simultâneas | Limitadas por política | Evita abuso de recursos |
+| Isolamento | Por usuário | Ninguém compartilha sua sessão |
+
+### 2.6 Problemas comuns (usuário)
 
 | Sintoma | Possível causa | O que fazer |
 |---------|----------------|-------------|
-| "Credenciais inválidas" | Senha AD incorreta ou conta bloqueada | Verificar senha; contatar suporte TI |
-| MFA rejeitado | Token expirado ou relógio desincronizado | Gerar novo código; sincronizar hora do dispositivo |
-| Recurso não aparece | Grupo AD sem permissão | Solicitar inclusão no grupo SegPortal adequado |
-| Sessão cai sozinha | Timeout de inatividade | Reconectar; manter atividade na sessão |
-| Tela preta no RDP | Servidor destino offline | Informar à equipe responsável pelo sistema |
+| Credenciais inválidas | Senha errada / conta bloqueada | Conferir senha; contatar TI |
+| MFA rejeitado | Token expirado | Gerar novo código |
+| Só aparece o navegador | Outros recursos ainda não aprovados | Solicitar terminal ao admin |
+| Sessão cai | Timeout | Reconectar |
+| Site externo bloqueado | Fora da whitelist do Squid | Pedir liberação à segurança |
 
 ---
 
 ## 3. Administração
 
-### 3.0 Papéis e admin padrão
+### 3.1 Papéis
 
-| Papel | Quem | O que faz |
-|-------|------|-----------|
-| **Administrador** | `guacadmin` (local) ou `GG-SegPortal-Admin` | Vê sessões, configura conexões e **apontamentos LDAP** |
-| **Usuário** | usuários locais ou `GG-SegPortal-Usuarios` | Só seus recursos |
+| Papel | Quem | Pode |
+|-------|------|------|
+| **Administrador** | `guacadmin` ou `GG-SegPortal-Admin` | Sessões globais, conexões, aprovações, LDAP |
+| **Usuário** | locais ou `GG-SegPortal-Usuarios` | Próprios recursos + navegador padrão |
 
-O admin **`guacadmin` / `guacadmin`** é criado automaticamente e **não depende do LDAP**.  
-Como alterar senha ou excluir: **[LOCAL_ADMIN.md](LOCAL_ADMIN.md)**.  
-Papéis: [ROLES.md](ROLES.md).
+![Painel admin — aprovações](images/admin-approvals.jpg)
 
-### 3.1 Arquitetura resumida
+O admin **`guacadmin` / `guacadmin`** é criado no bootstrap e **não depende do LDAP**.  
+Guia: [LOCAL_ADMIN.md](LOCAL_ADMIN.md) · [ROLES.md](ROLES.md).
+
+### 3.2 Arquitetura e pods
 
 ![Arquitetura](images/architecture-overview.jpg)
 
 ![Pods Kubernetes](images/k8s-pods.jpg)
 
-### 3.2 Fluxo de autenticação
+| Componente | Função |
+|------------|--------|
+| `guacamole` | Portal web e autenticação |
+| `guacd` | Proxy RDP / VNC / SSH |
+| `web-browser` | Firefox via VNC (padrão) |
+| `proxy-egress` | Squid — saída com IP TJSE |
+| `postgres` | Metadados |
+| `segportal-bootstrap` | Job/serviço que cria papéis + navegador padrão |
 
-![Fluxo LDAP + MFA](images/auth-flow.jpg)
+### 3.3 Autenticação
 
-1. Guacamole recebe credenciais do usuário.
-2. Valida no **LDAP** do domínio `tjse.jus.br`.
-3. Consulta **RADIUS** para o segundo fator (MFA).
-4. Em caso de sucesso, libera o portal conforme grupos AD.
+![Fluxo de autenticação](images/auth-flow.jpg)
 
-### 3.3 Grupos AD e permissões (exemplo)
+1. Credenciais locais (JDBC) **sempre** disponíveis.
+2. LDAP/AD (`tjse.jus.br`) **opcional** — apontamentos pelo admin.
+3. MFA RADIUS **opcional**.
+4. Autorização por grupos Guacamole / AD.
 
-| Grupo AD | Recursos típicos |
-|----------|------------------|
-| `GG-SegPortal-Financeiro` | RDP — estações do setor financeiro |
-| `GG-SegPortal-Consulta` | VNC — terminais de consulta |
-| `GG-SegPortal-Admin` | SSH servidores + proxy de egress |
-| `GG-SegPortal-Externo` | Apenas navegação via proxy (IP TJSE) |
-
-> Crie os grupos no AD e associe conexões correspondentes no Guacamole.
-
-### 3.4 Checklist de implantação
-
-- [ ] Conta de serviço LDAP criada (`svc-segportal`) com leitura em usuários e grupos
-- [ ] Servidor RADIUS MFA acessível a partir do cluster
-- [ ] Secrets Kubernetes preenchidos (PostgreSQL, LDAP, RADIUS)
-- [ ] Certificado TLS para `segportal.tjse.jus.br`
-- [ ] DNS apontando para o Ingress do Rancher
-- [ ] Schema PostgreSQL inicializado (`./scripts/init-db.sh`)
-- [ ] Conexões RDP/VNC/SSH cadastradas no Guacamole
-- [ ] Whitelist do proxy egress revisada pela segurança
-- [ ] Teste de login com usuário piloto e MFA
-
-### 3.5 Comandos úteis (administrador)
+### 3.4 Aprovar pedidos de conexão
 
 ```bash
-# Ver pods
-kubectl -n segportal get pods,svc,ingress
+./scripts/approve-connection-request.sh 1
+./scripts/approve-connection-request.sh 1 --reject "Host fora da VLAN"
+```
 
-# Logs do Guacamole
+Ou pela UI administrativa (Settings → Connections) concedendo `READ` ao solicitante — preferir os scripts para auditoria.
+
+### 3.5 Checklist de implantação
+
+- [ ] Secrets/`.env` preenchidos (`POSTGRES_PASSWORD`, etc.)
+- [ ] `docker compose up --build` **ou** `kubectl apply -k k8s/overlays/production`
+- [ ] Job/serviço `segportal-bootstrap` concluiu com sucesso
+- [ ] Login `guacadmin` e conexão **Navegador Web SegPortal** visíveis
+- [ ] (Opcional) LDAP/MFA ligados e testados
+- [ ] Whitelist do `proxy-egress` revisada
+- [ ] Senha do `guacadmin` alterada em produção
+
+### 3.6 Comandos úteis
+
+```bash
+# Demo local
+docker compose -f docker-compose.dev.yml up --build
+
+# Reaplicar bootstrap (idempotente)
+./scripts/bootstrap-segportal.sh
+
+# Kubernetes
+kubectl -n segportal get pods,svc,ingress,job
 kubectl -n segportal logs -l app=guacamole -f
-
-# Reiniciar componente
-kubectl -n segportal rollout restart deployment/guacamole
-
-# Validar manifests antes do deploy
+kubectl -n segportal logs job/segportal-bootstrap
 ./scripts/validate-k8s.sh
 ```
 
@@ -146,21 +182,22 @@ kubectl -n segportal rollout restart deployment/guacamole
 
 | Necessidade | Documento |
 |-------------|-----------|
-| Variáveis de ambiente, LDAP, MFA, proxy | [CONFIGURATION.md](CONFIGURATION.md) |
-| Deploy no Rancher / Kubernetes | [DEPLOYMENT.md](DEPLOYMENT.md) |
+| LDAP, MFA, proxy, variáveis | [CONFIGURATION.md](CONFIGURATION.md) |
+| Deploy Rancher / Kubernetes | [DEPLOYMENT.md](DEPLOYMENT.md) |
 | Segurança e auditoria | [SECURITY.md](SECURITY.md) |
-| Pipelines de build e deploy | [CI_CD.md](CI_CD.md) |
+| CI/CD | [CI_CD.md](CI_CD.md) |
+| Preview interativo | [mockup/segportal-preview.html](mockup/segportal-preview.html) |
 
 ---
 
 ## 5. Suporte
 
-Em caso de incidente, informe:
+Informe ao abrir chamado:
 
-- Usuário afetado (`sAMAccountName`)
+- Usuário afetado (`sAMAccountName` ou local)
 - Recurso/conexão tentada
 - Horário aproximado
-- Mensagem de erro exibida
-- Se o MFA foi solicitado e aceito
+- Mensagem de erro
+- Se MFA foi solicitado
 
 Contato: equipe de TI / infraestrutura do TJSE.

@@ -96,7 +96,7 @@ Com `LDAP_ENABLED=false` (padrão até o admin configurar o AD):
 1. Login como `guacadmin`
 2. **Settings → Users → New User**
 3. Defina usuário, senha e permissões
-4. Associe a grupos (`segportal-users`, `segportal-financeiro`, etc.) via `./scripts/seed-roles.sh`
+4. Associe a grupos (`segportal-users`, `segportal-financeiro`, etc.) via `./scripts/seed-roles.sh` ou o bootstrap automático
 
 O usuário demo `usuario` / `usuario` é criado pelo seed de papéis (opcional).
 
@@ -149,4 +149,4 @@ LDAP fora do ar     →  skip-if-unavailable: ldap → login local permanece
 - [ROLES.md](ROLES.md) — papéis admin / usuário
 - [CONFIGURATION.md](CONFIGURATION.md) — LDAP completo
 - [SECURITY.md](SECURITY.md) — hardening
-- Scripts: `change-local-password.sh`, `delete-local-user.sh`, `seed-roles.sh`
+- Scripts: `change-local-password.sh`, `delete-local-user.sh`, `seed-roles.sh`, `bootstrap-segportal.sh`

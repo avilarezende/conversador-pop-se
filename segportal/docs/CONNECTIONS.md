@@ -6,6 +6,8 @@ Ao subir o SegPortal (`docker compose up` ou deploy K8s), o serviço **`web-brow
 
 Não é necessário seed manual.
 
+![Fluxo do navegador padrão](images/usage-browser.jpg)
+
 - Protocolo: VNC → `web-browser:5900` (Firefox)
 - Cliente: HTML5 no Guacamole (sem VPN/cliente)
 - Sites internos e externos (externos via `proxy-egress` / IP TJSE quando configurado)
@@ -33,6 +35,8 @@ Reaplicar bootstrap (idempotente):
 ./scripts/bootstrap-segportal.sh
 ```
 
+![Sessão do navegador](images/usage-session.jpg)
+
 ---
 
 ## Pedidos de terminais/aplicações (com aprovação)
@@ -43,6 +47,8 @@ Usuários **não** criam conexões sozinhos. Fluxo:
 Usuário solicita → status pending → Admin aprova/rejeita
        → se aprovado: conexão Guacamole + READ só para o solicitante
 ```
+
+![Aprovações no painel admin](images/admin-approvals.jpg)
 
 ### Usuário solicita
 
@@ -88,7 +94,7 @@ Usuário (HTML5)
                 → proxy-egress → internet (IP TJSE)
 ```
 
-Componentes:
+![Arquitetura](images/architecture-overview.jpg)
 
 | Componente | Função |
 |------------|--------|
@@ -115,3 +121,5 @@ No Kubernetes o Job `segportal-bootstrap` (`k8s/bootstrap`) aplica o mesmo boots
 - [ROLES.md](ROLES.md)
 - [LOCAL_ADMIN.md](LOCAL_ADMIN.md)
 - [CONFIGURATION.md](CONFIGURATION.md)
+- [USAGE.md](USAGE.md)
+- [MANUAL.md](MANUAL.md)
