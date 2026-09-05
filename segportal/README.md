@@ -12,8 +12,8 @@
 
 | Público | O que encontrar aqui |
 |---------|----------------------|
-| **Usuário final** | [Manual de uso](docs/MANUAL.md) e [guia visual](docs/USAGE.md) |
-| **Administrador** | [Configuração](docs/CONFIGURATION.md) — LDAP, MFA, proxy, K8s |
+| **Usuário final** | [Manual do usuário](docs/USER_MANUAL.md) · [guia visual](docs/USAGE.md) · [arquivos/nuvem](docs/FILES.md) |
+| **Administrador** | [Manual do administrador](docs/ADMIN_MANUAL.md) · [Configuração](docs/CONFIGURATION.md) |
 | **Infraestrutura** | [Deploy](docs/DEPLOYMENT.md) — Rancher, pods, secrets |
 | **Desenvolvimento** | [Arquitetura](docs/ARCHITECTURE.md) e [CI/CD](docs/CI_CD.md) |
 
@@ -53,11 +53,11 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 
 | Etapa | Imagem | Descrição |
 |-------|--------|-----------|
-| **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou domínio + MFA (se habilitado) |
-| **2. Portal** | ![Portal](docs/images/usage-portal.jpg) | Navegador padrão + recursos liberados / aprovados |
-| **3. Navegador** | ![Browser](docs/images/usage-browser.jpg) | Firefox HTML5 automático para todos no boot |
-| **4. Sessão** | ![Sessão](docs/images/usage-session.jpg) | Desktop/navegador remoto no browser, sem VPN |
-| **5. Admin** | ![Admin](docs/images/admin-approvals.jpg) | Sessões globais e aprovação de pedidos |
+| **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou AD (+ MFA no Guacamole, se habilitado) |
+| **2. Dashboard** | ![Portal](docs/images/usage-portal.jpg) | Pastas AD, OneDrive/Google Drive e atalhos |
+| **3. Arquivos** | ![Arquivos](docs/images/portal-files.jpg) | Gerenciador HTML (upload, pastas, nuvem) |
+| **4. Sessões** | ![Sessão](docs/images/portal-sessions.jpg) | Navegador HTML5 / RDP / VNC / SSH |
+| **5. Admin** | ![Admin](docs/images/portal-admin-home.jpg) | Visão administrativa e aprovações |
 
 ---
 

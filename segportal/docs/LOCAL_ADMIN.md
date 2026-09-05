@@ -1,6 +1,11 @@
 # Admin padrão e usuários locais — SegPortal TJSE
 
+Manual operacional completo: **[ADMIN_MANUAL.md](ADMIN_MANUAL.md)**.  
+Manual do usuário final: [USER_MANUAL.md](USER_MANUAL.md).
+
 O SegPortal **sempre** possui autenticação local (PostgreSQL / JDBC), independente do LDAP. O administrador padrão é criado na inicialização do banco e permanece válido com LDAP ligado ou desligado.
+
+O **portal-auth** (`:8090`) também autentica `guacadmin` / `usuario` em modo demo para o dashboard de arquivos.
 
 ---
 
