@@ -1,0 +1,73 @@
+# SegPortal TJSE — Papéis de acesso (RBAC)
+# Fonte da verdade para mapeamento AD → permissões Guacamole
+
+roles:
+  admin:
+    id: admin
+    display_name: Administrador SegPortal
+    description: >
+      Gestão do portal: visualizar sessões ativas de todos os usuários,
+      configurar conexões/aplicações, gerenciar grupos e usuários clientes,
+      auditar acessos e ajustar parâmetros do ambiente.
+    ad_group: GG-SegPortal-Admin
+    guacamole_user_group: segportal-admins
+    system_permissions:
+      - ADMINISTER          # inclui visão de sessões ativas de todos
+      - CREATE_CONNECTION
+      - CREATE_CONNECTION_GROUP
+      - CREATE_SHARING_PROFILE
+      - CREATE_USER
+      - CREATE_USER_GROUP
+    connection_permissions:
+      - ADMINISTER   # inclui READ, UPDATE, DELETE e visão de sessões
+      - READ
+      - UPDATE
+      - DELETE
+    capabilities:
+      - view_all_sessions
+      - configure_connections
+      - approve_connection_requests
+      - manage_users
+      - manage_groups
+      - audit_history
+      - manage_sharing_profiles
+      - configure_ldap
+
+  user:
+    id: user
+    display_name: Usuário SegPortal
+    description: >
+      Acesso restrito ao próprio contexto: apenas conexões liberadas
+      ao seu grupo/perfil, sem visão de sessões de terceiros e sem
+      permissão de configuração.
+    ad_group: GG-SegPortal-Usuarios
+    guacamole_user_group: segportal-users
+    system_permissions: []   # nenhuma permissão de sistema
+    connection_permissions:
+      - READ                 # somente conectar às próprias conexões
+    capabilities:
+      - use_own_connections
+      - view_own_session
+      - use_default_html_browser
+      - request_new_connections   # pedido sujeito à aprovação do admin
+    restrictions:
+      - no_view_other_sessions
+      - no_configure_connections_without_approval
+      - no_manage_users
+      - no_administer
+
+# Grupos de negócio (clientes) — associados a conexões específicas
+# Usuários normais entram em um ou mais destes grupos via AD.
+business_groups:
+  - ad_group: GG-SegPortal-Financeiro
+    guacamole_user_group: segportal-financeiro
+    connections:
+      - Estação Financeiro (RDP)
+  - ad_group: GG-SegPortal-Consulta
+    guacamole_user_group: segportal-consulta
+    connections:
+      - Terminal Consulta Processual (VNC)
+  - ad_group: GG-SegPortal-Externo
+    guacamole_user_group: segportal-externo
+    connections:
+      - Navegação externa (Proxy egress)

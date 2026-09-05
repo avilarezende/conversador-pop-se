@@ -1,0 +1,42 @@
+# Pedidos de terminais/aplicações — SegPortal TJSE
+# Usuário solicita; administrador aprova ou rejeita.
+
+requests:
+  # Política
+  require_admin_approval: true
+  allow_user_drafts: true
+  allowed_protocols:
+    - rdp
+    - vnc
+    - ssh
+    - browser   # atalho para o navegador padrão ou instância dedicada
+
+  # Campos obrigatórios no pedido
+  required_fields:
+    - connection_name
+    - protocol
+    - hostname
+    - justification
+
+  # Após aprovação, o admin (ou script) cria a conexão Guacamole
+  # e concede READ apenas ao solicitante (ou ao grupo indicado).
+  on_approve:
+    grant_permission: READ
+    notify_requester: true
+
+# Navegador HTML padrão (sem pedido — liberado a todos)
+default_browser:
+  enabled: true
+  connection_name: "Navegador Web SegPortal"
+  protocol: vnc
+  hostname: web-browser
+  port: 5900
+  # Mesma senha do container (VNC_PASSWORD) e do SQL 004-default-browser.sql
+  password: segport1
+  grant_to_groups:
+    - segportal-users
+    - segportal-admins
+    - segportal-browser-default
+  description: >
+    Navegador HTML5 clientless para sites internos e externos
+    (tráfego externo via proxy-egress / IP TJSE quando configurado).

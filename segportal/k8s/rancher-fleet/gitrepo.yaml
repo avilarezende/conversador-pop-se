@@ -1,0 +1,18 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: segportal
+  namespace: fleet-default
+  labels:
+    app.kubernetes.io/name: segportal
+spec:
+  repo: https://github.com/avilarezende/segportal.git
+  branch: main
+  paths:
+    - k8s/overlays/production
+  targets:
+    - name: tjse-production
+      clusterSelector:
+        matchLabels:
+          env: production
+          app: segportal

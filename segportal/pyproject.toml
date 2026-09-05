@@ -1,0 +1,33 @@
+[project]
+name = "segportal"
+version = "1.0.0"
+description = "SegPortal TJSE — validation and tooling for Guacamole ZTNA"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary — TJSE internal use" }
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pyyaml>=6.0",
+  "ruff>=0.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tests*"]

@@ -1,0 +1,171 @@
+# SegPortal TJSE — stack local
+# No boot: web-browser (Firefox/VNC) + bootstrap cria a conexão padrão para todos.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-guacamole_db}
+      POSTGRES_USER: ${POSTGRES_USER:-guacamole_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-guacamole_user} -d ${POSTGRES_DB:-guacamole_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guacd:
+    build:
+      context: .
+      dockerfile: services/guacd/Dockerfile
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 4822 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guacamole:
+    build:
+      context: .
+      dockerfile: services/guacamole/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-guacamole_db}
+      POSTGRES_USER: ${POSTGRES_USER:-guacamole_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      LDAP_HOSTNAME: ${LDAP_HOSTNAME:-}
+      LDAP_PORT: ${LDAP_PORT:-636}
+      LDAP_ENCRYPTION_METHOD: ${LDAP_ENCRYPTION_METHOD:-ssl}
+      LDAP_USER_BASE_DN: ${LDAP_USER_BASE_DN:-}
+      LDAP_GROUP_BASE_DN: ${LDAP_GROUP_BASE_DN:-}
+      LDAP_USERNAME_ATTRIBUTE: ${LDAP_USERNAME_ATTRIBUTE:-sAMAccountName}
+      LDAP_SEARCH_BIND_DN: ${LDAP_SEARCH_BIND_DN:-}
+      LDAP_SEARCH_BIND_PASSWORD: ${LDAP_SEARCH_BIND_PASSWORD:-}
+      LDAP_CA_CHAIN_FILE: ${LDAP_CA_CHAIN_FILE:-/etc/guacamole/certs/ldap-ca-chain.pem}
+      LDAP_SERVER_CERTIFICATE_FILE: ${LDAP_SERVER_CERTIFICATE_FILE:-}
+      LDAP_TRUSTSTORE_PASSWORD: ${LDAP_TRUSTSTORE_PASSWORD:-changeit}
+      MFA_ENABLED: ${MFA_ENABLED:-false}
+      MFA_RADIUS_HOST: ${MFA_RADIUS_HOST:-}
+      MFA_RADIUS_PORT: ${MFA_RADIUS_PORT:-1812}
+      MFA_RADIUS_SECRET: ${MFA_RADIUS_SECRET:-}
+      EGRESS_PROXY_HOST: proxy-egress
+      EGRESS_PROXY_PORT: ${EGRESS_PROXY_PORT:-3128}
+      SESSION_TIMEOUT_MINUTES: ${SESSION_TIMEOUT_MINUTES:-60}
+      GUACAMOLE_HOSTNAME: ${GUACAMOLE_HOSTNAME:-localhost}
+    volumes:
+      - ./config/ldap/certs:/etc/guacamole/certs:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_healthy
+      web-browser:
+        condition: service_healthy
+      segportal-bootstrap:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/guacamole/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  proxy-egress:
+    build:
+      context: .
+      dockerfile: services/egress-proxy/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3128:3128"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3128 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web-browser:
+    build:
+      context: services/web-browser
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DISPLAY_WIDTH: "1280"
+      DISPLAY_HEIGHT: "800"
+      VNC_PORT: "5900"
+      # Deve coincidir com o parâmetro password da conexão Guacamole (004-default-browser.sql)
+      VNC_PASSWORD: ${VNC_PASSWORD:-segport1}
+      FF_OPEN_URL: ${FF_OPEN_URL:-https://www.tjse.jus.br}
+      http_proxy: http://proxy-egress:3128
+      https_proxy: http://proxy-egress:3128
+      HTTP_PROXY: http://proxy-egress:3128
+      HTTPS_PROXY: http://proxy-egress:3128
+      no_proxy: localhost,127.0.0.1,guacd,guacamole,postgres,proxy-egress
+    expose:
+      - "5900"
+    shm_size: "1gb"
+    depends_on:
+      - proxy-egress
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5900 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  # Dashboard HTML: arquivos AD + OneDrive/Google Drive
+  portal-auth:
+    build:
+      context: .
+      dockerfile: services/portal-auth/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      PORTAL_SESSION_SECRET: ${PORTAL_SESSION_SECRET:-segportal-dev-secret-change-me}
+      DEMO_SHARES_ROOT: /data/shares
+      LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      GUACAMOLE_PUBLIC_URL: ${GUACAMOLE_PUBLIC_URL:-http://localhost:8080/guacamole}
+      PORTAL_PORT: "8090"
+    volumes:
+      - portal-shares:/data/shares
+      - ./config/files:/app/config/files:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/api/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Schema + papéis + "Navegador Web SegPortal" para todos — automático no boot
+  segportal-bootstrap:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-guacamole_db}
+      POSTGRES_USER: ${POSTGRES_USER:-guacamole_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SEGPORTAL_BOOTSTRAP_WAIT_SECONDS: "300"
+      GUACAMOLE_VERSION: "1.5.5"
+    volumes:
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/sh", "/scripts/bootstrap-segportal.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  portal-shares:

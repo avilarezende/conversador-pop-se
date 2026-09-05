@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SegPortal — TJSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/portal.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir para o conteúdo</a>
+
+  <!-- LOGIN -->
+  <section id="view-login" class="view login-view" aria-label="Autenticação">
+    <div class="login-stage">
+      <div class="login-brand">
+        <div class="brand-mark" aria-hidden="true">TJSE</div>
+        <h1>SegPortal</h1>
+        <p>Acesso seguro a sistemas, navegador HTML5 e arquivos corporativos.</p>
+      </div>
+      <form id="login-form" class="login-card" autocomplete="on">
+        <h2>Entrar</h2>
+        <p class="hint">Use sua conta local ou Active Directory quando habilitado.</p>
+        <label for="username">Usuário</label>
+        <input id="username" name="username" value="usuario" required autocomplete="username" />
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" value="usuario" required autocomplete="current-password" />
+        <label class="check">
+          <input id="use-ad" type="checkbox" />
+          Autenticar via Active Directory (monta pastas do AD)
+        </label>
+        <p id="login-error" class="error" hidden role="alert"></p>
+        <button type="submit" class="btn primary block">Entrar no portal</button>
+        <p class="foot-hint">Demo: <code>usuario/usuario</code> ou <code>guacadmin/guacadmin</code></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- APP SHELL -->
+  <section id="view-app" class="view app-view" hidden>
+    <header class="topnav" role="banner">
+      <div class="topnav-brand">
+        <span class="brand-mark sm">TJSE</span>
+        <div>
+          <strong>SegPortal</strong>
+          <small id="nav-subtitle">Dashboard pessoal</small>
+        </div>
+      </div>
+      <nav class="topnav-links" aria-label="Principal">
+        <button type="button" class="nav-btn active" data-panel="home">Início</button>
+        <button type="button" class="nav-btn" data-panel="files">Arquivos</button>
+        <button type="button" class="nav-btn" data-panel="sessions">Sessões remotas</button>
+      </nav>
+      <div class="topnav-user">
+        <div class="user-chip">
+          <span id="user-name">—</span>
+          <small id="user-meta">—</small>
+        </div>
+        <button type="button" id="btn-logout" class="btn ghost">Sair</button>
+      </div>
+    </header>
+
+    <main id="main" class="main">
+      <!-- HOME -->
+      <div id="panel-home" class="panel">
+        <header class="panel-head">
+          <div>
+            <h2>Olá, <span id="hello-name">usuário</span></h2>
+            <p class="lede">Pastas do Active Directory, nuvem e acesso remoto em um só lugar.</p>
+          </div>
+          <a id="btn-open-guacamole" class="btn secondary" href="#" target="_blank" rel="noopener">Abrir Guacamole</a>
+        </header>
+
+        <section class="block" aria-labelledby="shares-title">
+          <div class="block-head">
+            <h3 id="shares-title">Arquivos do Active Directory</h3>
+            <p>Pastas, partições e compartilhamentos liberados ao seu usuário no AD.</p>
+          </div>
+          <div id="shares-grid" class="card-grid" role="list"></div>
+          <p id="shares-empty" class="empty" hidden>
+            Nenhum compartilhamento AD disponível. Marque “Active Directory” no login ou peça liberação ao administrador.
+          </p>
+        </section>
+
+        <section class="block" aria-labelledby="cloud-title">
+          <div class="block-head">
+            <h3 id="cloud-title">Nuvem pessoal</h3>
+            <p>Monte OneDrive ou Google Drive no seu dashboard.</p>
+          </div>
+          <div id="cloud-grid" class="card-grid" role="list"></div>
+        </section>
+
+        <section class="block" aria-labelledby="quick-title">
+          <div class="block-head">
+            <h3 id="quick-title">Acesso rápido</h3>
+          </div>
+          <div class="quick-row">
+            <button type="button" class="quick-card" data-panel="files">
+              <span class="qi" aria-hidden="true">ARQ</span>
+              <span>Abrir gerenciador de arquivos</span>
+            </button>
+            <button type="button" class="quick-card" id="quick-browser">
+              <span class="qi" aria-hidden="true">WEB</span>
+              <span>Navegador Web SegPortal</span>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- FILES -->
+      <div id="panel-files" class="panel" hidden>
+        <header class="panel-head compact">
+          <div>
+            <h2>Arquivos</h2>
+            <p class="lede">Manipule pastas e arquivos como no explorador do seu computador.</p>
+          </div>
+        </header>
+
+        <div class="files-layout">
+          <aside class="files-sidebar" aria-label="Locais">
+            <h3>Locais</h3>
+            <div id="files-places" class="places"></div>
+            <h3>Nuvem</h3>
+            <div id="files-cloud-places" class="places"></div>
+          </aside>
+
+          <section class="files-main" aria-label="Conteúdo">
+            <div class="files-toolbar">
+              <nav id="breadcrumbs" class="breadcrumbs" aria-label="Caminho"></nav>
+              <div class="toolbar-actions">
+                <button type="button" id="btn-up" class="btn ghost" title="Pasta anterior">↑</button>
+                <button type="button" id="btn-new-folder" class="btn ghost">Nova pasta</button>
+                <label class="btn secondary file-pick">
+                  Enviar
+                  <input id="file-input" type="file" multiple hidden />
+                </label>
+              </div>
+            </div>
+            <div id="dropzone" class="dropzone" tabindex="0">
+              <div id="files-table-wrap">
+                <table class="files-table" aria-label="Lista de arquivos">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Tamanho</th>
+                      <th>Modificado</th>
+                      <th class="actions-col">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="files-tbody"></tbody>
+                </table>
+                <p id="files-empty" class="empty" hidden>Esta pasta está vazia. Arraste arquivos aqui ou use Enviar.</p>
+              </div>
+              <p class="drop-hint">Solte arquivos para enviar</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- SESSIONS -->
+      <div id="panel-sessions" class="panel" hidden>
+        <header class="panel-head">
+          <div>
+            <h2>Sessões remotas</h2>
+            <p class="lede">Conexões Guacamole liberadas ao seu perfil (RDP, VNC, SSH e navegador HTML5).</p>
+          </div>
+          <a id="btn-sessions-guac" class="btn primary" href="#" target="_blank" rel="noopener">Abrir portal Guacamole</a>
+        </header>
+        <div class="session-card">
+          <div class="session-icon">WEB</div>
+          <div>
+            <h3>Navegador Web SegPortal</h3>
+            <p>Firefox HTML5 via VNC — padrão para todos os usuários autenticados.</p>
+          </div>
+          <a class="btn secondary" id="btn-session-browser" href="#" target="_blank" rel="noopener">Conectar</a>
+        </div>
+        <p class="hint muted">Pedidos de novos terminais seguem aprovação do administrador (ver docs/CONNECTIONS.md).</p>
+      </div>
+    </main>
+  </section>
+
+  
+  <dialog id="name-dialog" class="name-dialog">
+    <form method="dialog" id="name-dialog-form">
+      <h3 id="name-dialog-title">Nome</h3>
+      <label for="name-dialog-input">Nome</label>
+      <input id="name-dialog-input" name="name" required maxlength="120" />
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="btn ghost">Cancelar</button>
+        <button type="submit" value="ok" class="btn primary">Confirmar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/assets/portal.js" type="module"></script>
+</body>
+</html>

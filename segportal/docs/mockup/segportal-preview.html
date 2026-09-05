@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SegPortal TJSE — Preview</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --primary-dark: #001a33;
+      --accent: #C4A035;
+      --bg: #e8edf2;
+      --text: #1a2b3c;
+      --muted: #5c6b7a;
+      --border: #d8e0e8;
+      --ok: #1b7f4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .topbar {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar a { color: #C4A035; }
+    .shell {
+      max-width: 980px;
+      margin: 24px auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0,51,102,.08);
+    }
+    .chrome {
+      background: #f0f3f6;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #c5d0db; }
+    .url {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      background: #fff;
+      color: var(--primary);
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border-bottom: 3px solid var(--accent);
+    }
+    .badge {
+      background: rgba(196,160,53,.35);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+    }
+    .content { padding: 28px; }
+    .panel {
+      max-width: 380px;
+      margin: 0 auto;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .panel h2 {
+      font-size: 16px;
+      color: var(--primary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+    }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    button.primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary:hover { background: #004488; }
+    .hint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; }
+    .error { color: #b00020; font-size: 13px; margin-bottom: 10px; display: none; }
+    .stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .stat {
+      flex: 1;
+      min-width: 120px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat .n { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .stat .l { font-size: 11px; color: var(--muted); }
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: #e3f0ff; font-size: 18px;
+    }
+    .card-body { flex: 1; }
+    .card-body h3 { font-size: 14px; }
+    .card-body p { font-size: 12px; color: var(--muted); }
+    .connect {
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .session {
+      background: #1a1a2e;
+      color: #8899aa;
+      min-height: 280px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .footer {
+      background: #f0f3f6;
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hidden { display: none !important; }
+    .nav { display: flex; gap: 8px; }
+    .nav button {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.35);
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span><strong>SegPortal TJSE</strong> — preview: navegador HTML padrão + pedidos com aprovação.</span>
+    <span>
+      Admin: <code>guacadmin</code>/<code>guacadmin</code> ·
+      Usuário: <code>usuario</code>/<code>usuario</code> · MFA <code>123456</code>
+    </span>
+  </div>
+
+  <div class="shell">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <div class="url" id="url">https://segportal.tjse.jus.br/guacamole</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="view-login">
+      <div class="header" style="justify-content:center; text-align:center;">
+        <div class="brand" style="flex-direction:column;">
+          <div class="logo">TJSE</div>
+          <div>
+            <h1 style="font-size:22px;">SegPortal</h1>
+            <p style="opacity:.9; font-size:13px;">Acesso seguro — domínio tjse.jus.br</p>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="panel">
+          <h2>Autenticação</h2>
+          <div class="error" id="login-error">Credenciais inválidas. Use guacadmin ou usuario (+ MFA 123456)</div>
+          <label>Papel de teste</label>
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <button type="button" class="connect" style="flex:1" onclick="fillRole('admin')">Admin</button>
+            <button type="button" class="connect" style="flex:1; background:#5c6b7a" onclick="fillRole('user')">Usuário</button>
+          </div>
+          <label>Usuário (sAMAccountName)</label>
+          <input id="user" value="usuario" />
+          <label>Senha do domínio</label>
+          <input id="pass" type="password" value="usuario" />
+          <label>Código MFA</label>
+          <input id="mfa" value="123456" />
+          <button class="primary" type="button" onclick="doLogin()">Entrar no portal</button>
+          <p class="hint">Admin vê sessões e configura · Usuário só o próprio contexto</p>
+        </div>
+      </div>
+      <div class="footer">
+        <span>Tribunal de Justiça de Sergipe</span>
+        <span>ZTNA · substituto VPN</span>
+      </div>
+    </div>
+
+    <!-- PORTAL -->
+    <div id="view-portal" class="hidden">
+      <div class="header">
+        <div class="brand">
+          <div class="logo">TJSE</div>
+          <div>
+            <h1 style="font-size:18px;">SegPortal</h1>
+            <p style="font-size:13px; opacity:.9;" id="portal-subtitle">Recursos autorizados</p>
+          </div>
+        </div>
+        <div class="nav">
+          <span class="badge" id="role-badge">Usuário</span>
+          <span class="badge">MFA verificado</span>
+          <span style="font-size:13px;" id="who">usuario@tjse.jus.br</span>
+          <button type="button" onclick="logout()">Sair</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats" id="stats-row"></div>
+        <div id="admin-panel" class="hidden" style="margin-bottom:18px; border:1px solid var(--border); border-radius:10px; padding:14px; background:#f8fafc;">
+          <h3 style="font-size:14px; color:var(--primary); margin-bottom:10px;">Painel administrativo</h3>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+            Sessões, aplicações e aprovação de pedidos de terminais.
+          </p>
+          <div class="card" style="margin:0 0 8px 0;">
+            <div class="icon" style="background:#ffebee;">👁</div>
+            <div class="card-body">
+              <h3>Sessões ativas (todos)</h3>
+              <p>usuario · Navegador Web · há 2 min</p>
+            </div>
+            <button class="connect" type="button" style="background:#c62828">Encerrar</button>
+          </div>
+          <div class="card" style="margin:0 0 8px 0;">
+            <div class="icon" style="background:#fff8e1;">✅</div>
+            <div class="card-body">
+              <h3>Pedidos pendentes</h3>
+              <p>usuario · RDP 10.10.20.51 · “Sistema empenho”</p>
+            </div>
+            <button class="connect" type="button" onclick="alert('Pedido aprovado (simulado)')">Aprovar</button>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="icon" style="background:#e8eaf6;">⚙</div>
+            <div class="card-body">
+              <h3>Configurar aplicações / LDAP</h3>
+              <p>Conexões · grupos · apontamentos</p>
+            </div>
+            <button class="connect" type="button">Settings</button>
+          </div>
+        </div>
+        <div id="request-panel" class="hidden" style="margin-bottom:18px; border:1px dashed var(--border); border-radius:10px; padding:14px;">
+          <h3 style="font-size:14px; color:var(--primary); margin-bottom:8px;">Solicitar terminal / aplicação</h3>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+            O administrador precisa autorizar antes da conexão aparecer na sua lista.
+          </p>
+          <label>Nome</label>
+          <input id="req-name" placeholder="Meu RDP Financeiro" />
+          <label>Protocolo</label>
+          <input id="req-proto" value="rdp" />
+          <label>Host</label>
+          <input id="req-host" placeholder="10.10.20.50" />
+          <label>Justificativa</label>
+          <input id="req-why" placeholder="Acesso ao sistema X" />
+          <button class="primary" type="button" onclick="submitRequest()">Enviar pedido</button>
+          <p class="hint" id="req-msg" style="display:none; color:var(--ok);">Pedido enviado — aguardando admin</p>
+        </div>
+        <div id="resource-list"></div>
+      </div>
+      <div class="footer">
+        <span id="footer-role">Papel: usuário · contexto próprio</span>
+        <span>Guacamole HTML5 clientless</span>
+      </div>
+    </div>
+
+    <!-- SESSION -->
+    <div id="view-session" class="hidden">
+      <div class="header" style="padding:12px 20px;">
+        <div class="brand">
+          <div class="logo" style="font-size:14px; padding:6px 10px;">TJSE</div>
+          <div>
+            <h1 style="font-size:16px;" id="session-title">Sessão</h1>
+            <p style="font-size:12px; opacity:.9;" id="session-meta">Sessão isolada</p>
+          </div>
+        </div>
+        <div class="nav">
+          <button type="button" onclick="backPortal()">Voltar</button>
+          <button type="button" style="border-color:#c62828; color:#ffcdd2;" onclick="logout()">Encerrar</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="session">
+          <div>
+            <p style="font-size:42px; margin-bottom:10px;">🖥</p>
+            <p><strong>Área Guacamole (simulada)</strong></p>
+            <p style="margin-top:8px; font-size:12px;">Sessão individualizada · sem compartilhamento entre usuários</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <span>Protocolo simulado · TLS</span>
+        <span>Pod guacd</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentRole = 'user';
+    const accounts = {
+      guacadmin: { pass: 'guacadmin', role: 'admin' },
+      usuario: { pass: 'usuario', role: 'user' }
+    };
+    const defaultBrowser = { icon: 'WEB', bg: '#e3f2fd', title: 'Navegador Web SegPortal', desc: 'HTML5 · sites internos e externos · padrão para todos' };
+    const userResources = [
+      defaultBrowser,
+      { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' }
+    ];
+    const adminResources = [
+      defaultBrowser,
+      { icon: 'RDP', bg: '#e3f0ff', title: 'Estação Financeiro', desc: 'Windows · GG-SegPortal-Financeiro' },
+      { icon: 'VNC', bg: '#e8f5e9', title: 'Terminal Consulta Processual', desc: 'Linux · GG-SegPortal-Consulta' },
+      { icon: 'SSH', bg: '#f3e5f5', title: 'Servidor Aplicações', desc: 'Administração · GG-SegPortal-Admin' }
+    ];
+
+    function fillRole(role) {
+      if (role === 'admin') {
+        document.getElementById('user').value = 'guacadmin';
+        document.getElementById('pass').value = 'guacadmin';
+      } else {
+        document.getElementById('user').value = 'usuario';
+        document.getElementById('pass').value = 'usuario';
+      }
+      document.getElementById('mfa').value = '123456';
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    function show(id) {
+      ['login','portal','session'].forEach(v => {
+        document.getElementById('view-' + v).classList.toggle('hidden', v !== id);
+      });
+      const urls = {
+        login: 'https://segportal.tjse.jus.br/guacamole',
+        portal: 'https://segportal.tjse.jus.br/guacamole/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
+        session: 'https://segportal.tjse.jus.br/guacamole/#/client/SESSION'
+      };
+      document.getElementById('url').textContent = urls[id];
+    }
+
+    function renderPortal() {
+      const isAdmin = currentRole === 'admin';
+      document.getElementById('role-badge').textContent = isAdmin ? 'Administrador' : 'Usuário';
+      document.getElementById('portal-subtitle').textContent = isAdmin
+        ? 'Gestão do portal · sessões e aplicações'
+        : 'Recursos do seu contexto';
+      document.getElementById('footer-role').textContent = isAdmin
+        ? 'Papel: admin · visão global de sessões'
+        : 'Papel: usuário · apenas o próprio contexto';
+      document.getElementById('admin-panel').classList.toggle('hidden', !isAdmin);
+      document.getElementById('request-panel').classList.toggle('hidden', isAdmin);
+
+      const stats = isAdmin
+        ? [
+            ['12', 'Recursos'],
+            ['3', 'Sessões ativas'],
+            ['●', 'LDAP OK'],
+            ['Admin', 'Papel']
+          ]
+        : [
+            ['1', 'Recursos'],
+            ['0', 'Minhas sessões'],
+            ['●', 'LDAP OK'],
+            ['Usuário', 'Papel']
+          ];
+      document.getElementById('stats-row').innerHTML = stats.map(([n,l]) =>
+        `<div class="stat"><div class="n"${n==='●'?' style="color:var(--ok)"':''}>${n}</div><div class="l">${l}</div></div>`
+      ).join('');
+
+      const list = isAdmin ? adminResources : userResources;
+      document.getElementById('resource-list').innerHTML = list.map(r => `
+        <div class="card">
+          <div class="icon" style="background:${r.bg}">${r.icon}</div>
+          <div class="card-body"><h3>${r.title}</h3><p>${r.desc}</p></div>
+          <button class="connect" type="button" onclick="openSession('${r.title}')">Conectar</button>
+        </div>
+      `).join('');
+    }
+
+    function doLogin() {
+      const u = document.getElementById('user').value.trim();
+      const p = document.getElementById('pass').value;
+      const m = document.getElementById('mfa').value.trim();
+      const err = document.getElementById('login-error');
+      const acc = accounts[u];
+      if (acc && acc.pass === p && m === '123456') {
+        err.style.display = 'none';
+        currentRole = acc.role;
+        document.getElementById('who').textContent = u + '@tjse.jus.br';
+        renderPortal();
+        show('portal');
+      } else {
+        err.style.display = 'block';
+      }
+    }
+    function submitRequest() {
+      const msg = document.getElementById('req-msg');
+      if (!document.getElementById('req-name').value || !document.getElementById('req-host').value) {
+        alert('Preencha nome e host');
+        return;
+      }
+      msg.style.display = 'block';
+    }
+    function openSession(title) {
+      document.getElementById('session-title').textContent = title;
+      document.getElementById('session-meta').textContent =
+        currentRole === 'admin' ? 'Sessão isolada · visão admin' : 'Sessão isolada · contexto próprio';
+      show('session');
+    }
+    function backPortal() { show('portal'); }
+    function logout() { show('login'); }
+  </script>
+</body>
+</html>

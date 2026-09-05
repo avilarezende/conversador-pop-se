@@ -1,0 +1,121 @@
+name: SegPortal CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: segportal-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: registry.tjse.jus.br/segportal
+
+defaults:
+  run:
+    working-directory: segportal
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            segportal/requirements-dev.txt
+            segportal/services/portal-auth/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -r services/portal-auth/requirements.txt
+
+      - name: Ruff lint
+        run: ruff check tests/
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Pytest
+        run: pytest -v
+
+  validate-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Install kubeconform
+        working-directory: .
+        run: |
+          curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate manifests
+        run: chmod +x scripts/validate-k8s.sh && ./scripts/validate-k8s.sh
+
+  docker-build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: guacamole
+            context: .
+            file: services/guacamole/Dockerfile
+          - service: guacd
+            context: services/guacd
+            file: services/guacd/Dockerfile
+          - service: egress-proxy
+            context: .
+            file: services/egress-proxy/Dockerfile
+          - service: web-browser
+            context: services/web-browser
+            file: services/web-browser/Dockerfile
+          - service: portal-auth
+            context: .
+            file: services/portal-auth/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: segportal/${{ matrix.context }}
+          file: segportal/${{ matrix.file }}
+          push: false
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ matrix.service }}:ci
+
+  compose-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose (prod)
+        env:
+          POSTGRES_PASSWORD: ci_test_password
+          LDAP_HOSTNAME: ldap.tjse.jus.br
+          LDAP_USER_BASE_DN: OU=Usuarios,DC=tjse,DC=jus,DC=br
+          LDAP_SEARCH_BIND_DN: CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
+          LDAP_SEARCH_BIND_PASSWORD: ci_test
+        run: docker compose config --quiet
+
+      - name: Validate docker-compose.dev
+        env:
+          POSTGRES_PASSWORD: ci_test_password
+        run: docker compose -f docker-compose.dev.yml config --quiet
