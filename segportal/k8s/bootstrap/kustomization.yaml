@@ -10,6 +10,8 @@ configMapGenerator:
   - name: segportal-bootstrap-scripts
     files:
       - bootstrap-segportal.sh=files/bootstrap-segportal.sh
+      - sql/001-create-schema.sql=files/sql/001-create-schema.sql
+      - sql/002-create-admin-user.sql=files/sql/002-create-admin-user.sql
       - sql/003-segportal-roles.sql=files/sql/003-segportal-roles.sql
       - sql/004-default-browser.sql=files/sql/004-default-browser.sql
       - sql/005-connection-requests.sql=files/sql/005-connection-requests.sql

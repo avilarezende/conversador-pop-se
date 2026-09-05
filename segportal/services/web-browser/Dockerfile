@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY_HEIGHT=800 \
     VNC_PASSWORD=segport1 \
     VNC_PORT=5900 \
-    FF_OPEN_URL=https://www.tjse.jus.br \
+    FF_OPEN_URL=https://example.com \
     LANG=C.UTF-8 \
     MOZ_DISABLE_CONTENT_SANDBOX=1
 
