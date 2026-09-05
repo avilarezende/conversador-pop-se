@@ -124,8 +124,17 @@ services/
   engine/         # FastAPI — chat, RAG, memória, LLM
   web/            # Apache + interface de chat
   modules/        # canais e integrações
+segportal/        # Portal ZTNA TJSE (Guacamole + portal-auth) — ver PR #11
 docs/             # arquitetura, configuração, CI/CD
 ```
+
+### SegPortal (nova UI — 2026-09-05)
+
+Código e docs atualizados em [`segportal/`](segportal/): dashboard AD/nuvem, file manager HTML e exemplo de navegador no site do Bacen.
+
+- Branch: `cursor/segportal-github-d39d`
+- PR: https://github.com/avilarezende/conversador-pop-se/pull/11
+- Preview das imagens: [mockup](segportal/docs/images/segportal-mockup.jpg) · [arquitetura](segportal/docs/images/architecture-overview.jpg) · [Bacen](segportal/docs/images/usage-browser.jpg)
 
 ## Documentação
 
