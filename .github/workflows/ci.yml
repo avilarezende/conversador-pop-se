@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -32,6 +33,44 @@ jobs:
         run: pytest tests -v
         env:
           PYTHONPATH: services/engine:shared:services/modules/sources
+
+  segportal-lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: segportal
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            segportal/requirements-dev.txt
+            segportal/services/portal-auth/requirements.txt
+
+      - name: Instalar dependências SegPortal
+        run: |
+          pip install -r requirements-dev.txt
+          pip install -r services/portal-auth/requirements.txt
+
+      - name: Ruff (SegPortal)
+        run: ruff check tests/
+
+      - name: Pytest (SegPortal)
+        run: pytest -v
+
+      - name: Validar compose SegPortal
+        env:
+          POSTGRES_PASSWORD: ci_test_password
+          LDAP_HOSTNAME: ldap.tjse.jus.br
+          LDAP_USER_BASE_DN: OU=Usuarios,DC=tjse,DC=jus,DC=br
+          LDAP_SEARCH_BIND_DN: CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
+          LDAP_SEARCH_BIND_PASSWORD: ci_test
+        run: |
+          docker compose config --quiet
+          docker compose -f docker-compose.dev.yml config --quiet
 
   docker-build:
     runs-on: ubuntu-latest

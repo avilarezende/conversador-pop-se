@@ -3,14 +3,9 @@ name: SegPortal CI
 on:
   push:
     branches: [main, develop]
-    paths:
-      - "segportal/**"
-      - ".github/workflows/segportal-ci.yml"
   pull_request:
     branches: [main, develop]
-    paths:
-      - "segportal/**"
-      - ".github/workflows/segportal-ci.yml"
+  workflow_dispatch:
 
 concurrency:
   group: segportal-ci-${{ github.ref }}
@@ -34,7 +29,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: segportal/requirements-dev.txt
+          cache-dependency-path: |
+            segportal/requirements-dev.txt
+            segportal/services/portal-auth/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -81,7 +78,7 @@ jobs:
             context: services/guacd
             file: services/guacd/Dockerfile
           - service: egress-proxy
-            context: services/egress-proxy
+            context: .
             file: services/egress-proxy/Dockerfile
           - service: web-browser
             context: services/web-browser
