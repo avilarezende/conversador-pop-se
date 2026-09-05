@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,7 +24,9 @@ class TestDefaultBrowserAndRequests:
         assert "segportal-browser-default" in text
 
     def test_connection_requests_sql(self) -> None:
-        text = (ROOT / "scripts" / "sql" / "005-connection-requests.sql").read_text(encoding="utf-8")
+        text = (
+            ROOT / "scripts" / "sql" / "005-connection-requests.sql"
+        ).read_text(encoding="utf-8")
         assert "segportal_connection_request" in text
         assert "pending" in text
 
@@ -70,7 +71,10 @@ class TestDefaultBrowserAndRequests:
         assert "aprov" in text.lower()
         assert "Navegador Web SegPortal" in text
         assert "bootstrap" in text.lower()
-        assert "Não é necessário seed manual" in text or "nao e necessario seed manual" in text.lower()
+        assert (
+            "Não é necessário seed manual" in text
+            or "nao e necessario seed manual" in text.lower()
+        )
 
     def test_user_can_request_but_needs_approval(self) -> None:
         roles = yaml.safe_load(

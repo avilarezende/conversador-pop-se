@@ -1,17 +1,27 @@
-name: CI
+name: SegPortal CI
 
 on:
   push:
     branches: [main, develop]
+    paths:
+      - "segportal/**"
+      - ".github/workflows/segportal-ci.yml"
   pull_request:
     branches: [main, develop]
+    paths:
+      - "segportal/**"
+      - ".github/workflows/segportal-ci.yml"
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: segportal-ci-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   REGISTRY: registry.tjse.jus.br/segportal
+
+defaults:
+  run:
+    working-directory: segportal
 
 jobs:
   lint-and-test:
@@ -24,7 +34,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: segportal/requirements-dev.txt
 
       - name: Install dependencies
         run: |
@@ -37,7 +47,7 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Run tests
+      - name: Pytest
         run: pytest -v
 
   validate-k8s:
@@ -49,6 +59,7 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Install kubeconform
+        working-directory: .
         run: |
           curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
             | tar xz
@@ -87,8 +98,8 @@ jobs:
       - name: Build ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
+          context: segportal/${{ matrix.context }}
+          file: segportal/${{ matrix.file }}
           push: false
           load: true
           tags: ${{ env.REGISTRY }}/${{ matrix.service }}:ci
@@ -98,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate docker-compose
+      - name: Validate docker-compose (prod)
         env:
           POSTGRES_PASSWORD: ci_test_password
           LDAP_HOSTNAME: ldap.tjse.jus.br

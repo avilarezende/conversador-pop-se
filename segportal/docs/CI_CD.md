@@ -23,10 +23,12 @@ flowchart LR
 
 | Job | Descrição |
 |-----|-----------|
-| `lint-and-test` | Ruff + pytest |
+| `lint-and-test` | Ruff + pytest (inclui portal-auth) |
 | `validate-k8s` | `kubectl kustomize` + kubeconform |
-| `docker-build` | Build guacamole, guacd, egress-proxy, **web-browser** (sem push) |
-| `compose-config` | Valida `docker-compose.yml` |
+| `docker-build` | Build guacamole, guacd, egress-proxy, web-browser, **portal-auth** (sem push) |
+| `compose-config` | Valida `docker-compose.yml` e `docker-compose.dev.yml` |
+
+No monorepo `conversador-pop-se`, o workflow espelho é `.github/workflows/segportal-ci.yml` (GitHub só executa workflows na raiz do repositório).
 
 Badge no README aponta para este workflow.
 

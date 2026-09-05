@@ -72,6 +72,7 @@ class TestDockerCompose:
             "guacamole",
             "proxy-egress",
             "web-browser",
+            "portal-auth",
             "segportal-bootstrap",
         ):
             assert f"{service}:" in content
@@ -114,7 +115,10 @@ class TestDocumentationImages:
             "usage-portal.jpg",
             "usage-session.jpg",
             "usage-browser.jpg",
+            "usage-browser-bacen.jpg",
             "admin-approvals.jpg",
+            "portal-files.jpg",
+            "portal-home-ad.jpg",
         ],
     )
     def test_jpg_images_exist(self, images_dir: Path, name: str) -> None:
@@ -122,6 +126,8 @@ class TestDocumentationImages:
 
     def test_manual_exists(self) -> None:
         assert (ROOT / "docs" / "MANUAL.md").is_file()
+        assert (ROOT / "docs" / "USER_MANUAL.md").is_file()
+        assert (ROOT / "docs" / "ADMIN_MANUAL.md").is_file()
 
     def test_docs_mention_default_browser(self) -> None:
         for rel in (
@@ -134,3 +140,8 @@ class TestDocumentationImages:
         ):
             text = (ROOT / rel).read_text(encoding="utf-8")
             assert "Navegador Web SegPortal" in text, f"Falta navegador padrão em {rel}"
+
+    def test_docs_mention_bacen_example(self) -> None:
+        for rel in ("docs/USAGE.md", "docs/USER_MANUAL.md", "README.md"):
+            text = (ROOT / rel).read_text(encoding="utf-8")
+            assert "bcb.gov.br" in text or "Bacen" in text, f"Falta exemplo Bacen em {rel}"
