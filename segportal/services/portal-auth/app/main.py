@@ -103,6 +103,8 @@ def dashboard(request: Request) -> dict:
         "features": {
             "embedded_browser": True,
             "computers": True,
+            "reminders": True,
+            "calendar": True,
         },
     }
 

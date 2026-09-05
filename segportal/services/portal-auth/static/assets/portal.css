@@ -1098,3 +1098,535 @@ a {
     min-height: 50vh;
   }
 }
+
+/* —— Login destaque / ergonomia —— */
+.login-kicker {
+  margin: 0 0 0.35rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-soft) !important;
+  max-width: none !important;
+}
+
+.login-lead {
+  max-width: 36ch !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.login-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.login-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.95rem;
+  color: rgba(245, 248, 251, 0.95);
+}
+
+.lf-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(196, 160, 53, 0.22);
+  color: var(--gold-soft);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.panel-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-calendar {
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+/* —— Organização do dia —— */
+.productivity-spotlight {
+  background:
+    linear-gradient(135deg, rgba(0, 51, 102, 0.06), rgba(196, 160, 53, 0.1));
+  border: 1px solid rgba(0, 51, 102, 0.1);
+  border-radius: 14px;
+  padding: 1.1rem 1.15rem 1.2rem;
+}
+
+.productivity-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.prod-card {
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 1rem 1.05rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s;
+  box-shadow: 0 4px 14px rgba(0, 26, 51, 0.05);
+}
+
+.prod-card:hover,
+.prod-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--navy-mid);
+  box-shadow: 0 10px 24px rgba(0, 26, 51, 0.1);
+  outline: none;
+}
+
+.prod-card strong {
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.prod-card > span:last-child {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.prod-badge {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-deep);
+  background: var(--gold-soft);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+/* —— Painel de lembretes arrastável —— */
+.reminders-panel {
+  position: fixed;
+  z-index: 60;
+  width: min(320px, calc(100vw - 1.5rem));
+  max-height: min(70vh, 520px);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid rgba(0, 51, 102, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 26, 51, 0.18);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.reminders-panel.collapsed {
+  max-height: none;
+}
+
+.reminders-panel.collapsed .reminders-body {
+  display: none;
+}
+
+.reminders-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.55rem 0.65rem 0.55rem 0.85rem;
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  color: #f5f8fb;
+  cursor: grab;
+  user-select: none;
+}
+
+.reminders-head:active {
+  cursor: grabbing;
+}
+
+.reminders-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.reminders-title h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.drag-grip {
+  opacity: 0.75;
+  letter-spacing: -0.12em;
+  font-size: 0.95rem;
+}
+
+.reminders-head-actions .btn {
+  color: #f5f8fb;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.reminders-body {
+  padding: 0.75rem;
+  overflow: auto;
+  background: linear-gradient(180deg, #fff, var(--surface));
+}
+
+.reminder-form {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.reminder-form input[type="text"],
+.reminder-form input[type="datetime-local"],
+.calendar-config input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+}
+
+.reminder-form input:focus,
+.calendar-config input:focus {
+  outline: none;
+  border-color: var(--navy-mid);
+  box-shadow: 0 0 0 3px rgba(10, 110, 189, 0.18);
+}
+
+.reminders-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.reminder-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 0.5rem;
+  align-items: start;
+  padding: 0.65rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  min-height: 44px;
+}
+
+.reminder-item.done {
+  opacity: 0.62;
+}
+
+.reminder-item.done .reminder-text {
+  text-decoration: line-through;
+}
+
+.reminder-text {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.reminder-when {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.reminder-actions .btn {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0.25rem 0.45rem;
+}
+
+.reminders-empty,
+.reminders-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.reminders-panel.pulse {
+  animation: pulse-panel 0.7s ease;
+}
+
+@keyframes pulse-panel {
+  0%, 100% { box-shadow: 0 18px 48px rgba(0, 26, 51, 0.18); }
+  50% { box-shadow: 0 0 0 4px rgba(196, 160, 53, 0.45), 0 18px 48px rgba(0, 26, 51, 0.18); }
+}
+
+/* —— Aba / drawer de calendário —— */
+.calendar-tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 55;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  min-width: 44px;
+  min-height: 140px;
+  padding: 1rem 0.55rem;
+  border: 1px solid rgba(0, 51, 102, 0.18);
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  background: linear-gradient(180deg, var(--navy), var(--navy-mid));
+  color: #f5f8fb;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: -6px 8px 24px rgba(0, 26, 51, 0.18);
+  transition: padding 0.15s ease, background 0.15s ease;
+}
+
+.calendar-tab:hover,
+.calendar-tab:focus-visible {
+  padding-right: 0.75rem;
+  background: linear-gradient(180deg, var(--navy-mid), var(--navy));
+  outline: none;
+}
+
+.calendar-tab-label {
+  transform: rotate(180deg);
+}
+
+.calendar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(10, 22, 36, 0.35);
+  backdrop-filter: blur(2px);
+}
+
+.calendar-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 80;
+  width: min(520px, 100vw);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  box-shadow: -16px 0 48px rgba(0, 26, 51, 0.2);
+  transform: translateX(105%);
+  transition: transform 0.28s ease;
+}
+
+.calendar-drawer.open {
+  transform: translateX(0);
+}
+
+.calendar-drawer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.1rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #f7fafc, #fff);
+}
+
+.calendar-drawer-head h2 {
+  margin: 0 0 0.25rem;
+  font-family: var(--display);
+  color: var(--navy);
+  font-size: 1.35rem;
+}
+
+.calendar-drawer-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.calendar-provider-tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.75rem 1rem 0.35rem;
+}
+
+.cal-tab {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cal-tab.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.calendar-config {
+  padding: 0.55rem 1rem 0.85rem;
+}
+
+.calendar-config label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+}
+
+.calendar-config-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+}
+
+.calendar-config-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.calendar-frame-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin: 0 1rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.calendar-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.calendar-placeholder,
+.calendar-local {
+  position: absolute;
+  inset: 0;
+  padding: 1.25rem;
+  overflow: auto;
+}
+
+.calendar-placeholder {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+}
+
+.calendar-local h3 {
+  margin: 0 0 0.75rem;
+  color: var(--navy);
+}
+
+.cal-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+}
+
+.cal-month-grid .dow,
+.cal-month-grid .day {
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.cal-month-grid .dow {
+  font-weight: 700;
+  color: var(--muted);
+  min-height: 32px;
+}
+
+.cal-month-grid .day {
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.cal-month-grid .day.today {
+  border-color: var(--navy);
+  background: rgba(0, 51, 102, 0.08);
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.cal-month-grid .day.muted {
+  opacity: 0.4;
+}
+
+.cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn.sm {
+  min-height: 40px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .productivity-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .login-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-drawer {
+    width: 100vw;
+  }
+
+  .reminders-panel {
+    width: min(300px, calc(100vw - 1rem));
+  }
+
+  .topnav-user {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
