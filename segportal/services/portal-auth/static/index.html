@@ -16,12 +16,22 @@
     <div class="login-stage">
       <div class="login-brand">
         <div class="brand-mark" aria-hidden="true">AQNE</div>
+        <p class="login-kicker">Portal institucional</p>
         <h1>SegPortal</h1>
-        <p>Acesso seguro a sistemas, navegador corporativo e arquivos — tudo no mesmo portal.</p>
+        <p class="login-lead">
+          Seu ponto de entrada em destaque: sistemas, arquivos, navegador, computadores,
+          <strong>lembretes</strong> e <strong>calendário</strong> — disponíveis assim que você entra.
+        </p>
+        <ul class="login-features" aria-label="Recursos do portal">
+          <li><span class="lf-icon" aria-hidden="true">⌂</span> Dashboard pessoal</li>
+          <li><span class="lf-icon" aria-hidden="true">✓</span> Lembretes arrastáveis</li>
+          <li><span class="lf-icon" aria-hidden="true">▦</span> Calendário Google / Microsoft</li>
+          <li><span class="lf-icon" aria-hidden="true">🖥</span> Navegador e computadores</li>
+        </ul>
       </div>
       <form id="login-form" class="login-card" autocomplete="on">
-        <h2>Entrar</h2>
-        <p class="hint">Use sua conta local ou Active Directory quando habilitado.</p>
+        <h2>Entrar no SegPortal</h2>
+        <p class="hint">Conta local ou Active Directory. Após o login, lembretes e calendário já aparecem no dashboard.</p>
         <label for="username">Usuário</label>
         <input id="username" name="username" value="usuario" required autocomplete="username" />
         <label for="password">Senha</label>
@@ -53,6 +63,9 @@
         <button type="button" class="nav-btn" data-panel="computers">Computadores</button>
       </nav>
       <div class="topnav-user">
+        <button type="button" id="btn-open-calendar" class="btn secondary nav-calendar" aria-controls="calendar-drawer" aria-expanded="false">
+          Calendário
+        </button>
         <div class="user-chip">
           <span id="user-name">—</span>
           <small id="user-meta">—</small>
@@ -66,10 +79,32 @@
         <header class="panel-head">
           <div>
             <h2>Olá, <span id="hello-name">usuário</span></h2>
-            <p class="lede">Pastas do Active Directory, nuvem, navegador e computadores no mesmo SegPortal.</p>
+            <p class="lede">Pastas do Active Directory, nuvem, navegador, computadores, lembretes e calendário — no mesmo SegPortal.</p>
           </div>
-          <button type="button" id="btn-open-computers" class="btn secondary">Abrir Computadores</button>
+          <div class="panel-head-actions">
+            <button type="button" id="btn-focus-reminders" class="btn ghost">Lembretes</button>
+            <button type="button" id="btn-open-computers" class="btn secondary">Abrir Computadores</button>
+          </div>
         </header>
+
+        <section class="block productivity-spotlight" aria-labelledby="productivity-title">
+          <div class="block-head">
+            <h3 id="productivity-title">Organização do dia</h3>
+            <p>Lembretes flutuantes (arraste para o lado que preferir) e calendário deslizante Google/Microsoft.</p>
+          </div>
+          <div class="productivity-cards">
+            <button type="button" class="prod-card" id="prod-open-reminders">
+              <span class="prod-badge">Arrastável</span>
+              <strong>Painel de lembretes</strong>
+              <span>Crie alertas rápidos e posicione o painel onde for mais confortável para leitura.</span>
+            </button>
+            <button type="button" class="prod-card" id="prod-open-calendar">
+              <span class="prod-badge">Aba lateral</span>
+              <strong>Calendário</strong>
+              <span>Abra a aba deslizante para ver Google Calendar ou Microsoft Outlook no portal.</span>
+            </button>
+          </div>
+        </section>
 
         <section class="block" aria-labelledby="shares-title">
           <div class="block-head">
@@ -227,6 +262,69 @@
       </div>
     </form>
   </dialog>
+
+  <!-- Painel de lembretes flutuante (arrastável) — visível após login -->
+  <aside id="reminders-panel" class="reminders-panel" hidden aria-label="Painel de lembretes">
+    <header class="reminders-head" id="reminders-drag" title="Arraste para reposicionar">
+      <div class="reminders-title">
+        <span class="drag-grip" aria-hidden="true">⋮⋮</span>
+        <h3>Lembretes</h3>
+      </div>
+      <div class="reminders-head-actions">
+        <button type="button" id="btn-reminders-collapse" class="btn ghost sm" aria-expanded="true" title="Recolher">−</button>
+      </div>
+    </header>
+    <div id="reminders-body" class="reminders-body">
+      <form id="reminder-form" class="reminder-form">
+        <label class="sr-only" for="reminder-text">Novo lembrete</label>
+        <input id="reminder-text" type="text" maxlength="200" placeholder="O que precisa lembrar?" required />
+        <label class="sr-only" for="reminder-when">Quando</label>
+        <input id="reminder-when" type="datetime-local" />
+        <button type="submit" class="btn primary sm">Adicionar</button>
+      </form>
+      <ul id="reminders-list" class="reminders-list" role="list"></ul>
+      <p id="reminders-empty" class="reminders-empty">Nenhum lembrete ainda. Adicione o primeiro acima.</p>
+      <p class="reminders-hint">Dica: arraste o cabeçalho para qualquer canto da tela.</p>
+    </div>
+  </aside>
+
+  <!-- Aba deslizante de calendário (Google / Microsoft) -->
+  <button type="button" id="calendar-tab" class="calendar-tab" hidden aria-controls="calendar-drawer" aria-expanded="false" title="Abrir calendário">
+    <span class="calendar-tab-label">Calendário</span>
+  </button>
+  <aside id="calendar-drawer" class="calendar-drawer" hidden aria-label="Calendário" aria-hidden="true">
+    <header class="calendar-drawer-head">
+      <div>
+        <h2>Calendário</h2>
+        <p>Google Calendar e Microsoft Outlook embutidos no SegPortal.</p>
+      </div>
+      <button type="button" id="btn-close-calendar" class="btn ghost" aria-label="Fechar calendário">Fechar</button>
+    </header>
+    <div class="calendar-provider-tabs" role="tablist" aria-label="Provedor de calendário">
+      <button type="button" class="cal-tab active" role="tab" aria-selected="true" data-cal-provider="google">Google</button>
+      <button type="button" class="cal-tab" role="tab" aria-selected="false" data-cal-provider="microsoft">Microsoft</button>
+      <button type="button" class="cal-tab" role="tab" aria-selected="false" data-cal-provider="local">Agenda local</button>
+    </div>
+    <div class="calendar-config">
+      <label for="calendar-src-input">URL pública do calendário (embed)</label>
+      <div class="calendar-config-row">
+        <input id="calendar-src-input" type="url" placeholder="Cole a URL de incorporação do Google ou Outlook" />
+        <button type="button" id="btn-save-calendar-src" class="btn secondary sm">Salvar</button>
+      </div>
+      <p class="calendar-config-hint">
+        Google: Configurações do calendário → Integrar calendário → URL de Incorporação.
+        Microsoft: Outlook na web → Compartilhar → Incorporar.
+      </p>
+    </div>
+    <div id="calendar-frame-wrap" class="calendar-frame-wrap">
+      <iframe id="calendar-frame" class="calendar-frame" title="Calendário corporativo" src="about:blank"></iframe>
+      <div id="calendar-local" class="calendar-local" hidden></div>
+      <div id="calendar-placeholder" class="calendar-placeholder">
+        <p>Conecte um calendário Google ou Microsoft colando a URL pública acima, ou use a <strong>Agenda local</strong>.</p>
+      </div>
+    </div>
+  </aside>
+  <div id="calendar-backdrop" class="calendar-backdrop" hidden></div>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="/assets/portal.js" type="module"></script>

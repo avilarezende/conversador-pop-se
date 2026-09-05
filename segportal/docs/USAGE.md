@@ -8,12 +8,13 @@ Fluxo visual do usuário final. Manuais completos: [USER_MANUAL.md](USER_MANUAL.
 
 ![Mockup do portal](images/segportal-mockup.jpg)
 
-1. Autenticar no dashboard (`:8090`) — local e/ou Active Directory  
+1. Autenticar no dashboard (`:8090`) — local e/ou Active Directory (portal em destaque no login)  
 2. Usar pastas AD e montar OneDrive/Google Drive  
 3. Gerenciar arquivos no explorador HTML  
 4. Usar o **navegador corporativo** embutido (aba Navegador)  
 5. Abrir **computadores** remotos liberados (aba Computadores)  
-6. Se precisar de computador extra, **solicitar** e aguardar o admin  
+6. Organizar o dia com **lembretes arrastáveis** e **calendário** deslizante (Google / Microsoft)  
+7. Se precisar de computador extra, **solicitar** e aguardar o admin  
 
 ---
 
@@ -43,6 +44,8 @@ URLs demo: dashboard `http://localhost:8090` · SegPortal `http://localhost:8090
 | **Acesso rápido** | Atalhos para arquivos e navegador web |
 | **Abrir Computadores** | Abre a aba de desktops/aplicações no próprio SegPortal |
 | **Navegador** | Navegação HTML5 embutida na mesma aba |
+| **Lembretes** | Painel flutuante arrastável (posição memorizada) |
+| **Calendário** | Aba lateral deslizante com Google Calendar / Microsoft Outlook |
 
 ### 2.1 Arquivos corporativos e nuvem
 
@@ -55,6 +58,11 @@ URLs demo: dashboard `http://localhost:8090` · SegPortal `http://localhost:8090
 ![Gerenciador de arquivos](images/portal-files.jpg)
 
 Detalhes: [FILES.md](FILES.md) · [USER_MANUAL.md](USER_MANUAL.md).
+
+### 2.2 Lembretes e calendário
+
+- **Lembretes**: painel flutuante disponível no login; arraste pelo cabeçalho para qualquer canto (posição salva por usuário).
+- **Calendário**: aba lateral deslizante (botão **Calendário** ou aba na borda direita). Provedores: Google, Microsoft ou agenda local. Cole a URL pública de embed para conectar.
 
 ---
 

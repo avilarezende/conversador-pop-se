@@ -99,11 +99,22 @@ Dicas:
 
 ---
 
-## 5. Navegador e Computadores
+## 5. Lembretes e calendário
+
+Assim que você entra no SegPortal, o painel de **Lembretes** já aparece (arraste pelo cabeçalho para o canto mais confortável). O **Calendário** abre pela aba lateral ou pelo botão na barra superior.
+
+1. **Lembretes** — digite o texto, opcionalmente a data/hora, e clique em **Adicionar**. Conclua ou exclua com os botões do item.
+2. **Calendário** — escolha **Google**, **Microsoft** ou **Agenda local**. Para Google/Outlook, cole a URL pública de incorporação e salve.
+
+Alvos de clique grandes e contraste alto seguem boas práticas de ergonomia (área útil ≥ 44px).
+
+---
+
+## 6. Navegador e Computadores
 
 ![Aba Navegador embutida](images/usage-browser.jpg)
 
-### 5.1 Navegador (aba própria)
+### 6.1 Navegador (aba própria)
 
 1. Clique em **Navegador** na barra superior.
 2. O navegador corporativo abre **embutido na mesma aba** do SegPortal (não há redirecionamento para outro sistema).
@@ -111,7 +122,7 @@ Dicas:
 
 ![Navegador no Bacen](images/usage-browser-bacen.jpg)
 
-### 5.2 Computadores
+### 6.2 Computadores
 
 ![Painel de computadores](images/portal-sessions.jpg)
 
@@ -130,7 +141,7 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 
 ---
 
-## 6. Boas práticas e segurança
+## 7. Boas práticas e segurança
 
 - Encerre a sessão e use **Sair** ao terminar o expediente.
 - Não compartilhe senha nem deixe a sessão aberta em computador público.

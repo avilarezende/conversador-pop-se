@@ -86,6 +86,8 @@ def test_api_login_and_dashboard(client):
     assert body["cloud_drives"]
     assert body["features"]["embedded_browser"] is True
     assert body["features"]["computers"] is True
+    assert body["features"]["reminders"] is True
+    assert body["features"]["calendar"] is True
     assert "guacamole" not in json.dumps(body).lower()
     health = client.get("/api/health")
     assert health.json()["status"] == "ok"
@@ -96,6 +98,10 @@ def test_ui_hides_session_backend_and_labels_computers(client):
     assert "abrir computadores" in html
     assert 'data-panel="browser"' in html
     assert 'data-panel="computers"' in html
+    assert "reminders-panel" in html
+    assert "calendar-drawer" in html
+    assert "lembretes" in html
+    assert "calendário" in html or "calendario" in html
     assert "guacamole" not in html
     assert "guacadmin" not in html
     assert "abrir guacamole" not in html

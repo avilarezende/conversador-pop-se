@@ -86,11 +86,16 @@ async function api(path, options = {}) {
 function showLogin() {
   $("#view-login").hidden = false;
   $("#view-app").hidden = true;
+  setProductivityVisible(false);
+  closeCalendarDrawer();
 }
 
 function showApp() {
   $("#view-login").hidden = true;
   $("#view-app").hidden = false;
+  setProductivityVisible(true);
+  initRemindersPanel();
+  initCalendarDrawer();
 }
 
 function setPanel(name) {
@@ -533,6 +538,7 @@ function bindUi() {
 
   $("#btn-open-computers").addEventListener("click", () => setPanel("computers"));
   $("#btn-close-session")?.addEventListener("click", closeComputerSession);
+  bindProductivityUi();
 
   $("#browser-url-form").addEventListener("submit", (ev) => {
     ev.preventDefault();
@@ -634,3 +640,405 @@ async function boot() {
 }
 
 boot();
+
+/* —— Lembretes arrastáveis + calendário deslizante (Google / Microsoft) —— */
+
+const productivity = {
+  reminders: [],
+  calendarProvider: "google",
+  calendarSrc: { google: "", microsoft: "" },
+  localMonth: new Date(),
+  dragBound: false,
+  calendarBound: false,
+};
+
+function storageKey(suffix) {
+  const user = state.user?.username || state.dashboard?.user?.username || "anon";
+  return `segportal.${suffix}.${user}`;
+}
+
+function setProductivityVisible(visible) {
+  const panel = $("#reminders-panel");
+  const tab = $("#calendar-tab");
+  if (panel) panel.hidden = !visible;
+  if (tab) tab.hidden = !visible;
+  if (!visible) closeCalendarDrawer();
+}
+
+function loadReminders() {
+  try {
+    const raw = localStorage.getItem(storageKey("reminders"));
+    productivity.reminders = raw ? JSON.parse(raw) : [];
+  } catch {
+    productivity.reminders = [];
+  }
+  if (!Array.isArray(productivity.reminders)) productivity.reminders = [];
+}
+
+function saveReminders() {
+  localStorage.setItem(storageKey("reminders"), JSON.stringify(productivity.reminders));
+}
+
+function loadReminderPosition() {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey("remindersPos")) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveReminderPosition(pos) {
+  localStorage.setItem(storageKey("remindersPos"), JSON.stringify(pos));
+}
+
+function loadCalendarConfig() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(storageKey("calendar")) || "{}");
+    productivity.calendarProvider = raw.provider || "google";
+    productivity.calendarSrc = {
+      google: raw.google || "",
+      microsoft: raw.microsoft || "",
+    };
+  } catch {
+    productivity.calendarProvider = "google";
+    productivity.calendarSrc = { google: "", microsoft: "" };
+  }
+}
+
+function saveCalendarConfig() {
+  localStorage.setItem(
+    storageKey("calendar"),
+    JSON.stringify({
+      provider: productivity.calendarProvider,
+      google: productivity.calendarSrc.google,
+      microsoft: productivity.calendarSrc.microsoft,
+    }),
+  );
+}
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function placeRemindersPanel(x, y) {
+  const panel = $("#reminders-panel");
+  if (!panel) return;
+  const pad = 12;
+  const rect = panel.getBoundingClientRect();
+  const left = clamp(x, pad, window.innerWidth - rect.width - pad);
+  const top = clamp(y, pad, window.innerHeight - Math.min(rect.height, 120) - pad);
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+  saveReminderPosition({ left, top });
+}
+
+function applyReminderPosition() {
+  const panel = $("#reminders-panel");
+  if (!panel) return;
+  const saved = loadReminderPosition();
+  if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+    placeRemindersPanel(saved.left, saved.top);
+    return;
+  }
+  // Posição padrão ergonomicamente à direita, abaixo do header
+  placeRemindersPanel(window.innerWidth - 340, 88);
+}
+
+function renderReminders() {
+  const list = $("#reminders-list");
+  const empty = $("#reminders-empty");
+  if (!list) return;
+  list.innerHTML = "";
+  const items = productivity.reminders;
+  if (empty) empty.hidden = items.length > 0;
+  items
+    .slice()
+    .sort((a, b) => Number(a.done) - Number(b.done) || (a.when || "").localeCompare(b.when || ""))
+    .forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "reminder-item" + (item.done ? " done" : "");
+      li.dataset.id = item.id;
+      const whenLabel = item.when
+        ? new Date(item.when).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Sem horário";
+      li.innerHTML = `
+        <p class="reminder-text">${escapeHtml(item.text)}</p>
+        <div class="reminder-actions">
+          <button type="button" class="btn ghost sm" data-reminder-action="toggle" title="${item.done ? "Reabrir" : "Concluir"}">${item.done ? "↺" : "✓"}</button>
+          <button type="button" class="btn ghost sm" data-reminder-action="delete" title="Excluir">✕</button>
+        </div>
+        <p class="reminder-when">${escapeHtml(whenLabel)}</p>`;
+      list.appendChild(li);
+    });
+}
+
+function focusRemindersPanel() {
+  const panel = $("#reminders-panel");
+  if (!panel) return;
+  panel.hidden = false;
+  panel.classList.remove("collapsed");
+  const collapseBtn = $("#btn-reminders-collapse");
+  if (collapseBtn) {
+    collapseBtn.textContent = "−";
+    collapseBtn.setAttribute("aria-expanded", "true");
+  }
+  panel.classList.remove("pulse");
+  void panel.offsetWidth;
+  panel.classList.add("pulse");
+  $("#reminder-text")?.focus();
+}
+
+function initRemindersPanel() {
+  loadReminders();
+  renderReminders();
+  applyReminderPosition();
+  if (productivity.dragBound) return;
+  productivity.dragBound = true;
+
+  const panel = $("#reminders-panel");
+  const handle = $("#reminders-drag");
+  if (!panel || !handle) return;
+
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  const onMove = (ev) => {
+    if (!dragging) return;
+    const point = ev.touches ? ev.touches[0] : ev;
+    placeRemindersPanel(point.clientX - offsetX, point.clientY - offsetY);
+  };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    document.body.style.userSelect = "";
+  };
+
+  handle.addEventListener("pointerdown", (ev) => {
+    if (ev.target.closest("button")) return;
+    const rect = panel.getBoundingClientRect();
+    dragging = true;
+    offsetX = ev.clientX - rect.left;
+    offsetY = ev.clientY - rect.top;
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture?.(ev.pointerId);
+  });
+  handle.addEventListener("pointermove", onMove);
+  handle.addEventListener("pointerup", onUp);
+  handle.addEventListener("pointercancel", onUp);
+  window.addEventListener("resize", () => applyReminderPosition());
+
+  $("#btn-reminders-collapse")?.addEventListener("click", () => {
+    const collapsed = panel.classList.toggle("collapsed");
+    const btn = $("#btn-reminders-collapse");
+    btn.textContent = collapsed ? "+" : "−";
+    btn.setAttribute("aria-expanded", String(!collapsed));
+  });
+
+  $("#reminder-form")?.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const text = $("#reminder-text").value.trim();
+    if (!text) return;
+    const when = $("#reminder-when").value || "";
+    productivity.reminders.unshift({
+      id: `r-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      text,
+      when,
+      done: false,
+    });
+    saveReminders();
+    renderReminders();
+    $("#reminder-form").reset();
+    toast("Lembrete adicionado");
+  });
+
+  $("#reminders-list")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-reminder-action]");
+    if (!btn) return;
+    const itemEl = btn.closest(".reminder-item");
+    const id = itemEl?.dataset.id;
+    const item = productivity.reminders.find((r) => r.id === id);
+    if (!item) return;
+    if (btn.dataset.reminderAction === "toggle") item.done = !item.done;
+    if (btn.dataset.reminderAction === "delete") {
+      productivity.reminders = productivity.reminders.filter((r) => r.id !== id);
+    }
+    saveReminders();
+    renderReminders();
+  });
+}
+
+function openCalendarDrawer() {
+  const drawer = $("#calendar-drawer");
+  const backdrop = $("#calendar-backdrop");
+  const tab = $("#calendar-tab");
+  const navBtn = $("#btn-open-calendar");
+  if (!drawer) return;
+  drawer.hidden = false;
+  drawer.setAttribute("aria-hidden", "false");
+  requestAnimationFrame(() => drawer.classList.add("open"));
+  if (backdrop) backdrop.hidden = false;
+  if (tab) tab.setAttribute("aria-expanded", "true");
+  if (navBtn) navBtn.setAttribute("aria-expanded", "true");
+  renderCalendarView();
+}
+
+function closeCalendarDrawer() {
+  const drawer = $("#calendar-drawer");
+  const backdrop = $("#calendar-backdrop");
+  const tab = $("#calendar-tab");
+  const navBtn = $("#btn-open-calendar");
+  if (!drawer) return;
+  drawer.classList.remove("open");
+  drawer.setAttribute("aria-hidden", "true");
+  setTimeout(() => {
+    if (!drawer.classList.contains("open")) drawer.hidden = true;
+  }, 280);
+  if (backdrop) backdrop.hidden = true;
+  if (tab) tab.setAttribute("aria-expanded", "false");
+  if (navBtn) navBtn.setAttribute("aria-expanded", "false");
+}
+
+function renderLocalMonth() {
+  const host = $("#calendar-local");
+  if (!host) return;
+  const cursor = productivity.localMonth;
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const first = new Date(year, month, 1);
+  const startPad = (first.getDay() + 6) % 7; // semana começa na segunda
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const title = cursor.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const dows = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  const today = new Date();
+  let cells = "";
+  for (let i = 0; i < startPad; i += 1) cells += `<div class="day muted"></div>`;
+  for (let d = 1; d <= daysInMonth; d += 1) {
+    const isToday =
+      d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+    cells += `<div class="day${isToday ? " today" : ""}">${d}</div>`;
+  }
+  host.innerHTML = `
+    <div class="cal-nav">
+      <button type="button" class="btn ghost sm" id="cal-prev-month" aria-label="Mês anterior">←</button>
+      <h3 style="text-transform:capitalize;margin:0">${escapeHtml(title)}</h3>
+      <button type="button" class="btn ghost sm" id="cal-next-month" aria-label="Próximo mês">→</button>
+    </div>
+    <div class="cal-month-grid">
+      ${dows.map((d) => `<div class="dow">${d}</div>`).join("")}
+      ${cells}
+    </div>
+    <p class="calendar-config-hint">Agenda local do SegPortal. Conecte Google ou Microsoft para ver eventos corporativos.</p>`;
+  $("#cal-prev-month")?.addEventListener("click", () => {
+    productivity.localMonth = new Date(year, month - 1, 1);
+    renderLocalMonth();
+  });
+  $("#cal-next-month")?.addEventListener("click", () => {
+    productivity.localMonth = new Date(year, month + 1, 1);
+    renderLocalMonth();
+  });
+}
+
+function renderCalendarView() {
+  const provider = productivity.calendarProvider;
+  $$(".cal-tab").forEach((btn) => {
+    const active = btn.dataset.calProvider === provider;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+  const input = $("#calendar-src-input");
+  const frame = $("#calendar-frame");
+  const local = $("#calendar-local");
+  const placeholder = $("#calendar-placeholder");
+  if (input) {
+    input.value =
+      provider === "local" ? "" : productivity.calendarSrc[provider] || "";
+    input.disabled = provider === "local";
+    input.placeholder =
+      provider === "microsoft"
+        ? "URL de incorporação do Outlook / Microsoft 365"
+        : provider === "google"
+          ? "URL de incorporação do Google Calendar"
+          : "Agenda local do SegPortal";
+  }
+  if (provider === "local") {
+    if (frame) {
+      frame.hidden = true;
+      frame.src = "about:blank";
+    }
+    if (placeholder) placeholder.hidden = true;
+    if (local) {
+      local.hidden = false;
+      renderLocalMonth();
+    }
+    return;
+  }
+  if (local) local.hidden = true;
+  const src = productivity.calendarSrc[provider];
+  if (src) {
+    if (placeholder) placeholder.hidden = true;
+    if (frame) {
+      frame.hidden = false;
+      if (frame.src !== src) frame.src = src;
+    }
+  } else {
+    if (frame) {
+      frame.hidden = true;
+      frame.src = "about:blank";
+    }
+    if (placeholder) placeholder.hidden = false;
+  }
+}
+
+function initCalendarDrawer() {
+  loadCalendarConfig();
+  renderCalendarView();
+  if (productivity.calendarBound) return;
+  productivity.calendarBound = true;
+}
+
+function bindProductivityUi() {
+  $("#btn-open-calendar")?.addEventListener("click", () => openCalendarDrawer());
+  $("#calendar-tab")?.addEventListener("click", () => openCalendarDrawer());
+  $("#btn-close-calendar")?.addEventListener("click", () => closeCalendarDrawer());
+  $("#calendar-backdrop")?.addEventListener("click", () => closeCalendarDrawer());
+  $("#btn-focus-reminders")?.addEventListener("click", () => focusRemindersPanel());
+  $("#prod-open-reminders")?.addEventListener("click", () => focusRemindersPanel());
+  $("#prod-open-calendar")?.addEventListener("click", () => openCalendarDrawer());
+
+  $$(".cal-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      productivity.calendarProvider = btn.dataset.calProvider || "google";
+      saveCalendarConfig();
+      renderCalendarView();
+    });
+  });
+
+  $("#btn-save-calendar-src")?.addEventListener("click", () => {
+    const provider = productivity.calendarProvider;
+    if (provider === "local") {
+      toast("Agenda local não usa URL externa");
+      return;
+    }
+    const value = ($("#calendar-src-input")?.value || "").trim();
+    if (value && !/^https:\/\//i.test(value)) {
+      toast("Use uma URL https:// de incorporação");
+      return;
+    }
+    productivity.calendarSrc[provider] = value;
+    saveCalendarConfig();
+    renderCalendarView();
+    toast(value ? "Calendário conectado" : "URL removida");
+  });
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") closeCalendarDrawer();
+  });
+}
