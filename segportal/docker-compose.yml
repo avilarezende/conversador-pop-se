@@ -123,6 +123,30 @@ services:
       retries: 12
       start_period: 30s
 
+  # Dashboard HTML: arquivos AD + OneDrive/Google Drive
+  portal-auth:
+    build:
+      context: .
+      dockerfile: services/portal-auth/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      PORTAL_SESSION_SECRET: ${PORTAL_SESSION_SECRET:-segportal-dev-secret-change-me}
+      DEMO_SHARES_ROOT: /data/shares
+      LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      GUACAMOLE_PUBLIC_URL: ${GUACAMOLE_PUBLIC_URL:-http://localhost:8080/guacamole}
+      PORTAL_PORT: "8090"
+    volumes:
+      - portal-shares:/data/shares
+      - ./config/files:/app/config/files:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/api/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   # Schema + papéis + "Navegador Web SegPortal" para todos — automático no boot
   segportal-bootstrap:
     image: postgres:16-alpine
@@ -144,3 +168,4 @@ services:
 
 volumes:
   postgres-data:
+  portal-shares:

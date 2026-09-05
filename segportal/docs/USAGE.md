@@ -17,7 +17,9 @@ Fluxo visual do usuário final. Manual completo: [MANUAL.md](MANUAL.md).
 
 ## 1. Login
 
-Acesse `https://segportal.tjse.jus.br` (ou `http://localhost:8080/guacamole` na demo).
+Acesse o **dashboard pessoal** em `http://localhost:8090` (arquivos AD + nuvem) ou o Guacamole em `http://localhost:8080/guacamole`.
+
+Em produção: `https://segportal.tjse.jus.br` (portal) e o path Guacamole conforme ingress.
 
 ![Tela de login](images/usage-login.jpg)
 
@@ -37,6 +39,18 @@ Acesse `https://segportal.tjse.jus.br` (ou `http://localhost:8080/guacamole` na 
 |------|-----|
 | **Navegador Web SegPortal** | Firefox HTML5 — **padrão automático para todos** |
 | **RDP / VNC / SSH** | Terminais liberados por grupo ou após aprovação |
+| **Arquivos AD / nuvem** | Dashboard em `:8090` — pastas do Active Directory, OneDrive e Google Drive ([FILES.md](FILES.md)) |
+
+---
+
+## 2.1 Arquivos corporativos e nuvem
+
+1. Entre em `http://localhost:8090` com `usuario` / `usuario`
+2. Marque **Active Directory** para montar home e pastas corporativas no dashboard
+3. Em **Nuvem pessoal**, monte OneDrive e/ou Google Drive
+4. Em **Arquivos**, use o explorador HTML (arrastar e soltar, nova pasta, renomear, baixar)
+
+Detalhes: [FILES.md](FILES.md).
 
 ---
 

@@ -1,0 +1,66 @@
+# Arquivos e compartilhamentos — SegPortal TJSE
+
+shares:
+  ad_attributes:
+    home_directory: homeDirectory
+    home_drive: homeDrive
+    profile_path: profilePath
+    extra_shares: extensionAttribute10
+
+  corporate:
+    - id: dept
+      label: Departamental
+      unc: "\\\\fs01\\departamentos"
+      mount_hint: "Liberada conforme grupo AD do usuário"
+    - id: public
+      label: Público TJSE
+      unc: "\\\\fs01\\publico"
+      read_only: true
+
+  demo:
+    enabled: true
+    root: /tmp/segportal-shares
+    users:
+      guacadmin:
+        - id: home
+          label: Meu Home (AD)
+          path: guacadmin/home
+          source: ad-home
+        - id: dept
+          label: Departamental
+          path: guacadmin/dept
+          source: corporate
+      usuario:
+        - id: home
+          label: Meu Home (AD)
+          path: usuario/home
+          source: ad-home
+        - id: dept
+          label: Departamental
+          path: usuario/dept
+          source: corporate
+
+cloud_drives:
+  onedrive:
+    enabled: true
+    label: OneDrive
+    description: Arquivos pessoais e de equipes no Microsoft 365
+    client_id: ""
+    tenant_id: common
+    redirect_path: /api/cloud/onedrive/callback
+    scopes:
+      - Files.ReadWrite
+      - offline_access
+  google_drive:
+    enabled: true
+    label: Google Drive
+    description: Arquivos no Google Workspace / conta Google
+    client_id: ""
+    redirect_path: /api/cloud/google_drive/callback
+    scopes:
+      - https://www.googleapis.com/auth/drive.file
+
+ui:
+  max_upload_mb: 100
+  allow_drag_drop: true
+  show_hidden: false

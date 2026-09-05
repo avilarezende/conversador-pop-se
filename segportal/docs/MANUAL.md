@@ -15,6 +15,7 @@ O SegPortal permite acessar sistemas do TJSE e sites (internos e externos) **pel
 | Público | Documento |
 |---------|-----------|
 | Usuário final (passo a passo visual) | [USAGE.md](USAGE.md) |
+| Arquivos AD, OneDrive e Google Drive | [FILES.md](FILES.md) |
 | Navegador padrão e pedidos de terminal | [CONNECTIONS.md](CONNECTIONS.md) |
 | Papéis admin / usuário | [ROLES.md](ROLES.md) |
 | Admin local e LDAP opcional | [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |

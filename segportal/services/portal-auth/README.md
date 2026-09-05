@@ -1,35 +1,46 @@
-# Portal Auth / Admin settings
+# Portal Auth — SegPortal TJSE
 
-Módulo de apoio para autenticação e **configuração administrativa** do SegPortal.
+Serviço FastAPI do **dashboard pessoal**: autenticação (local / Active Directory),
+montagem de pastas corporativas indicadas pelo AD, OneDrive/Google Drive e
+gerenciador de arquivos HTML.
 
-## Responsabilidades
+## URLs
 
-1. Validação MFA (RADIUS) quando habilitada
-2. Referência dos apontamentos LDAP editáveis pelo administrador
-3. Manutenção do modelo “LDAP opcional + usuários locais sempre ativos”
+| Ambiente | URL |
+|----------|-----|
+| Compose local | http://localhost:8090 |
+| Health | `GET /api/health` |
 
-## LDAP configurável
+## Credenciais demo
 
-Fonte da verdade humana: `config/ldap/ldap-settings.yaml`
+| Usuário | Senha | Papel |
+|---------|-------|-------|
+| `usuario` | `usuario` | user |
+| `guacadmin` | `guacadmin` | admin |
 
-Campos principais: servidor, porta, criptografia, domínio, base DN, atributo UID,
-bind DN, certificado do servidor e cadeia de CAs.
+Marque **Autenticar via Active Directory** no login para simular sessão LDAP e
+expor compartilhamentos AD (home, departamental) no dashboard.
 
-Comportamento no container (`services/guacamole/entrypoint.sh`):
+## OneDrive / Google Drive
 
-- `LDAP_ENABLED=false` → remove `ldap-*` do `guacamole.properties` (só JDBC)
-- `LDAP_ENABLED=true` → aplica apontamentos e importa CA no truststore Java
+No painel **Início**, use **Montar**. Sem `client_id` em `config/files/shares.yaml`,
+a montagem é em **modo demonstração** (pasta local sob `/data/shares/cloud/...`).
+Com OAuth configurado, o portal redireciona ao provedor.
 
-## Admin padrão
+## Arquivos
 
-Sempre existe a conta local `guacadmin` (senha inicial `guacadmin`), independente do LDAP.
+- Configuração: `config/files/shares.yaml`
+- Atributos AD: `homeDirectory`, `homeDrive`, `profilePath`, `extensionAttribute10`
+- UI: `static/index.html` + `static/assets/`
 
-- Trocar senha: `scripts/change-local-password.sh`
-- Desativar/excluir: `scripts/delete-local-user.sh`
+## Desenvolvimento local (sem Docker)
 
-Documentação: `docs/LOCAL_ADMIN.md`.
+```bash
+cd services/portal-auth
+pip install -r requirements.txt
+DEMO_SHARES_ROOT=/tmp/segportal-shares uvicorn app.main:app --reload --port 8090
+```
 
-## Extensão futura
+## Compose
 
-API/UI administrativa (FastAPI) para gravar `ldap-settings` em ConfigMap/Secret
-sem redeploy manual — encaixar neste diretório quando o time avançar a esteira.
+O serviço `portal-auth` sobe com a stack em `docker-compose.yml` (porta **8090**).

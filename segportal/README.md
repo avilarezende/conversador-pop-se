@@ -40,6 +40,7 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 | **PostgreSQL** | Metadados de conexões e sessões | `postgres` (StatefulSet) |
 | **Proxy egress** | Navegação HTTP com IP institucional TJSE | `proxy-egress` (HPA 1–5) |
 | **Web browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` (HPA 2–10) |
+| **Portal auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager | `portal-auth` |
 | **Bootstrap** | Conexão padrão + papéis no banco | Job `segportal-bootstrap` |
 
 ![Fluxo de autenticação](docs/images/auth-flow.jpg)
@@ -77,7 +78,9 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Acesse: **http://localhost:8080/guacamole**
+Acesse:
+- **Dashboard pessoal (arquivos AD + nuvem):** http://localhost:8090  
+- **Guacamole (sessões remotas):** http://localhost:8080/guacamole
 
 No primeiro boot o serviço `segportal-bootstrap` cria schema (se preciso), papéis e a conexão **Navegador Web SegPortal** (Firefox via VNC) liberada para todos. Demo sem LDAP:
 
