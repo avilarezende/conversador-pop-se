@@ -128,13 +128,13 @@ segportal/        # Portal ZTNA TJSE (Guacamole + portal-auth) — ver PR #11
 docs/             # arquitetura, configuração, CI/CD
 ```
 
-### SegPortal (nova UI — 2026-09-05)
+### SegPortal (versão 2026-09-05)
 
-Código e docs atualizados em [`segportal/`](segportal/): dashboard AD/nuvem, file manager HTML e exemplo de navegador no site do Bacen.
+Portal ZTNA TJSE em [`segportal/`](segportal/) e no repositório público **https://github.com/avilarezende/segportal**.
 
-- Branch: `cursor/segportal-github-d39d`
-- PR: https://github.com/avilarezende/conversador-pop-se/pull/11
-- Preview das imagens: [mockup](segportal/docs/images/segportal-mockup.jpg) · [arquitetura](segportal/docs/images/architecture-overview.jpg) · [Bacen](segportal/docs/images/usage-browser.jpg)
+Dashboard AD/nuvem, file manager HTML e navegador HTML5 (exemplo Bacen).
+
+- Preview: [mockup](segportal/docs/images/segportal-mockup.jpg) · [arquitetura](segportal/docs/images/architecture-overview.jpg) · [Bacen](segportal/docs/images/usage-browser.jpg)
 
 ## Documentação
 

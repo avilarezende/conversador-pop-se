@@ -28,13 +28,20 @@ jobs:
       matrix:
         include:
           - service: guacamole
+            context: .
             dockerfile: services/guacamole/Dockerfile
           - service: guacd
+            context: services/guacd
             dockerfile: services/guacd/Dockerfile
           - service: egress-proxy
+            context: .
             dockerfile: services/egress-proxy/Dockerfile
           - service: web-browser
+            context: services/web-browser
             dockerfile: services/web-browser/Dockerfile
+          - service: portal-auth
+            context: .
+            dockerfile: services/portal-auth/Dockerfile
     steps:
       - uses: actions/checkout@v4
 
@@ -60,7 +67,7 @@ jobs:
       - name: Build and push ${{ matrix.service }}
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.service == 'guacamole' && '.' || format('services/{0}', matrix.service) }}
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
