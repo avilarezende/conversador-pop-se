@@ -70,7 +70,7 @@ jobs:
             context: services/guacd
             file: services/guacd/Dockerfile
           - service: egress-proxy
-            context: services/egress-proxy
+            context: .
             file: services/egress-proxy/Dockerfile
           - service: web-browser
             context: services/web-browser
