@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: squid
-          image: registry.tjse.jus.br/segportal/egress-proxy:latest
+          image: registry.aqne.jus.br/segportal/egress-proxy:latest
           ports:
             - containerPort: 3128
               name: http-proxy

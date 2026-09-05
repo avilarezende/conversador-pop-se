@@ -1,4 +1,4 @@
-# Navegadores e pedidos de conexão — SegPortal TJSE
+# Navegadores e pedidos de conexão — SegPortal AQNE
 
 ## Navegador HTML padrão (habilitado automaticamente)
 
@@ -10,7 +10,7 @@ Não é necessário seed manual.
 
 - Protocolo: VNC → `web-browser:5900` (Firefox)
 - Cliente: HTML5 no Guacamole (sem VPN/cliente)
-- Sites internos e externos (externos via `proxy-egress` / IP TJSE quando configurado)
+- Sites internos e externos (externos via `proxy-egress` / IP AQNE quando configurado)
 - Exemplo de uso: `https://www.bcb.gov.br/` (Banco Central do Brasil)
 
 ### Demo local
@@ -92,7 +92,7 @@ Usuário (HTML5)
         → guacd (VNC)
             → web-browser (Firefox)
                 → sites internos
-                → proxy-egress → internet (IP TJSE)
+                → proxy-egress → internet (IP AQNE)
 ```
 
 ![Arquitetura](images/architecture-overview.jpg)

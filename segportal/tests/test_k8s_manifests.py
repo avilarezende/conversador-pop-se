@@ -59,7 +59,7 @@ class TestKustomizeOverlays:
         ingresses = [d for d in docs if d.get("kind") == "Ingress"]
         assert len(ingresses) >= 1
         rules = ingresses[0]["spec"]["rules"]
-        assert any("tjse.jus.br" in r["host"] for r in rules)
+        assert any("aqne.jus.br" in r["host"] for r in rules)
 
 
 class TestBootstrapK8sFiles:

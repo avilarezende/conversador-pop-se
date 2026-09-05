@@ -1,7 +1,7 @@
 segportal
 guacamole
 ztna
-tjse
+aqne
 kubernetes
 rancher
 ldap
@@ -14,4 +14,3 @@ clientless
 squid
 proxy
 brazil
-tribunal-de-justica

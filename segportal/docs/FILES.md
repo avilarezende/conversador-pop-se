@@ -59,7 +59,7 @@ Sem `client_id`, a montagem cria pasta demo sob `DEMO_SHARES_ROOT/cloud/...`.
 Interface em HTML/CSS/JS (`services/portal-auth/static`):
 
 - Tipografia Source Sans 3 + Fraunces  
-- Cores institucionais TJSE (navy / ouro)  
+- Cores institucionais AQNE (navy / ouro)  
 - Abas **Início · Arquivos · Sessões**  
 - Diálogo acessível para nova pasta/renomear  
 - Arrastar e soltar; alvos de clique ≥ 44px  

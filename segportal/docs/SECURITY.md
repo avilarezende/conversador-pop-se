@@ -1,4 +1,4 @@
-# Segurança — SegPortal TJSE
+# Segurança — SegPortal AQNE
 
 Controles de segurança do portal ZTNA baseado em Guacamole.
 
@@ -48,7 +48,7 @@ Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas 
 
 ## Egress controlado
 
-O proxy Squid permite apenas destinos na whitelist (ex.: `*.tjse.jus.br`, `*.jus.br`, `*.gov.br`). Demais destinos são **negados**. O IP de saída é o institucional do tribunal.
+O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus.br`, `*.gov.br`). Demais destinos são **negados**. O IP de saída é o institucional do tribunal.
 
 ## Dados sensíveis
 
@@ -67,7 +67,7 @@ O proxy Squid permite apenas destinos na whitelist (ex.: `*.tjse.jus.br`, `*.jus
 
 - Pedidos de conexão registrados em `segportal_connection_request`
 - Encaminhar logs Squid e Guacamole ao SIEM
-- Retenção conforme política TJSE
+- Retenção conforme política AQNE
 
 ## Resposta a incidentes
 

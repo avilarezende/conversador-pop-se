@@ -1,6 +1,6 @@
-# Manual — SegPortal TJSE
+# Manual — SegPortal AQNE
 
-Manual de referência do portal ZTNA do Tribunal de Justiça de Sergipe.
+Manual de referência do portal ZTNA do AQNE.
 
 ---
 
@@ -21,7 +21,7 @@ Manual de referência do portal ZTNA do Tribunal de Justiça de Sergipe.
 
 ## 1. O que é o SegPortal?
 
-O SegPortal permite acessar sistemas do TJSE e sites (internos e externos) **pelo navegador**, sem VPN. Inclui:
+O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pelo navegador**, sem VPN. Inclui:
 
 - **Dashboard pessoal** (`:8090`) — pastas do Active Directory, OneDrive/Google Drive e gerenciador HTML
 - **Sessões remotas** (Guacamole `:8080`) — RDP, VNC, SSH e **Navegador Web SegPortal** (Firefox HTML5)

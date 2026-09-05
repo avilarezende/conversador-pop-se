@@ -1,5 +1,5 @@
 -- =============================================================================
--- SegPortal TJSE — Papéis admin e usuário (Guacamole JDBC PostgreSQL 1.5.x)
+-- SegPortal AQNE — Papéis admin e usuário (Guacamole JDBC PostgreSQL 1.5.x)
 -- Aplicar APÓS o schema oficial (001/002).
 -- =============================================================================
 -- Admin  → grupo segportal-admins (+ guacadmin)

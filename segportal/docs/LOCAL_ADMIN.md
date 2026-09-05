@@ -1,4 +1,4 @@
-# Admin padrão e usuários locais — SegPortal TJSE
+# Admin padrão e usuários locais — SegPortal AQNE
 
 Manual operacional completo: **[ADMIN_MANUAL.md](ADMIN_MANUAL.md)**.  
 Manual do usuário final: [USER_MANUAL.md](USER_MANUAL.md).
@@ -114,11 +114,11 @@ Arquivo de referência: `config/ldap/ldap-settings.yaml`
 | Campo | Variável / chave | Exemplo |
 |-------|------------------|---------|
 | Ligar LDAP | `LDAP_ENABLED` | `true` |
-| Servidor | `LDAP_HOSTNAME` | `ldap.tjse.jus.br` |
+| Servidor | `LDAP_HOSTNAME` | `ldap.aqne.jus.br` |
 | Porta | `LDAP_PORT` | `636` |
 | Criptografia | `LDAP_ENCRYPTION_METHOD` | `ssl` / `starttls` / `none` |
-| Domínio | `ldap.domain` | `tjse.jus.br` |
-| Base DN | `LDAP_USER_BASE_DN` | `OU=Usuarios,DC=tjse,DC=jus,DC=br` |
+| Domínio | `ldap.domain` | `aqne.jus.br` |
+| Base DN | `LDAP_USER_BASE_DN` | `OU=Usuarios,DC=aqne,DC=jus,DC=br` |
 | UID / atributo | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName` ou `uid` |
 | Bind DN | `LDAP_SEARCH_BIND_DN` | conta de serviço |
 | Senha bind | `LDAP_SEARCH_BIND_PASSWORD` | Secret |

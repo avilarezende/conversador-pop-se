@@ -1,6 +1,6 @@
 ## Descrição
 
-<!-- Descreva a mudança e o motivo (issue, demanda TJSE, etc.) -->
+<!-- Descreva a mudança e o motivo (issue, demanda AQNE, etc.) -->
 
 ## Tipo de alteração
 

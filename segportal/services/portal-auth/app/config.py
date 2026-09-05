@@ -42,11 +42,14 @@ class Settings:
     def __init__(self) -> None:
         demo = shares_config().get("shares", {}).get("demo", {})
         ui = shares_config().get("ui", {})
+        ldap_on = bool(ldap_config().get("ldap", {}).get("enabled", False))
+        demo_root = demo.get("root", "/tmp/segportal-shares")
         self.session_secret = os.getenv("PORTAL_SESSION_SECRET", "segportal-dev-secret-change-me")
-        self.ldap_enabled = env_bool("LDAP_ENABLED", bool(ldap_config().get("ldap", {}).get("enabled", False)))
+        self.ldap_enabled = env_bool("LDAP_ENABLED", ldap_on)
         self.guacamole_url = os.getenv("GUACAMOLE_PUBLIC_URL", "http://localhost:8080/guacamole")
-        self.demo_shares_root = Path(os.getenv("DEMO_SHARES_ROOT", demo.get("root", "/tmp/segportal-shares")))
-        self.max_upload_mb = int(os.getenv("PORTAL_MAX_UPLOAD_MB", str(ui.get("max_upload_mb", 100))))
+        self.demo_shares_root = Path(os.getenv("DEMO_SHARES_ROOT", demo_root))
+        max_upload = str(ui.get("max_upload_mb", 100))
+        self.max_upload_mb = int(os.getenv("PORTAL_MAX_UPLOAD_MB", max_upload))
         self.portal_port = int(os.getenv("PORTAL_PORT", "8090"))
 
 

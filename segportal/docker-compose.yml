@@ -1,4 +1,4 @@
-# SegPortal TJSE — stack local
+# SegPortal AQNE — stack local
 # No boot: web-browser (Firefox/VNC) + bootstrap cria a conexão padrão para todos.
 
 services:
@@ -105,7 +105,7 @@ services:
       VNC_PORT: "5900"
       # Deve coincidir com o parâmetro password da conexão Guacamole (004-default-browser.sql)
       VNC_PASSWORD: ${VNC_PASSWORD:-segport1}
-      FF_OPEN_URL: ${FF_OPEN_URL:-https://www.tjse.jus.br}
+      FF_OPEN_URL: ${FF_OPEN_URL:-https://www.aqne.jus.br}
       http_proxy: http://proxy-egress:3128
       https_proxy: http://proxy-egress:3128
       HTTP_PROXY: http://proxy-egress:3128

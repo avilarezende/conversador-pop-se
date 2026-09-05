@@ -1,4 +1,4 @@
-# Mockup e preview — SegPortal TJSE
+# Mockup e preview — SegPortal AQNE
 
 Materiais visuais do portal para documentação e demonstração de papéis.
 

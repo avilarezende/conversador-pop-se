@@ -1,4 +1,4 @@
-# Papéis de acesso — SegPortal TJSE
+# Papéis de acesso — SegPortal AQNE
 
 O SegPortal usa **dois papéis principais**, alinhados a grupos do Active Directory e a grupos internos do Guacamole.
 

@@ -1,4 +1,4 @@
-# Manual do administrador — SegPortal TJSE
+# Manual do administrador — SegPortal AQNE
 
 Operação, configuração e suporte do SegPortal: autenticação, pastas AD, nuvem, conexões Guacamole e papéis.
 

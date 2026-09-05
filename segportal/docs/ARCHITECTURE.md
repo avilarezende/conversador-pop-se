@@ -1,6 +1,6 @@
-# Arquitetura — SegPortal TJSE
+# Arquitetura — SegPortal AQNE
 
-SegPortal implementa **ZTNA (Zero Trust Network Access)** para o TJSE com Apache Guacamole como portal clientless HTML5.
+SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache Guacamole como portal clientless HTML5.
 
 ## Visão geral
 
@@ -21,7 +21,7 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o TJSE com Apache
 ![Fluxo LDAP + MFA](images/auth-flow.jpg)
 
 1. Usuário acessa o **portal-auth** (`:8090`) e/ou o Guacamole
-2. Autentica via **conta local** e/ou **LDAP/AD** (`tjse.jus.br`), conforme configuração
+2. Autentica via **conta local** e/ou **LDAP/AD** (`aqne.jus.br`), conforme configuração
 3. No dashboard, recebe pastas AD e opção de montar OneDrive/Google Drive
 4. MFA via **RADIUS** no Guacamole se `MFA_ENABLED=true`
 5. Sessões remotas: no mínimo o **Navegador Web SegPortal**
