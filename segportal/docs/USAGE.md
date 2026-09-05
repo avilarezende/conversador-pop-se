@@ -56,15 +56,15 @@ Detalhes: [FILES.md](FILES.md) · [USER_MANUAL.md](USER_MANUAL.md).
 
 ---
 
-## 3. Navegador HTML padrão
+## 3. Navegador HTML padrão (exemplo: site do Bacen)
 
-![Painel de sessões / navegador](images/usage-browser.jpg)
+![Navegador HTML5 no site do Bacen](images/usage-browser.jpg)
 
-No boot, `web-browser` sobe e o bootstrap cria a conexão **Navegador Web SegPortal** para todos.
+No boot, `web-browser` sobe e o bootstrap cria a conexão **Navegador Web SegPortal** para todos. O Firefox roda via VNC e é entregue em **HTML5** no Guacamole — sem cliente VPN.
 
-![Sessão remota](images/usage-session.jpg)
+**Exemplo de uso:** abra a sessão **Navegador Web SegPortal** e acesse `https://www.bcb.gov.br/` (Banco Central do Brasil). A navegação sai pelo `proxy-egress` com IP institucional, quando configurado.
 
-Tráfego externo pode sair pelo `proxy-egress` (IP institucional), quando configurado.
+![Sessão remota no Bacen](images/usage-session.jpg)
 
 ---
 
@@ -96,5 +96,7 @@ Tráfego externo pode sair pelo `proxy-egress` (IP institucional), quando config
 | [usage-portal.jpg](images/usage-portal.jpg) | Dashboard |
 | [portal-files.jpg](images/portal-files.jpg) | Arquivos |
 | [portal-cloud-mounted.jpg](images/portal-cloud-mounted.jpg) | Nuvem |
-| [usage-browser.jpg](images/usage-browser.jpg) | Sessões |
+| [usage-browser.jpg](images/usage-browser.jpg) | Navegador HTML5 no Bacen |
+| [usage-session.jpg](images/usage-session.jpg) | Sessão remota (mesmo exemplo) |
+| [usage-browser-bacen.jpg](images/usage-browser-bacen.jpg) | Alias do exemplo Bacen |
 | [admin-approvals.jpg](images/admin-approvals.jpg) | Admin |

@@ -6,11 +6,12 @@ Ao subir o SegPortal (`docker compose up` ou deploy K8s), o serviço **`web-brow
 
 Não é necessário seed manual.
 
-![Fluxo do navegador padrão](images/usage-browser.jpg)
+![Navegador HTML5 no site do Bacen](images/usage-browser.jpg)
 
 - Protocolo: VNC → `web-browser:5900` (Firefox)
 - Cliente: HTML5 no Guacamole (sem VPN/cliente)
 - Sites internos e externos (externos via `proxy-egress` / IP TJSE quando configurado)
+- Exemplo de uso: `https://www.bcb.gov.br/` (Banco Central do Brasil)
 
 ### Demo local
 

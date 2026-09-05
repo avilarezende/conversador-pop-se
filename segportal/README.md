@@ -56,8 +56,8 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 | **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou AD (+ MFA no Guacamole, se habilitado) |
 | **2. Dashboard** | ![Portal](docs/images/usage-portal.jpg) | Pastas AD, OneDrive/Google Drive e atalhos |
 | **3. Arquivos** | ![Arquivos](docs/images/portal-files.jpg) | Gerenciador HTML (upload, pastas, nuvem) |
-| **4. Sessões** | ![Sessão](docs/images/portal-sessions.jpg) | Navegador HTML5 / RDP / VNC / SSH |
-| **5. Admin** | ![Admin](docs/images/portal-admin-home.jpg) | Visão administrativa e aprovações |
+| **4. Navegador HTML5** | ![Bacen](docs/images/usage-browser.jpg) | Firefox no portal acessando o site do **Bacen** (`bcb.gov.br`) |
+| **5. Sessão / Admin** | ![Admin](docs/images/portal-admin-home.jpg) | Sessões remotas e visão administrativa |
 
 ---
 

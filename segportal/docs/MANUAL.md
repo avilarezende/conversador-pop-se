@@ -69,11 +69,13 @@ Passo a passo completo: [USER_MANUAL.md](USER_MANUAL.md).
 
 Listar, enviar (arrastar e soltar), criar pasta, renomear, baixar e excluir. Detalhes: [FILES.md](FILES.md).
 
-### 2.4 Navegador Web SegPortal
+### 2.4 Navegador Web SegPortal (ex.: Bacen)
 
-![Sessões remotas](images/portal-sessions.jpg)
+![Navegador HTML5 no Bacen](images/usage-browser.jpg)
 
-Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Ver [CONNECTIONS.md](CONNECTIONS.md).
+Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Exemplo: na sessão remota, abra `https://www.bcb.gov.br/`. Ver [CONNECTIONS.md](CONNECTIONS.md) e [USAGE.md](USAGE.md).
+
+![Painel de sessões](images/portal-sessions.jpg)
 
 ---
 

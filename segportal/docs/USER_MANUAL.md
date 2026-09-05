@@ -104,7 +104,11 @@ Dicas:
 
 1. Abra a aba **Sessões remotas** ou use **Abrir Guacamole**.
 2. Conecte no **Navegador Web SegPortal** (Firefox HTML5) — disponível para todos.
-3. RDP/VNC/SSH extras aparecem só se o administrador liberar ou aprovar o seu pedido.
+3. Exemplo: na sessão do navegador, acesse o site do **Bacen** em `https://www.bcb.gov.br/`.
+
+![Navegador HTML5 no Bacen](images/usage-browser-bacen.jpg)
+
+4. RDP/VNC/SSH extras aparecem só se o administrador liberar ou aprovar o seu pedido.
 
 Pedido de terminal (exemplo):
 

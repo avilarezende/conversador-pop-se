@@ -6,11 +6,12 @@ Materiais visuais do portal para documentação e demonstração de papéis.
 
 | Arquivo | Conteúdo |
 |---------|----------|
-| [segportal-mockup.jpg](../images/segportal-mockup.jpg) | Visão geral: login, portal, sessão, admin |
+| [segportal-mockup.jpg](../images/segportal-mockup.jpg) | Visão geral 2×2: login, dashboard AD/nuvem, arquivos, Bacen |
 | [usage-login.jpg](../images/usage-login.jpg) | Tela de login |
-| [usage-portal.jpg](../images/usage-portal.jpg) | Lista de recursos (navegador padrão em destaque) |
-| [usage-browser.jpg](../images/usage-browser.jpg) | Fluxo do navegador HTML automático |
-| [usage-session.jpg](../images/usage-session.jpg) | Sessão Firefox clientless |
+| [usage-portal.jpg](../images/usage-portal.jpg) | Dashboard (pastas AD e nuvem) |
+| [usage-browser.jpg](../images/usage-browser.jpg) | Navegador HTML5 no site do Bacen (`bcb.gov.br`) |
+| [usage-browser-bacen.jpg](../images/usage-browser-bacen.jpg) | Alias do exemplo Bacen |
+| [usage-session.jpg](../images/usage-session.jpg) | Sessão Firefox clientless (mesmo exemplo) |
 | [admin-approvals.jpg](../images/admin-approvals.jpg) | Painel admin (sessões e aprovações) |
 | [architecture-overview.jpg](../images/architecture-overview.jpg) | Arquitetura ZTNA |
 | [auth-flow.jpg](../images/auth-flow.jpg) | Fluxo de autenticação |
