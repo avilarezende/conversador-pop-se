@@ -1,14 +1,12 @@
 # SegPortal — Portal ZTNA do TJSE
 
-**Versão documental:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
+**Versão:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
 
-[![CI](https://github.com/avilarezende/conversador-pop-se/actions/workflows/segportal-ci.yml/badge.svg)](https://github.com/avilarezende/conversador-pop-se/actions/workflows/segportal-ci.yml)
+[![CI](https://github.com/avilarezende/segportal/actions/workflows/ci.yml/badge.svg)](https://github.com/avilarezende/segportal/actions/workflows/ci.yml)
+
+**Repositório:** https://github.com/avilarezende/segportal
 
 **SegPortal** é o portal de acesso seguro do **Tribunal de Justiça de Sergipe (TJSE)**. Baseado em [Apache Guacamole](https://guacamole.apache.org/), substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`tjse.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
-
-**Fonte canônica (monorepo):** https://github.com/avilarezende/conversador-pop-se/tree/cursor/segportal-github-d39d/segportal  
-**PR com a nova UI:** https://github.com/avilarezende/conversador-pop-se/pull/11  
-**Espelho standalone (pode estar desatualizado):** https://github.com/avilarezende/segportal
 
 ---
 

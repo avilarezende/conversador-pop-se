@@ -62,6 +62,7 @@ registry.tjse.jus.br/segportal/guacamole:<tag>
 registry.tjse.jus.br/segportal/guacd:<tag>
 registry.tjse.jus.br/segportal/egress-proxy:<tag>
 registry.tjse.jus.br/segportal/web-browser:<tag>
+registry.tjse.jus.br/segportal/portal-auth:<tag>
 ```
 
 Tags: SHA do commit, `latest`, ou versão semântica (`v1.0.0`).
