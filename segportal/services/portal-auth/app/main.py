@@ -29,7 +29,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="SegPortal TJSE", version="1.1.0", lifespan=lifespan)
+app = FastAPI(title="SegPortal AQNE", version="1.1.0", lifespan=lifespan)
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
 
 @app.get("/", response_class=HTMLResponse)
@@ -123,7 +123,9 @@ async def api_upload(
 @app.post("/api/files/{share_id}/mkdir")
 async def api_mkdir(share_id: str, request: Request) -> dict:
     body = await request.json()
-    return mkdir(current_user(request), share_id, body.get("path", ""), body.get("name", "Nova pasta"))
+    path = body.get("path", "")
+    name = body.get("name", "Nova pasta")
+    return mkdir(current_user(request), share_id, path, name)
 
 
 @app.post("/api/files/{share_id}/rename")

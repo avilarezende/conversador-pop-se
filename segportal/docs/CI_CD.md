@@ -1,4 +1,4 @@
-# CI/CD — SegPortal TJSE
+# CI/CD — SegPortal AQNE
 
 Pipelines GitHub Actions para integração e entrega contínua.
 
@@ -12,7 +12,7 @@ flowchart LR
     CI --> D[docker build]
     develop --> CDstg[cd.yml staging]
     tag[Tag v*.*.*] --> CDprod[cd.yml production]
-    CDstg --> R[registry.tjse.jus.br]
+    CDstg --> R[registry.aqne.jus.br]
     CDprod --> R
     CDprod --> Fleet[Rancher Fleet]
 ```
@@ -43,7 +43,7 @@ Badge no README aponta para este workflow.
 
 | Job | Descrição |
 |-----|-----------|
-| `build-and-push` | Publica imagens em `registry.tjse.jus.br/segportal` |
+| `build-and-push` | Publica imagens em `registry.aqne.jus.br/segportal` |
 | `deploy-staging` | `kubectl apply -k k8s/overlays/staging` |
 | `deploy-production` | `kubectl apply -k k8s/overlays/production` |
 
@@ -51,18 +51,18 @@ Badge no README aponta para este workflow.
 
 | Secret | Uso |
 |--------|------|
-| `REGISTRY_USERNAME` | Login no registry TJSE |
+| `REGISTRY_USERNAME` | Login no registry AQNE |
 | `REGISTRY_PASSWORD` | Senha/token do registry |
 | `KUBECONFIG` *(ou OIDC)* | Deploy nos clusters |
 
 ## Registry de imagens
 
 ```
-registry.tjse.jus.br/segportal/guacamole:<tag>
-registry.tjse.jus.br/segportal/guacd:<tag>
-registry.tjse.jus.br/segportal/egress-proxy:<tag>
-registry.tjse.jus.br/segportal/web-browser:<tag>
-registry.tjse.jus.br/segportal/portal-auth:<tag>
+registry.aqne.jus.br/segportal/guacamole:<tag>
+registry.aqne.jus.br/segportal/guacd:<tag>
+registry.aqne.jus.br/segportal/egress-proxy:<tag>
+registry.aqne.jus.br/segportal/web-browser:<tag>
+registry.aqne.jus.br/segportal/portal-auth:<tag>
 ```
 
 Tags: SHA do commit, `latest`, ou versão semântica (`v1.0.0`).

@@ -1,13 +1,13 @@
-# Contribuindo — SegPortal TJSE
+# Contribuindo — SegPortal AQNE
 
-Obrigado por contribuir com o portal ZTNA do Tribunal de Justiça de Sergipe.
+Obrigado por contribuir com o portal ZTNA do AQNE.
 
 ## Pré-requisitos
 
 - Docker e Docker Compose
 - Python 3.11+
 - `kubectl` (para validação K8s)
-- Acesso à rede TJSE para testes LDAP (opcional em dev)
+- Acesso à rede AQNE para testes LDAP (opcional em dev)
 
 ## Configuração local
 
@@ -52,4 +52,4 @@ Atualize os documentos em `docs/` quando alterar arquitetura, configuração ou 
 
 ## Contato
 
-Área de TI / Segurança da Informação — TJSE
+Área de TI / Segurança da Informação — AQNE

@@ -1,4 +1,4 @@
-# Arquivos e compartilhamentos — SegPortal TJSE
+# Arquivos e compartilhamentos — SegPortal AQNE
 
 shares:
   ad_attributes:
@@ -13,7 +13,7 @@ shares:
       unc: "\\\\fs01\\departamentos"
       mount_hint: "Liberada conforme grupo AD do usuário"
     - id: public
-      label: Público TJSE
+      label: Público AQNE
       unc: "\\\\fs01\\publico"
       read_only: true
 

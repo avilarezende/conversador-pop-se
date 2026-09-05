@@ -11,7 +11,7 @@ spec:
   paths:
     - k8s/overlays/production
   targets:
-    - name: tjse-production
+    - name: aqne-production
       clusterSelector:
         matchLabels:
           env: production

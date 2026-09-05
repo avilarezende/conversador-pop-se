@@ -1,4 +1,4 @@
-# Configuração — SegPortal TJSE
+# Configuração — SegPortal AQNE
 
 Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy, navegador padrão e Kubernetes.
 
@@ -13,7 +13,7 @@ Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy, 
 5. [Guacamole e PostgreSQL](#5-guacamole-e-postgresql)
 6. [Navegador HTML padrão (automático)](#6-navegador-html-padrão-automático)
 7. [Proxy de egress (Squid)](#7-proxy-de-egress-squid)
-8. [Branding TJSE](#8-branding-tjse)
+8. [Branding AQNE](#8-branding-aqne)
 9. [Kubernetes / Rancher](#9-kubernetes--rancher)
 10. [Pedidos de conexão](#10-pedidos-de-conexão)
 11. [Validação pós-configuração](#11-validação-pós-configuração)
@@ -25,7 +25,7 @@ Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy, 
 | Item | Requisito |
 |------|-----------|
 | Docker / Kubernetes | Ambiente para subir os pods |
-| DNS / TLS | `segportal.tjse.jus.br` (produção) |
+| DNS / TLS | `segportal.aqne.jus.br` (produção) |
 | LDAP (opcional) | AD acessível + conta de serviço + cadeia CA |
 | RADIUS (opcional) | MFA corporativo |
 
@@ -59,9 +59,9 @@ Referência: `config/ldap/ldap-settings.yaml` e variáveis `.env` / ConfigMap / 
 | Campo | Variável | Descrição |
 |-------|----------|-----------|
 | Liga LDAP | `LDAP_ENABLED` | `true` / `false` (padrão `false`) |
-| Servidor | `LDAP_HOSTNAME` | Ex.: `ldap.tjse.jus.br` |
+| Servidor | `LDAP_HOSTNAME` | Ex.: `ldap.aqne.jus.br` |
 | Porta | `LDAP_PORT` | `636` (LDAPS) ou `389` |
-| Domínio | yaml `ldap.domain` | `tjse.jus.br` |
+| Domínio | yaml `ldap.domain` | `aqne.jus.br` |
 | Base usuários / grupos | `LDAP_USER_BASE_DN` / `LDAP_GROUP_BASE_DN` | DNs do AD |
 | Atributo UID | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName` |
 | Bind | `LDAP_SEARCH_BIND_DN` / `LDAP_SEARCH_BIND_PASSWORD` | Conta de serviço |
@@ -83,7 +83,7 @@ Ver [ROLES.md](ROLES.md).
 
 ```bash
 MFA_ENABLED=true
-MFA_RADIUS_HOSTNAME=radius.tjse.jus.br
+MFA_RADIUS_HOSTNAME=radius.aqne.jus.br
 MFA_RADIUS_PORT=1812
 MFA_RADIUS_SECRET=<shared_secret>
 ```
@@ -132,7 +132,7 @@ Revise a whitelist antes de produção.
 
 ---
 
-## 8. Branding TJSE
+## 8. Branding AQNE
 
 Arquivos em `services/guacamole/branding/`.
 

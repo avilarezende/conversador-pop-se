@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: registry.tjse.jus.br/segportal
+  REGISTRY: registry.aqne.jus.br/segportal
 
 defaults:
   run:
@@ -109,9 +109,9 @@ jobs:
       - name: Validate docker-compose (prod)
         env:
           POSTGRES_PASSWORD: ci_test_password
-          LDAP_HOSTNAME: ldap.tjse.jus.br
-          LDAP_USER_BASE_DN: OU=Usuarios,DC=tjse,DC=jus,DC=br
-          LDAP_SEARCH_BIND_DN: CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
+          LDAP_HOSTNAME: ldap.aqne.jus.br
+          LDAP_USER_BASE_DN: OU=Usuarios,DC=aqne,DC=jus,DC=br
+          LDAP_SEARCH_BIND_DN: CN=svc-segportal,OU=Servicos,DC=aqne,DC=jus,DC=br
           LDAP_SEARCH_BIND_PASSWORD: ci_test
         run: docker compose config --quiet
 

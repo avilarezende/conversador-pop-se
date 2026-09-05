@@ -14,7 +14,7 @@ ldap:
   enabled: false
 
   # Servidor e rede
-  hostname: ldap.tjse.jus.br
+  hostname: ldap.aqne.jus.br
   port: 636
   # none | ssl | starttls
   encryption_method: ssl
@@ -22,11 +22,11 @@ ldap:
   read_timeout_ms: 30000
 
   # Domínio / base
-  domain: tjse.jus.br
-  # Base DN do domínio (ex.: DC=tjse,DC=jus,DC=br)
-  base_dn: DC=tjse,DC=jus,DC=br
-  user_base_dn: OU=Usuarios,DC=tjse,DC=jus,DC=br
-  group_base_dn: OU=Grupos,DC=tjse,DC=jus,DC=br
+  domain: aqne.jus.br
+  # Base DN do domínio (ex.: DC=aqne,DC=jus,DC=br)
+  base_dn: DC=aqne,DC=jus,DC=br
+  user_base_dn: OU=Usuarios,DC=aqne,DC=jus,DC=br
+  group_base_dn: OU=Grupos,DC=aqne,DC=jus,DC=br
 
   # Identificador do usuário (uid / sAMAccountName / cn / userPrincipalName)
   username_attribute: sAMAccountName
@@ -36,7 +36,7 @@ ldap:
   group_search_filter: "(objectClass=group)"
 
   # Conta de serviço (bind de busca) — senha via Secret, não neste arquivo
-  search_bind_dn: CN=svc-segportal,OU=Servicos,DC=tjse,DC=jus,DC=br
+  search_bind_dn: CN=svc-segportal,OU=Servicos,DC=aqne,DC=jus,DC=br
   # search_bind_password: <<< SECRET >>>
 
   # Certificados TLS (caminhos montados no container)

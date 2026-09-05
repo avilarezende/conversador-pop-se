@@ -1,4 +1,4 @@
-# SegPortal — Portal ZTNA do TJSE
+# SegPortal — Portal ZTNA do AQNE
 
 **Versão:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
 
@@ -6,7 +6,7 @@
 
 **Repositório:** https://github.com/avilarezende/segportal
 
-**SegPortal** é o portal de acesso seguro do **Tribunal de Justiça de Sergipe (TJSE)**. Baseado em [Apache Guacamole](https://guacamole.apache.org/), substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`tjse.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
+**SegPortal** é o portal de acesso seguro do **AQNE**. Baseado em [Apache Guacamole](https://guacamole.apache.org/), substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`aqne.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Mockup do portal
 
-![Mockup SegPortal TJSE](docs/images/segportal-mockup.jpg)
+![Mockup SegPortal AQNE](docs/images/segportal-mockup.jpg)
 
 *Login, portal com navegador HTML padrão, sessão clientless e painel admin de aprovações.*
 
@@ -40,7 +40,7 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 | **Guacamole** | Portal web, autenticação e autorização | `guacamole` (HPA 2–10) |
 | **guacd** | Proxy RDP, VNC e SSH | `guacd` (HPA 2–20) |
 | **PostgreSQL** | Metadados de conexões e sessões | `postgres` (StatefulSet) |
-| **Proxy egress** | Navegação HTTP com IP institucional TJSE | `proxy-egress` (HPA 1–5) |
+| **Proxy egress** | Navegação HTTP com IP institucional AQNE | `proxy-egress` (HPA 1–5) |
 | **Web browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` (HPA 2–10) |
 | **Portal auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager | `portal-auth` |
 | **Bootstrap** | Conexão padrão + papéis no banco | Job `segportal-bootstrap` |
@@ -181,4 +181,4 @@ Leia [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir pull requests.
 
 ## Licença
 
-Uso interno TJSE. Consulte a área de TI para termos de distribuição.
+Uso interno AQNE. Consulte a área de TI para termos de distribuição.

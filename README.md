@@ -124,13 +124,13 @@ services/
   engine/         # FastAPI — chat, RAG, memória, LLM
   web/            # Apache + interface de chat
   modules/        # canais e integrações
-segportal/        # Portal ZTNA TJSE (Guacamole + portal-auth) — ver PR #11
+segportal/        # Portal ZTNA AQNE (Guacamole + portal-auth) — ver PR #11
 docs/             # arquitetura, configuração, CI/CD
 ```
 
 ### SegPortal (versão 2026-09-05)
 
-Portal ZTNA TJSE em [`segportal/`](segportal/) e no repositório público **https://github.com/avilarezende/segportal**.
+Portal ZTNA AQNE em [`segportal/`](segportal/) e no repositório público **https://github.com/avilarezende/segportal**.
 
 Dashboard AD/nuvem, file manager HTML e navegador HTML5 (exemplo Bacen).
 

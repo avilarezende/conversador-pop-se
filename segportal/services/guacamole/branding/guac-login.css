@@ -1,4 +1,4 @@
-/* SegPortal TJSE — Guacamole login branding */
+/* SegPortal AQNE — Guacamole login branding */
 :root {
   --segportal-primary: #003366;
   --segportal-accent: #c9a227;
@@ -6,7 +6,7 @@
 }
 
 body.login {
-  background: var(--segportal-bg) url("/guacamole/branding/tjse-logo.svg") no-repeat center 8%;
+  background: var(--segportal-bg) url("/guacamole/branding/aqne-logo.svg") no-repeat center 8%;
   background-size: 220px auto;
 }
 
@@ -30,7 +30,7 @@ body.login {
 }
 
 .login-dialog .login-footer::after {
-  content: "Tribunal de Justiça de Sergipe — Acesso Seguro ZTNA";
+  content: "AQNE — Acesso Seguro ZTNA";
   display: block;
   margin-top: 0.5rem;
 }

@@ -38,9 +38,9 @@ class TestLdapProperties:
         path = config_root / "ldap" / "ldap.properties"
         assert path.is_file()
 
-    def test_ldap_domain_tjse(self, config_root: Path) -> None:
+    def test_ldap_domain_aqne(self, config_root: Path) -> None:
         content = (config_root / "ldap" / "ldap.properties").read_text()
-        assert "tjse.jus.br" in content
+        assert "aqne.jus.br" in content
         assert "sAMAccountName" in content
 
 
@@ -49,10 +49,10 @@ class TestSquidConfig:
         path = config_root / "proxy" / "squid.conf"
         assert path.is_file()
 
-    def test_squid_whitelist_tjse(self, config_root: Path) -> None:
+    def test_squid_whitelist_aqne(self, config_root: Path) -> None:
         content = (config_root / "proxy" / "squid.conf").read_text()
-        assert "tjse_whitelist" in content
-        assert ".tjse.jus.br" in content
+        assert "aqne_whitelist" in content
+        assert ".aqne.jus.br" in content
 
 
 class TestDockerCompose:

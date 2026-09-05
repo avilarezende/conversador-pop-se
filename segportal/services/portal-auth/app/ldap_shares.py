@@ -28,7 +28,7 @@ def ensure_demo_tree() -> None:
             ("Projetos/README.md", "# Projetos\nPasta de projetos do home AD.\n"),
         ],
         "guacadmin/dept": [
-            ("Normas/Politica_Acesso.txt", "Política de acesso remoto TJSE\n"),
+            ("Normas/Politica_Acesso.txt", "Política de acesso remoto AQNE\n"),
             ("Planilhas/Controle.csv", "item;valor\nVPN;desativado\nSegPortal;ativo\n"),
         ],
         "usuario/home": [

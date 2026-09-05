@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SegPortal TJSE — Preview</title>
+  <title>SegPortal AQNE — Preview</title>
   <style>
     :root {
       --primary: #003366;
@@ -200,7 +200,7 @@
 </head>
 <body>
   <div class="topbar">
-    <span><strong>SegPortal TJSE</strong> — preview: navegador HTML padrão + pedidos com aprovação.</span>
+    <span><strong>SegPortal AQNE</strong> — preview: navegador HTML padrão + pedidos com aprovação.</span>
     <span>
       Admin: <code>guacadmin</code>/<code>guacadmin</code> ·
       Usuário: <code>usuario</code>/<code>usuario</code> · MFA <code>123456</code>
@@ -210,17 +210,17 @@
   <div class="shell">
     <div class="chrome">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <div class="url" id="url">https://segportal.tjse.jus.br/guacamole</div>
+      <div class="url" id="url">https://segportal.aqne.jus.br/guacamole</div>
     </div>
 
     <!-- LOGIN -->
     <div id="view-login">
       <div class="header" style="justify-content:center; text-align:center;">
         <div class="brand" style="flex-direction:column;">
-          <div class="logo">TJSE</div>
+          <div class="logo">AQNE</div>
           <div>
             <h1 style="font-size:22px;">SegPortal</h1>
-            <p style="opacity:.9; font-size:13px;">Acesso seguro — domínio tjse.jus.br</p>
+            <p style="opacity:.9; font-size:13px;">Acesso seguro — domínio aqne.jus.br</p>
           </div>
         </div>
       </div>
@@ -244,7 +244,7 @@
         </div>
       </div>
       <div class="footer">
-        <span>Tribunal de Justiça de Sergipe</span>
+        <span>AQNE</span>
         <span>ZTNA · substituto VPN</span>
       </div>
     </div>
@@ -253,7 +253,7 @@
     <div id="view-portal" class="hidden">
       <div class="header">
         <div class="brand">
-          <div class="logo">TJSE</div>
+          <div class="logo">AQNE</div>
           <div>
             <h1 style="font-size:18px;">SegPortal</h1>
             <p style="font-size:13px; opacity:.9;" id="portal-subtitle">Recursos autorizados</p>
@@ -262,7 +262,7 @@
         <div class="nav">
           <span class="badge" id="role-badge">Usuário</span>
           <span class="badge">MFA verificado</span>
-          <span style="font-size:13px;" id="who">usuario@tjse.jus.br</span>
+          <span style="font-size:13px;" id="who">usuario@aqne.jus.br</span>
           <button type="button" onclick="logout()">Sair</button>
         </div>
       </div>
@@ -326,7 +326,7 @@
     <div id="view-session" class="hidden">
       <div class="header" style="padding:12px 20px;">
         <div class="brand">
-          <div class="logo" style="font-size:14px; padding:6px 10px;">TJSE</div>
+          <div class="logo" style="font-size:14px; padding:6px 10px;">AQNE</div>
           <div>
             <h1 style="font-size:16px;" id="session-title">Sessão</h1>
             <p style="font-size:12px; opacity:.9;" id="session-meta">Sessão isolada</p>
@@ -388,9 +388,9 @@
         document.getElementById('view-' + v).classList.toggle('hidden', v !== id);
       });
       const urls = {
-        login: 'https://segportal.tjse.jus.br/guacamole',
-        portal: 'https://segportal.tjse.jus.br/guacamole/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
-        session: 'https://segportal.tjse.jus.br/guacamole/#/client/SESSION'
+        login: 'https://segportal.aqne.jus.br/guacamole',
+        portal: 'https://segportal.aqne.jus.br/guacamole/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
+        session: 'https://segportal.aqne.jus.br/guacamole/#/client/SESSION'
       };
       document.getElementById('url').textContent = urls[id];
     }
@@ -443,7 +443,7 @@
       if (acc && acc.pass === p && m === '123456') {
         err.style.display = 'none';
         currentRole = acc.role;
-        document.getElementById('who').textContent = u + '@tjse.jus.br';
+        document.getElementById('who').textContent = u + '@aqne.jus.br';
         renderPortal();
         show('portal');
       } else {

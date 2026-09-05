@@ -18,13 +18,13 @@ DEMO_USERS: dict[str, dict[str, Any]] = {
         "password": "guacadmin",
         "display_name": "Administrador SegPortal",
         "role": "admin",
-        "email": "guacadmin@tjse.jus.br",
+        "email": "guacadmin@aqne.jus.br",
     },
     "usuario": {
         "password": "usuario",
         "display_name": "Usuário Demonstração",
         "role": "user",
-        "email": "usuario@tjse.jus.br",
+        "email": "usuario@aqne.jus.br",
     },
 }
 

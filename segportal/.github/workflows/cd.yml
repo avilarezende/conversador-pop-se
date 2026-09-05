@@ -16,7 +16,7 @@ on:
           - production
 
 env:
-  REGISTRY: registry.tjse.jus.br/segportal
+  REGISTRY: registry.aqne.jus.br/segportal
 
 jobs:
   build-and-push:
@@ -57,7 +57,7 @@ jobs:
       - name: Log in to registry
         uses: docker/login-action@v3
         with:
-          registry: registry.tjse.jus.br
+          registry: registry.aqne.jus.br
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 

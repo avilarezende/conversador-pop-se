@@ -1,4 +1,4 @@
-# Plugins Guacamole — SegPortal TJSE
+# Plugins Guacamole — SegPortal AQNE
 
 Diretório reservado para extensões customizadas do Apache Guacamole além do `guacamole-auth-ldap` incluído na imagem base.
 
@@ -16,10 +16,10 @@ Diretório reservado para extensões customizadas do Apache Guacamole além do `
 |--------|-----|
 | `guacamole-auth-totp` | MFA TOTP nativo (alternativa ao RADIUS) |
 | `guacamole-auth-duo` | Integração Duo Security |
-| Custom audit | Log estruturado para SIEM TJSE |
+| Custom audit | Log estruturado para SIEM AQNE |
 
 ## Convenções
 
 - Versão do plugin deve coincidir com a versão do Guacamole (1.5.5)
 - Não commitar segredos; use Secrets do Kubernetes ou variáveis de ambiente
-- Plugins devem ser auditáveis e aprovados pela área de segurança TJSE
+- Plugins devem ser auditáveis e aprovados pela área de segurança AQNE

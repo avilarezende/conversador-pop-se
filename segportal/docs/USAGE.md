@@ -1,4 +1,4 @@
-# Guia de uso — SegPortal TJSE
+# Guia de uso — SegPortal AQNE
 
 Fluxo visual do usuário final. Manuais completos: [USER_MANUAL.md](USER_MANUAL.md) · [MANUAL.md](MANUAL.md).
 

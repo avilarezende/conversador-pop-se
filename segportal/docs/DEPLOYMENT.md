@@ -1,4 +1,4 @@
-# Deploy — SegPortal TJSE
+# Deploy — SegPortal AQNE
 
 Guia de implantação em Docker Compose (dev) e Kubernetes/Rancher (produção).
 
@@ -35,7 +35,7 @@ Reaplicar bootstrap (idempotente):
 
 - Cluster Rancher 2.x com Ingress NGINX
 - cert-manager para TLS
-- Registry: `registry.tjse.jus.br/segportal`
+- Registry: `registry.aqne.jus.br/segportal`
 
 ### Secrets
 

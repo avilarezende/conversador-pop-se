@@ -1,4 +1,4 @@
-# Manual do usuário — SegPortal TJSE
+# Manual do usuário — SegPortal AQNE
 
 Guia prático para **servidores, magistrados e colaboradores** que usam o SegPortal no dia a dia.
 
@@ -125,7 +125,7 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 - Encerre a sessão e use **Sair** ao terminar o expediente.
 - Não compartilhe senha nem deixe a sessão aberta em computador público.
 - Prefira o **Navegador Web SegPortal** para sites que exigem IP institucional.
-- Em dúvida sobre permissão de pasta, fale com o suporte/Nuvem TJSE.
+- Em dúvida sobre permissão de pasta, fale com o suporte/Nuvem AQNE.
 
 ---
 
