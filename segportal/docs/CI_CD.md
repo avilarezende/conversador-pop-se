@@ -25,7 +25,7 @@ flowchart LR
 |-----|-----------|
 | `lint-and-test` | Ruff + pytest (inclui portal-auth) |
 | `validate-k8s` | `kubectl kustomize` + kubeconform |
-| `docker-build` | Build guacamole, guacd, egress-proxy, web-browser, **portal-auth** (sem push) |
+| `docker-build` | Build sessions, guacd, egress-proxy, web-browser, **portal-auth** (sem push) |
 | `compose-config` | Valida `docker-compose.yml` e `docker-compose.dev.yml` |
 
 No monorepo `conversador-pop-se`, o workflow espelho é `.github/workflows/segportal-ci.yml` (GitHub só executa workflows na raiz do repositório).
@@ -58,7 +58,7 @@ Badge no README aponta para este workflow.
 ## Registry de imagens
 
 ```
-registry.aqne.jus.br/segportal/guacamole:<tag>
+registry.aqne.jus.br/segportal:<tag>
 registry.aqne.jus.br/segportal/guacd:<tag>
 registry.aqne.jus.br/segportal/egress-proxy:<tag>
 registry.aqne.jus.br/segportal/web-browser:<tag>

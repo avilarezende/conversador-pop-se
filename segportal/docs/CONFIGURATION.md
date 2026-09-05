@@ -10,7 +10,7 @@ Guia passo a passo: usuários locais, admin padrão, LDAP opcional, MFA, proxy, 
 2. [Admin padrão e usuários locais](#2-admin-padrão-e-usuários-locais)
 3. [Active Directory (LDAP) — opcional](#3-active-directory-ldap--opcional)
 4. [MFA via RADIUS](#4-mfa-via-radius)
-5. [Guacamole e PostgreSQL](#5-guacamole-e-postgresql)
+5. [SegPortal e PostgreSQL](#5-sessions-e-postgresql)
 6. [Navegador HTML padrão (automático)](#6-navegador-html-padrão-automático)
 7. [Proxy de egress (Squid)](#7-proxy-de-egress-squid)
 8. [Branding AQNE](#8-branding-aqne)
@@ -39,13 +39,13 @@ Documento completo: **[LOCAL_ADMIN.md](LOCAL_ADMIN.md)**
 
 | Campo | Valor |
 |-------|-------|
-| Usuário | `guacadmin` |
-| Senha inicial | `guacadmin` |
+| Usuário | `admin` |
+| Senha inicial | `admin` |
 | Depende de LDAP? | **Não** |
 
 ```bash
-./scripts/change-local-password.sh guacadmin 'NovaSenhaForte!'
-./scripts/delete-local-user.sh guacadmin --disable
+./scripts/change-local-password.sh admin 'NovaSenhaForte!'
+./scripts/delete-local-user.sh admin --disable
 ```
 
 Com `LDAP_ENABLED=false` (padrão), a autenticação é só JDBC/local.
@@ -65,9 +65,9 @@ Referência: `config/ldap/ldap-settings.yaml` e variáveis `.env` / ConfigMap / 
 | Base usuários / grupos | `LDAP_USER_BASE_DN` / `LDAP_GROUP_BASE_DN` | DNs do AD |
 | Atributo UID | `LDAP_USERNAME_ATTRIBUTE` | `sAMAccountName` |
 | Bind | `LDAP_SEARCH_BIND_DN` / `LDAP_SEARCH_BIND_PASSWORD` | Conta de serviço |
-| CA | `LDAP_CA_CHAIN_FILE` | PEM em `/etc/guacamole/certs/` |
+| CA | `LDAP_CA_CHAIN_FILE` | PEM em `/etc/certs/` |
 
-Procedimento: preencher CA e secrets → `LDAP_ENABLED=true` → reiniciar Guacamole → testar login AD **mantendo** `guacadmin` local.
+Procedimento: preencher CA e secrets → `LDAP_ENABLED=true` → reiniciar SegPortal → testar login AD **mantendo** `admin` local.
 
 | Grupo AD | Papel |
 |----------|-------|
@@ -92,12 +92,12 @@ Recomendado com LDAP. Com `MFA_ENABLED=false`, o entrypoint remove chaves `radiu
 
 ---
 
-## 5. Guacamole e PostgreSQL
+## 5. SegPortal e PostgreSQL
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `POSTGRES_DB` | Banco | `guacamole_db` |
-| `POSTGRES_USER` | Usuário | `guacamole_user` |
+| `POSTGRES_DB` | Banco interno de sessões | `segportal_sessions` (legado: nome técnico do schema) |
+| `POSTGRES_USER` | Usuário do banco de sessões | `segportal_sessions` |
 | `POSTGRES_PASSWORD` | Senha | *(obrigatório)* |
 | `SESSION_TIMEOUT_MINUTES` | Timeout | `60` |
 
@@ -114,7 +114,7 @@ O serviço **`segportal-bootstrap`** aplica schema (se necessário), papéis e o
 | Item | Valor |
 |------|-------|
 | Serviço | `web-browser` (Firefox / VNC `:5900`) |
-| Conexão Guacamole | **Navegador Web SegPortal** |
+| Conexão SegPortal | **Navegador Web SegPortal** |
 | Permissão | `READ` para todos os usuários no boot |
 | Docs | [CONNECTIONS.md](CONNECTIONS.md) |
 
@@ -134,7 +134,7 @@ Revise a whitelist antes de produção.
 
 ## 8. Branding AQNE
 
-Arquivos em `services/guacamole/branding/`.
+Arquivos em `services/branding/`.
 
 ---
 
@@ -165,7 +165,7 @@ Cadastro manual na UI (Settings → Connections) continua válido para o admin.
 
 ## 11. Validação pós-configuração
 
-- [ ] Login `guacadmin` funciona **sem** LDAP
+- [ ] Login `admin` funciona **sem** LDAP
 - [ ] Conexão **Navegador Web SegPortal** aparece para admin e usuário
 - [ ] Senha do admin alterada em produção
 - [ ] (Se LDAP) login AD + CA válida

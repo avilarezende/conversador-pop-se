@@ -135,7 +135,7 @@ services:
       PORTAL_SESSION_SECRET: ${PORTAL_SESSION_SECRET:-segportal-dev-secret-change-me}
       DEMO_SHARES_ROOT: /data/shares
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
-      GUACAMOLE_PUBLIC_URL: ${GUACAMOLE_PUBLIC_URL:-http://localhost:8080/guacamole}
+      SESSIONS_INTERNAL_URL: ${SESSIONS_INTERNAL_URL:-http://localhost:8080/guacamole}
       PORTAL_PORT: "8090"
     volumes:
       - portal-shares:/data/shares

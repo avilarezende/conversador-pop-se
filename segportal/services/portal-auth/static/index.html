@@ -12,13 +12,12 @@
 <body>
   <a class="skip-link" href="#main">Ir para o conteúdo</a>
 
-  <!-- LOGIN -->
   <section id="view-login" class="view login-view" aria-label="Autenticação">
     <div class="login-stage">
       <div class="login-brand">
         <div class="brand-mark" aria-hidden="true">AQNE</div>
         <h1>SegPortal</h1>
-        <p>Acesso seguro a sistemas, navegador HTML5 e arquivos corporativos.</p>
+        <p>Acesso seguro a sistemas, navegador corporativo e arquivos — tudo no mesmo portal.</p>
       </div>
       <form id="login-form" class="login-card" autocomplete="on">
         <h2>Entrar</h2>
@@ -33,12 +32,11 @@
         </label>
         <p id="login-error" class="error" hidden role="alert"></p>
         <button type="submit" class="btn primary block">Entrar no portal</button>
-        <p class="foot-hint">Demo: <code>usuario/usuario</code> ou <code>guacadmin/guacadmin</code></p>
+        <p class="foot-hint">Demo: <code>usuario/usuario</code> ou <code>admin/admin</code></p>
       </form>
     </div>
   </section>
 
-  <!-- APP SHELL -->
   <section id="view-app" class="view app-view" hidden>
     <header class="topnav" role="banner">
       <div class="topnav-brand">
@@ -51,7 +49,8 @@
       <nav class="topnav-links" aria-label="Principal">
         <button type="button" class="nav-btn active" data-panel="home">Início</button>
         <button type="button" class="nav-btn" data-panel="files">Arquivos</button>
-        <button type="button" class="nav-btn" data-panel="sessions">Sessões remotas</button>
+        <button type="button" class="nav-btn" data-panel="browser">Navegador</button>
+        <button type="button" class="nav-btn" data-panel="computers">Computadores</button>
       </nav>
       <div class="topnav-user">
         <div class="user-chip">
@@ -63,14 +62,13 @@
     </header>
 
     <main id="main" class="main">
-      <!-- HOME -->
       <div id="panel-home" class="panel">
         <header class="panel-head">
           <div>
             <h2>Olá, <span id="hello-name">usuário</span></h2>
-            <p class="lede">Pastas do Active Directory, nuvem e acesso remoto em um só lugar.</p>
+            <p class="lede">Pastas do Active Directory, nuvem, navegador e computadores no mesmo SegPortal.</p>
           </div>
-          <a id="btn-open-guacamole" class="btn secondary" href="#" target="_blank" rel="noopener">Abrir Guacamole</a>
+          <button type="button" id="btn-open-computers" class="btn secondary">Abrir Computadores</button>
         </header>
 
         <section class="block" aria-labelledby="shares-title">
@@ -99,17 +97,20 @@
           <div class="quick-row">
             <button type="button" class="quick-card" data-panel="files">
               <span class="qi" aria-hidden="true">ARQ</span>
-              <span>Abrir gerenciador de arquivos</span>
+              <span>Gerenciador de arquivos</span>
             </button>
-            <button type="button" class="quick-card" id="quick-browser">
+            <button type="button" class="quick-card" data-panel="browser" id="quick-browser">
               <span class="qi" aria-hidden="true">WEB</span>
-              <span>Navegador Web SegPortal</span>
+              <span>Navegador corporativo</span>
+            </button>
+            <button type="button" class="quick-card" data-panel="computers">
+              <span class="qi" aria-hidden="true">PC</span>
+              <span>Computadores remotos</span>
             </button>
           </div>
         </section>
       </div>
 
-      <!-- FILES -->
       <div id="panel-files" class="panel" hidden>
         <header class="panel-head compact">
           <div>
@@ -117,7 +118,6 @@
             <p class="lede">Manipule pastas e arquivos como no explorador do seu computador.</p>
           </div>
         </header>
-
         <div class="files-layout">
           <aside class="files-sidebar" aria-label="Locais">
             <h3>Locais</h3>
@@ -125,7 +125,6 @@
             <h3>Nuvem</h3>
             <div id="files-cloud-places" class="places"></div>
           </aside>
-
           <section class="files-main" aria-label="Conteúdo">
             <div class="files-toolbar">
               <nav id="breadcrumbs" class="breadcrumbs" aria-label="Caminho"></nav>
@@ -159,29 +158,64 @@
         </div>
       </div>
 
-      <!-- SESSIONS -->
-      <div id="panel-sessions" class="panel" hidden>
+      <!-- Navegador corporativo embutido (mesma aba do SegPortal) -->
+      <div id="panel-browser" class="panel panel-embed" hidden>
+        <header class="panel-head compact browser-head">
+          <div>
+            <h2>Navegador</h2>
+            <p class="lede">Navegação corporativa embutida no SegPortal — sem abrir outro sistema.</p>
+          </div>
+          <div class="browser-actions">
+            <button type="button" class="btn ghost" id="btn-browser-home" title="Início">⌂</button>
+            <button type="button" class="btn ghost" id="btn-browser-reload" title="Recarregar">↻</button>
+          </div>
+        </header>
+        <div class="browser-shell" aria-label="Navegador corporativo SegPortal">
+          <div class="browser-chrome">
+            <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <form id="browser-url-form" class="browser-urlbar">
+              <label class="sr-only" for="browser-url">Endereço</label>
+              <input id="browser-url" type="text" value="segportal://inicio" spellcheck="false" />
+              <button type="submit" class="btn secondary sm">Ir</button>
+            </form>
+          </div>
+          <iframe
+            id="browser-frame"
+            class="browser-frame"
+            title="Conteúdo do navegador SegPortal"
+            src="/browser/home.html"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- Computadores remotos (sem expor stack interna) -->
+      <div id="panel-computers" class="panel" hidden>
         <header class="panel-head">
           <div>
-            <h2>Sessões remotas</h2>
-            <p class="lede">Conexões Guacamole liberadas ao seu perfil (RDP, VNC, SSH e navegador HTML5).</p>
+            <h2>Computadores</h2>
+            <p class="lede">Desktops e aplicações liberados ao seu perfil — abertos dentro do SegPortal.</p>
           </div>
-          <a id="btn-sessions-guac" class="btn primary" href="#" target="_blank" rel="noopener">Abrir portal Guacamole</a>
         </header>
-        <div class="session-card">
-          <div class="session-icon">WEB</div>
-          <div>
-            <h3>Navegador Web SegPortal</h3>
-            <p>Firefox HTML5 via VNC — padrão para todos os usuários autenticados.</p>
+        <div id="computers-grid" class="card-grid computers-grid" role="list"></div>
+        <div id="computer-session" class="computer-session" hidden>
+          <div class="computer-session-bar">
+            <strong id="computer-session-title">Sessão</strong>
+            <button type="button" id="btn-close-session" class="btn ghost">Fechar sessão</button>
           </div>
-          <a class="btn secondary" id="btn-session-browser" href="#" target="_blank" rel="noopener">Conectar</a>
+          <iframe
+            id="computer-frame"
+            class="computer-frame"
+            title="Sessão de computador"
+            src="about:blank"
+            sandbox="allow-same-origin allow-scripts allow-forms"
+          ></iframe>
         </div>
-        <p class="hint muted">Pedidos de novos terminais seguem aprovação do administrador (ver docs/CONNECTIONS.md).</p>
+        <p class="hint muted">Pedidos de novos computadores ou aplicações seguem aprovação do administrador.</p>
       </div>
     </main>
   </section>
 
-  
   <dialog id="name-dialog" class="name-dialog">
     <form method="dialog" id="name-dialog-form">
       <h3 id="name-dialog-title">Nome</h3>

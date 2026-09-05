@@ -1,6 +1,6 @@
 # Segurança — SegPortal AQNE
 
-Controles de segurança do portal ZTNA baseado em Guacamole.
+Controles de segurança do portal ZTNA com acesso clientless HTML5.
 
 ## Princípios Zero Trust
 
@@ -13,7 +13,7 @@ Controles de segurança do portal ZTNA baseado em Guacamole.
 
 | Camada | Controle |
 |--------|----------|
-| Local (JDBC) | Sempre ativo — admin padrão `guacadmin` independente do LDAP |
+| Local (JDBC) | Sempre ativo — admin padrão `admin` independente do LDAP |
 | Identidade AD | Opcional (`LDAP_ENABLED=true`) via LDAPS |
 | MFA | RADIUS corporativo — opcional |
 | Sessão | Timeout 60 min inatividade, limite de conexões simultâneas |
@@ -36,7 +36,7 @@ Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas 
 |----------|--------|
 | Exposição VNC | Apenas rede interna (guacd → `web-browser:5900`) |
 | Senha VNC | Desabilitada na rede do cluster/compose |
-| TLS VNC | `SECURE_CONNECTION=0` (Guacamole não usa VNC TLS) |
+| TLS VNC | `SECURE_CONNECTION=0` (SegPortal não usa VNC TLS) |
 | Egress | Sites externos passam pelo Squid (`proxy-egress`) |
 | Criação de conexões | Usuário **não** cria sozinho — aprovação admin |
 
@@ -54,11 +54,11 @@ O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus
 
 - Secrets Kubernetes para credenciais (não em ConfigMaps)
 - `.env` e `secrets/` no `.gitignore`
-- Senha inicial `guacadmin` **deve** ser alterada em produção
+- Senha inicial `admin` **deve** ser alterada em produção
 
 ## Hardening de containers
 
-- Imagens base oficiais Guacamole 1.5.5 / jlesage Firefox
+- Imagens base oficiais SegPortal 1.5.5 / jlesage Firefox
 - Usuário não-root onde aplicável
 - Health checks e limites de recursos (requests/limits)
 - Sem privilégios elevados nos pods
@@ -66,12 +66,12 @@ O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus
 ## Auditoria
 
 - Pedidos de conexão registrados em `segportal_connection_request`
-- Encaminhar logs Squid e Guacamole ao SIEM
+- Encaminhar logs Squid e SegPortal ao SIEM
 - Retenção conforme política AQNE
 
 ## Resposta a incidentes
 
-1. Revogar sessões: reiniciar deployment `guacamole`
+1. Revogar sessões: reiniciar deployment `sessions`
 2. Rotacionar senhas/secrets LDAP e RADIUS
 3. Bloquear egress: escalar `proxy-egress` para 0 ou NetworkPolicy deny-all
 4. Isolar `web-browser` se houver abuso de navegação

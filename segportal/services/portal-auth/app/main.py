@@ -29,8 +29,9 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="SegPortal AQNE", version="1.1.0", lifespan=lifespan)
+app = FastAPI(title="SegPortal AQNE", version="1.2.0", lifespan=lifespan)
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
+app.mount("/browser", StaticFiles(directory=str(STATIC_DIR / "browser")), name="browser")
 
 @app.get("/", response_class=HTMLResponse)
 def home() -> FileResponse:
@@ -42,7 +43,6 @@ def health() -> dict:
     return {
         "status": "ok",
         "ldap_enabled": settings.ldap_enabled,
-        "guacamole_url": settings.guacamole_url,
     }
 
 
@@ -84,7 +84,6 @@ def me(request: Request) -> dict:
         "email": user.email,
         "auth_source": user.auth_source,
         "ldap_enabled": settings.ldap_enabled,
-        "guacamole_url": settings.guacamole_url,
     }
 
 
@@ -100,8 +99,11 @@ def dashboard(request: Request) -> dict:
         },
         "shares": list_user_shares(user),
         "cloud_drives": user_cloud_state(user),
-        "guacamole_url": settings.guacamole_url,
         "ldap_enabled": settings.ldap_enabled or user.auth_source == "ldap",
+        "features": {
+            "embedded_browser": True,
+            "computers": True,
+        },
     }
 
 

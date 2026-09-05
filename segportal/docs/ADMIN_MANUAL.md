@@ -1,6 +1,6 @@
 # Manual do administrador — SegPortal AQNE
 
-Operação, configuração e suporte do SegPortal: autenticação, pastas AD, nuvem, conexões Guacamole e papéis.
+Operação, configuração e suporte do SegPortal: autenticação, pastas AD, nuvem, conexões SegPortal e papéis.
 
 Documentos técnicos: [CONFIGURATION.md](CONFIGURATION.md) · [LOCAL_ADMIN.md](LOCAL_ADMIN.md) · [ROLES.md](ROLES.md) · [CONNECTIONS.md](CONNECTIONS.md) · [FILES.md](FILES.md) · [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -11,9 +11,9 @@ Documentos técnicos: [CONFIGURATION.md](CONFIGURATION.md) · [LOCAL_ADMIN.md](L
 | Serviço | Porta | Função |
 |---------|-------|--------|
 | **portal-auth** | **8090** | Dashboard pessoal, arquivos AD, OneDrive/Google Drive, UI HTML |
-| **guacamole** | **8080** | Sessões RDP/VNC/SSH/navegador HTML5 |
+| **sessions** | **8080** | Sessões RDP/VNC/SSH/navegador HTML5 |
 | **guacd** | 4822 | Proxy de protocolos |
-| **postgres** | 5432 | Metadados Guacamole |
+| **postgres** | 5432 | Metadados SegPortal |
 | **web-browser** | 5900 | Firefox via VNC (navegador padrão) |
 | **proxy-egress** | 3128 | Saída HTTP com IP institucional |
 | **segportal-bootstrap** | job | Schema, papéis, conexão padrão |
@@ -28,15 +28,15 @@ Documentos técnicos: [CONFIGURATION.md](CONFIGURATION.md) · [LOCAL_ADMIN.md](L
 
 | Usuário | Senha inicial | Papel |
 |---------|---------------|-------|
-| `guacadmin` | `guacadmin` | admin (portal-auth + Guacamole) |
+| `admin` | `admin` | admin (portal-auth + SegPortal) |
 | `usuario` | `usuario` | user |
 
-> Em produção: troque a senha do `guacadmin` no primeiro acesso. Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
+> Em produção: troque a senha do `admin` no primeiro acesso. Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
 
 ### 2.2 Active Directory / LDAP
 
 1. Configure `config/ldap/ldap-settings.yaml` e variáveis `LDAP_*` no `.env`.
-2. `LDAP_ENABLED=true` no Guacamole e no portal-auth.
+2. `LDAP_ENABLED=true` no SegPortal e no portal-auth.
 3. No login do portal (`:8090`), o usuário pode marcar **Active Directory** para forçar o contexto LDAP mesmo em demo.
 
 Atributos usados para pastas (`config/files/shares.yaml`):
@@ -50,7 +50,7 @@ Atributos usados para pastas (`config/files/shares.yaml`):
 
 ### 2.3 MFA (RADIUS)
 
-Opcional no Guacamole (`MFA_ENABLED`, `MFA_RADIUS_*`). Não bloqueia o portal-auth em modo demo.
+Opcional no SegPortal (`MFA_ENABLED`, `MFA_RADIUS_*`). Não bloqueia o portal-auth em modo demo.
 
 ---
 
@@ -72,7 +72,7 @@ Variáveis de ambiente relevantes:
 |----------|--------|--------|
 | `PORTAL_SESSION_SECRET` | (dev) | Assinatura do cookie de sessão |
 | `DEMO_SHARES_ROOT` | `/data/shares` | Raiz das pastas demo |
-| `GUACAMOLE_PUBLIC_URL` | `http://localhost:8080/guacamole` | Link “Abrir Guacamole” |
+| `SESSIONS_INTERNAL_URL` | `http://localhost:8090` | reservado (sessões embutidas no portal) |
 | `LDAP_ENABLED` | `false` | Contexto AD no portal |
 | `PORTAL_MAX_UPLOAD_MB` | `100` | Limite de upload |
 
@@ -97,7 +97,7 @@ Variáveis de ambiente relevantes:
 
 ---
 
-## 4. Sessões Guacamole e navegador padrão
+## 4. Sessões remotas e navegador padrão
 
 ![Sessões remotas](images/portal-sessions.jpg)
 
@@ -123,7 +123,7 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md) · [ROLES.md](ROLES.md).
 | Papel | Capacidades típicas |
 |-------|---------------------|
 | **user** | Dashboard pessoal, arquivos liberados, nuvem própria, conexões READ atribuídas |
-| **admin** | Tudo do user + administração Guacamole (usuários, conexões, aprovações) |
+| **admin** | Tudo do user + administração SegPortal (usuários, conexões, aprovações) |
 
 Mapeamento LDAP → papéis: [ROLES.md](ROLES.md).
 
@@ -140,13 +140,13 @@ docker compose up --build
 ```
 
 - Dashboard: http://localhost:8090  
-- Guacamole: http://localhost:8080/guacamole  
+- SegPortal: http://localhost:8090  
 
 ### Checagens rápidas
 
 ```bash
 curl -s http://localhost:8090/api/health
-curl -sf http://localhost:8080/guacamole/ >/dev/null && echo guac_ok
+curl -sf http://localhost:8090/ >/dev/null && echo portal_ok
 docker compose ps
 ```
 
@@ -162,19 +162,19 @@ Kubernetes: overlays em `k8s/overlays/*` — ver [DEPLOYMENT.md](DEPLOYMENT.md).
 | Pastas AD vazias no demo | `shares.demo.users.<login>` em `shares.yaml` |
 | OAuth nuvem falha | `client_id`, redirect URL pública, firewall de saída |
 | Navegador HTML5 preto | `web-browser` healthy na 5900; senha VNC = SQL |
-| LDAP não autentica no Guacamole | `LDAP_ENABLED`, bind DN, CA em `config/ldap/certs` |
+| LDAP não autentica no SegPortal | `LDAP_ENABLED`, bind DN, CA em `config/ldap/certs` |
 
 ---
 
 ## 8. Checklist de go-live
 
-- [ ] Senha `guacadmin` alterada
+- [ ] Senha `admin` alterada
 - [ ] `PORTAL_SESSION_SECRET` forte
 - [ ] LDAP/MFA validados (se aplicável)
 - [ ] `shares.yaml` com corporativos corretos
 - [ ] OAuth nuvem ou decisão explícita de manter demo
 - [ ] Backup do volume Postgres
-- [ ] Monitoramento de `/api/health` e Guacamole
+- [ ] Monitoramento de `/api/health` e SegPortal
 - [ ] Comunicação aos usuários com [USER_MANUAL.md](USER_MANUAL.md)
 
 ---

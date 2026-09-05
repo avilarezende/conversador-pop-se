@@ -1,1 +1,1 @@
-SegPortal AQNE — portal ZTNA clientless (Guacamole + LDAP + MFA). Substitui VPN interna. Deploy modular no Rancher/Kubernetes. Manual e diagramas inclusos.
+SegPortal AQNE — portal ZTNA clientless (LDAP + MFA + sessões HTML5). Substitui VPN interna. Deploy modular no Rancher/Kubernetes. Manual e diagramas inclusos.

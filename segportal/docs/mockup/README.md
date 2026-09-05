@@ -6,13 +6,14 @@ Materiais visuais do portal para documentação e demonstração de papéis.
 
 | Arquivo | Conteúdo |
 |---------|----------|
-| [segportal-mockup.jpg](../images/segportal-mockup.jpg) | Visão geral 2×2: login, dashboard AD/nuvem, arquivos, Bacen |
+| [segportal-mockup.jpg](../images/segportal-mockup.jpg) | Login / capa |
 | [usage-login.jpg](../images/usage-login.jpg) | Tela de login |
 | [usage-portal.jpg](../images/usage-portal.jpg) | Dashboard (pastas AD e nuvem) |
-| [usage-browser.jpg](../images/usage-browser.jpg) | Navegador HTML5 no site do Bacen (`bcb.gov.br`) |
-| [usage-browser-bacen.jpg](../images/usage-browser-bacen.jpg) | Alias do exemplo Bacen |
-| [usage-session.jpg](../images/usage-session.jpg) | Sessão Firefox clientless (mesmo exemplo) |
-| [admin-approvals.jpg](../images/admin-approvals.jpg) | Painel admin (sessões e aprovações) |
+| [usage-browser.jpg](../images/usage-browser.jpg) | Aba Navegador embutida |
+| [usage-browser-bacen.jpg](../images/usage-browser-bacen.jpg) | Navegador no Bacen |
+| [portal-sessions.jpg](../images/portal-sessions.jpg) | Aba Computadores |
+| [usage-session.jpg](../images/usage-session.jpg) | Sessão de computador no portal |
+| [admin-approvals.jpg](../images/admin-approvals.jpg) | Painel admin |
 | [architecture-overview.jpg](../images/architecture-overview.jpg) | Arquitetura ZTNA |
 | [auth-flow.jpg](../images/auth-flow.jpg) | Fluxo de autenticação |
 | [k8s-pods.jpg](../images/k8s-pods.jpg) | Pods Kubernetes |
@@ -27,7 +28,7 @@ python3 -m http.server 8765
 
 | Papel | Login | Senha | MFA |
 |-------|-------|-------|-----|
-| Administrador | `guacadmin` | `guacadmin` | `123456` |
+| Administrador | `admin` | `admin` | `123456` |
 | Usuário | `usuario` | `usuario` | `123456` |
 
 O usuário vê o **Navegador Web SegPortal** e pode simular pedido de terminal.  

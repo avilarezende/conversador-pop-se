@@ -18,7 +18,7 @@ pip install -r requirements-dev.txt
 docker compose up -d
 ```
 
-Portal: http://localhost:8080/guacamole
+Portal: http://localhost:8090
 
 ## Fluxo de trabalho
 
@@ -34,7 +34,7 @@ Portal: http://localhost:8080/guacamole
 - Python: `ruff` (config em `pyproject.toml`)
 - Shell: `set -euo pipefail`, scripts em `scripts/`
 - Kubernetes: Kustomize overlays, sem secrets reais no repositório
-- Docker: Guacamole **sempre** com build context na raiz do repositório
+- Docker: SegPortal **sempre** com build context na raiz do repositório
 
 ## Segredos
 

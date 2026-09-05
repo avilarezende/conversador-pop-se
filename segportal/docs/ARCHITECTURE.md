@@ -1,6 +1,6 @@
 # Arquitetura — SegPortal AQNE
 
-SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache Guacamole como portal clientless HTML5.
+SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com portal clientless HTML5 SegPortal clientless HTML5.
 
 ## Visão geral
 
@@ -9,7 +9,7 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache
 | Componente | Função | Serviço / pod |
 |------------|--------|----------------|
 | **portal-auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager HTML | `portal-auth` (`:8090`) |
-| **Guacamole** | Portal web, autenticação e autorização de sessões | `guacamole` (`:8080`) |
+| **SegPortal** | Portal web, autenticação e autorização de sessões | `sessões` (`:8080`) |
 | **guacd** | Proxy de protocolos RDP, VNC e SSH | `guacd` |
 | **web-browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` |
 | **proxy-egress** | Squid — HTTP(S) com IP institucional | `proxy-egress` |
@@ -20,10 +20,10 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache
 
 ![Fluxo LDAP + MFA](images/auth-flow.jpg)
 
-1. Usuário acessa o **portal-auth** (`:8090`) e/ou o Guacamole
+1. Usuário acessa o **portal-auth** (`:8090`) e/ou o SegPortal
 2. Autentica via **conta local** e/ou **LDAP/AD** (`aqne.jus.br`), conforme configuração
 3. No dashboard, recebe pastas AD e opção de montar OneDrive/Google Drive
-4. MFA via **RADIUS** no Guacamole se `MFA_ENABLED=true`
+4. MFA via **RADIUS** no SegPortal se `MFA_ENABLED=true`
 5. Sessões remotas: no mínimo o **Navegador Web SegPortal**
 
 ## Deploy Kubernetes
@@ -33,7 +33,7 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache
 | Workload | Escala típica |
 |----------|---------------|
 | `portal-auth` | HPA 2–6 |
-| `guacamole` | HPA 2–10 |
+| `sessões-html5` | HPA 2–10 |
 | `guacd` | HPA 2–20 |
 | `web-browser` | HPA 2–10 |
 | `proxy-egress` | HPA 1–5 |
@@ -49,8 +49,8 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com Apache
 ```
 segportal/
 ├── services/portal-auth/   # Dashboard AD/nuvem + file manager (:8090)
-├── services/guacamole/     # Portal + entrypoint LDAP opcional
-├── services/guacd/         # Daemon de protocolos
+├── services/guacamole/     # Backend interno de sessões HTML5 (não exposto na UI)
+├── services/guacd/         # Daemon de protocolos (interno)
 ├── services/web-browser/   # Firefox via VNC
 ├── services/egress-proxy/  # Squid
 ├── config/files/shares.yaml
@@ -65,8 +65,8 @@ segportal/
 
 | Decisão | Motivo |
 |---------|--------|
-| portal-auth separado | UI de arquivos/AD/nuvem sem acoplar ao Guacamole Java |
-| Guacamole 1.5.5 | Base estável com JDBC + LDAP oficiais |
+| portal-auth separado | UI de arquivos/AD/nuvem sem acoplar ao SegPortal Java |
+| SegPortal 1.5.5 | Base estável com JDBC + LDAP oficiais |
 | Navegador padrão no boot | Todo usuário navega sem VPN desde o primeiro login |
 | Bootstrap automático | Elimina seed manual e drift de configuração |
 | Pedidos com aprovação | Usuário não cria conexões sozinho |
