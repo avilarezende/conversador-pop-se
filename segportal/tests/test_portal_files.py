@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -83,12 +84,25 @@ def test_api_login_and_dashboard(client):
     body = dash.json()
     assert body["shares"]
     assert body["cloud_drives"]
+    assert body["features"]["embedded_browser"] is True
+    assert body["features"]["computers"] is True
+    assert "guacamole" not in json.dumps(body).lower()
     health = client.get("/api/health")
     assert health.json()["status"] == "ok"
 
 
+def test_ui_hides_session_backend_and_labels_computers(client):
+    html = client.get("/").text.lower()
+    assert "abrir computadores" in html
+    assert 'data-panel="browser"' in html
+    assert 'data-panel="computers"' in html
+    assert "guacamole" not in html
+    assert "guacadmin" not in html
+    assert "abrir guacamole" not in html
+
+
 def test_api_cloud_mount_and_files(client):
-    client.post("/api/login", json={"username": "guacadmin", "password": "guacadmin"})
+    client.post("/api/login", json={"username": "admin", "password": "admin"})
     m = client.post("/api/cloud/onedrive/mount")
     assert m.status_code == 200
     assert m.json()["mode"] == "demo"

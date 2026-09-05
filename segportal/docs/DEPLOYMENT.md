@@ -12,7 +12,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Acesse: http://localhost:8080/guacamole
+Acesse: http://localhost:8090
 
 O serviço **`segportal-bootstrap`** aplica schema (se necessário), papéis e a conexão **Navegador Web SegPortal** automaticamente. O serviço **`web-browser`** (Firefox/VNC) sobe junto ao stack.
 
@@ -20,7 +20,7 @@ Demo sem LDAP:
 
 ```bash
 docker compose -f docker-compose.dev.yml up --build
-# guacadmin / guacadmin  ·  usuario / usuario
+# admin / admin  ·  usuario / usuario
 ```
 
 Reaplicar bootstrap (idempotente):
@@ -42,7 +42,7 @@ Reaplicar bootstrap (idempotente):
 ```bash
 kubectl create namespace segportal
 kubectl apply -f k8s/postgres/secret.example.yaml -n segportal  # substitua valores
-kubectl apply -f k8s/guacamole/secret.example.yaml -n segportal
+kubectl apply -f k8s/secret.example.yaml -n segportal
 ```
 
 ### Overlays
@@ -84,7 +84,7 @@ Detalhes: [CI_CD.md](CI_CD.md)
 
 | Imagem | Dockerfile |
 |--------|------------|
-| `guacamole` | `services/guacamole/Dockerfile` |
+| `sessões` | `services/Dockerfile` |
 | `guacd` | `services/guacd/Dockerfile` |
 | `egress-proxy` | `services/egress-proxy/Dockerfile` |
 | `web-browser` | `services/web-browser/Dockerfile` |
@@ -92,7 +92,7 @@ Detalhes: [CI_CD.md](CI_CD.md)
 ## Rollback
 
 ```bash
-kubectl rollout undo deployment/guacamole -n segportal
+kubectl rollout undo deployment -n segportal
 kubectl rollout undo deployment/guacd -n segportal
 kubectl rollout undo deployment/web-browser -n segportal
 ```
@@ -100,7 +100,7 @@ kubectl rollout undo deployment/web-browser -n segportal
 ## Monitoramento
 
 - Probes HTTP/TCP nos Deployments (`web-browser` na porta 5900)
-- Logs: `kubectl logs -l app=guacamole -n segportal`
+- Logs: `kubectl logs -l app=sessions -n segportal`
 - Bootstrap: `kubectl logs job/segportal-bootstrap -n segportal`
 
 ## Referências

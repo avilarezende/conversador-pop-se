@@ -1,6 +1,6 @@
 # Papéis de acesso — SegPortal AQNE
 
-O SegPortal usa **dois papéis principais**, alinhados a grupos do Active Directory e a grupos internos do Guacamole.
+O SegPortal usa **dois papéis principais**, alinhados a grupos do Active Directory e a grupos internos do SegPortal.
 
 ![Mockup com papéis](images/segportal-mockup.jpg)
 
@@ -8,7 +8,7 @@ O SegPortal usa **dois papéis principais**, alinhados a grupos do Active Direct
 
 ## Resumo
 
-| Papel | Grupo AD | Grupo Guacamole | Escopo |
+| Papel | Grupo AD | Grupo SegPortal | Escopo |
 |-------|----------|-----------------|--------|
 | **Administrador** | `GG-SegPortal-Admin` | `segportal-admins` | Portal inteiro |
 | **Usuário** | `GG-SegPortal-Usuarios` | `segportal-users` | Apenas o próprio contexto |
@@ -28,7 +28,7 @@ Fonte: `config/roles/roles.yaml`.
 - Visualizar **sessões ativas** de qualquer usuário
 - Criar, editar e remover **conexões** (RDP, VNC, SSH, browser)
 - **Aprovar / rejeitar** pedidos de terminais e aplicações
-- Gerenciar **usuários e grupos** no Guacamole
+- Gerenciar **usuários e grupos** no SegPortal
 - Configurar **apontamentos LDAP** (quando aplicável)
 - Consultar auditoria (`ADMINISTER`)
 
@@ -38,7 +38,7 @@ Fonte: `config/roles/roles.yaml`.
 
 | Ambiente | Login | Observação |
 |----------|-------|------------|
-| Qualquer (local) | `guacadmin` / `guacadmin` | **Independente do LDAP** — alterar senha no 1º acesso |
+| Qualquer (local) | `admin` / `admin` | **Independente do LDAP** — alterar senha no 1º acesso |
 | Produção (LDAP) | Conta AD em `GG-SegPortal-Admin` | MFA se habilitado |
 
 Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
@@ -87,7 +87,7 @@ Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
 
 ## Isolamento de sessão
 
-Cada conexão Guacamole é **individual**. O navegador padrão é um serviço compartilhado na rede interna, mas as sessões Guacamole/guacd permanecem por usuário. Terminais RDP/VNC/SSH extras só aparecem após liberação explícita.
+Cada conexão SegPortal é **individual**. O navegador padrão é um serviço compartilhado na rede interna, mas as sessões remotas do SegPortal/guacd permanecem por usuário. Terminais RDP/VNC/SSH extras só aparecem após liberação explícita.
 
 ---
 

@@ -22,12 +22,12 @@ def ensure_demo_tree() -> None:
         return
     root = _demo_root()
     samples = {
-        "guacadmin/home": [
+        "admin/home": [
             ("Relatorio_mensal.docx.txt", "Relatório mensal — rascunho\n"),
             ("Notas.txt", "Anotações do administrador\n"),
             ("Projetos/README.md", "# Projetos\nPasta de projetos do home AD.\n"),
         ],
-        "guacadmin/dept": [
+        "admin/dept": [
             ("Normas/Politica_Acesso.txt", "Política de acesso remoto AQNE\n"),
             ("Planilhas/Controle.csv", "item;valor\nVPN;desativado\nSegPortal;ativo\n"),
         ],

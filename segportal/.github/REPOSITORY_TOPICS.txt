@@ -1,5 +1,5 @@
 segportal
-guacamole
+html5-portal
 ztna
 aqne
 kubernetes

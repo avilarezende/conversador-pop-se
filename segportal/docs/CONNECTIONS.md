@@ -9,7 +9,7 @@ Não é necessário seed manual.
 ![Navegador HTML5 no site do Bacen](images/usage-browser.jpg)
 
 - Protocolo: VNC → `web-browser:5900` (Firefox)
-- Cliente: HTML5 no Guacamole (sem VPN/cliente)
+- Cliente: HTML5 no SegPortal (sem VPN/cliente)
 - Sites internos e externos (externos via `proxy-egress` / IP AQNE quando configurado)
 - Exemplo de uso: `https://www.bcb.gov.br/` (Banco Central do Brasil)
 
@@ -18,8 +18,8 @@ Não é necessário seed manual.
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 # Aguarde o serviço segportal-bootstrap concluir (exit 0)
-# http://localhost:8080/guacamole
-# guacadmin / guacadmin  ou  usuario / usuario
+# http://localhost:8090
+# admin / admin  ou  usuario / usuario
 # → abra "Navegador Web SegPortal"
 ```
 
@@ -46,7 +46,7 @@ Usuários **não** criam conexões sozinhos. Fluxo:
 
 ```
 Usuário solicita → status pending → Admin aprova/rejeita
-       → se aprovado: conexão Guacamole + READ só para o solicitante
+       → se aprovado: conexão SegPortal + READ só para o solicitante
 ```
 
 ![Aprovações no painel admin](images/admin-approvals.jpg)
@@ -74,7 +74,7 @@ psql ... -c "SELECT request_id, requester_username, connection_name, protocol, s
 
 Política em `config/connections/requests.yaml`.
 
-### Pela UI (Guacamole)
+### Pela UI (SegPortal)
 
 Enquanto a API/portal-auth não expõe formulário dedicado:
 
@@ -88,7 +88,7 @@ Enquanto a API/portal-auth não expõe formulário dedicado:
 
 ```
 Usuário (HTML5)
-    → Guacamole
+    → SegPortal
         → guacd (VNC)
             → web-browser (Firefox)
                 → sites internos
@@ -112,9 +112,9 @@ No Kubernetes o Job `segportal-bootstrap` (`k8s/bootstrap`) aplica o mesmo boots
 ## Segurança
 
 - Pedidos extras exigem justificativa e aprovação admin
-- Navegador padrão é compartilhado como *conexão*; sessões Guacamole continuam individualizadas
+- Navegador padrão é compartilhado como *conexão*; sessões remotas do SegPortal continuam individualizadas
 - VNC **não** é exposto fora da rede Docker/K8s (só guacd acessa a porta 5900)
-- Senha VNC interna (`segport1`) alinhada entre container e conexão Guacamole — troque em produção via `VNC_PASSWORD`
+- Senha VNC interna (`segport1`) alinhada entre container e conexão SegPortal — troque em produção via `VNC_PASSWORD`
 - Ajuste a whitelist do Squid para limitar destinos externos
 
 ## Troubleshooting — “Navegador HTML5 não conecta”
@@ -137,13 +137,14 @@ docker compose -f docker-compose.dev.yml logs --tail=50 web-browser
 
 ```bash
 docker compose -f docker-compose.dev.yml exec -T postgres \
-  psql -U guacamole_user -d guacamole_db -c \
+  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+  -- Schema interno de sessões (não aparece na UI do portal)
   "SELECT parameter_name, parameter_value FROM guacamole_connection_parameter cp
    JOIN guacamole_connection c ON c.connection_id=cp.connection_id
    WHERE c.connection_name='Navegador Web SegPortal';"
 ```
 
-4. Erro comum no Guacamole: *“The remote desktop server is currently unreachable”* → `web-browser` ainda subindo ou senha divergente. Aguarde o healthcheck e reaplique o bootstrap.
+4. Erro comum no SegPortal: *“The remote desktop server is currently unreachable”* → `web-browser` ainda subindo ou senha divergente. Aguarde o healthcheck e reaplique o bootstrap.
 
 ## Referências
 

@@ -21,14 +21,14 @@ shares:
     enabled: true
     root: /tmp/segportal-shares
     users:
-      guacadmin:
+      admin:
         - id: home
           label: Meu Home (AD)
-          path: guacadmin/home
+          path: admin/home
           source: ad-home
         - id: dept
           label: Departamental
-          path: guacadmin/dept
+          path: admin/dept
           source: corporate
       usuario:
         - id: home

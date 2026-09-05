@@ -2,9 +2,9 @@
 # SegPortal — Apontamentos LDAP (editáveis pelo administrador)
 # =============================================================================
 # Este arquivo é a referência de configuração LDAP do portal.
-# Em Kubernetes, mapeie para um ConfigMap/Secret e reinicie o pod guacamole
+# Em Kubernetes, mapeie para um ConfigMap/Secret e reinicie o pod de sessões
 # após alterações. Se `enabled: false`, o portal opera só com usuários locais
-# (banco PostgreSQL / JDBC) — o admin padrão guacadmin continua válido.
+# (banco PostgreSQL / JDBC) — o admin padrão admin continua válido.
 #
 # Documentação: docs/LOCAL_ADMIN.md e docs/CONFIGURATION.md
 # =============================================================================
@@ -45,9 +45,9 @@ ldap:
     # Certificado do servidor LDAP (opcional se a CA for pública/corporativa)
     server_certificate_file: ""
     # Cadeia de CAs (PEM) — recomendado em AD interno
-    ca_chain_file: /etc/guacamole/certs/ldap-ca-chain.pem
+    ca_chain_file: /etc/segportal/certs/ldap-ca-chain.pem
     # Truststore Java gerado pelo entrypoint a partir da cadeia
-    truststore_file: /etc/guacamole/certs/ldap-truststore.jks
+    truststore_file: /etc/segportal/certs/ldap-truststore.jks
     truststore_password_env: LDAP_TRUSTSTORE_PASSWORD
     # verify | allow (apenas homologação)
     verify_hostname: true
@@ -62,11 +62,11 @@ ldap:
 # -----------------------------------------------------------------------------
 local_users:
   enabled: true
-  # Admin padrão criado pelo schema Guacamole (002-create-admin-user.sql)
+  # Admin padrão do SegPortal (seed local)
   default_admin:
-    username: guacadmin
-    # Senha inicial padrão do Guacamole — ALTERAR no primeiro acesso
-    initial_password: guacadmin
+    username: admin
+    # Senha inicial de demonstração — ALTERAR no primeiro acesso
+    initial_password: admin
     must_change_password: true
     notes: >
       Conta local independente do LDAP. Continua funcionando com LDAP

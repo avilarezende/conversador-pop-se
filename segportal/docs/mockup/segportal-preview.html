@@ -202,7 +202,7 @@
   <div class="topbar">
     <span><strong>SegPortal AQNE</strong> — preview: navegador HTML padrão + pedidos com aprovação.</span>
     <span>
-      Admin: <code>guacadmin</code>/<code>guacadmin</code> ·
+      Admin: <code>admin</code>/<code>admin</code> ·
       Usuário: <code>usuario</code>/<code>usuario</code> · MFA <code>123456</code>
     </span>
   </div>
@@ -210,7 +210,7 @@
   <div class="shell">
     <div class="chrome">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <div class="url" id="url">https://segportal.aqne.jus.br/guacamole</div>
+      <div class="url" id="url">https://segportal.aqne.jus.br</div>
     </div>
 
     <!-- LOGIN -->
@@ -227,7 +227,7 @@
       <div class="content">
         <div class="panel">
           <h2>Autenticação</h2>
-          <div class="error" id="login-error">Credenciais inválidas. Use guacadmin ou usuario (+ MFA 123456)</div>
+          <div class="error" id="login-error">Credenciais inválidas. Use admin ou usuario (+ MFA 123456)</div>
           <label>Papel de teste</label>
           <div style="display:flex; gap:8px; margin-bottom:12px;">
             <button type="button" class="connect" style="flex:1" onclick="fillRole('admin')">Admin</button>
@@ -318,7 +318,7 @@
       </div>
       <div class="footer">
         <span id="footer-role">Papel: usuário · contexto próprio</span>
-        <span>Guacamole HTML5 clientless</span>
+        <span>Sessão HTML5 clientless</span>
       </div>
     </div>
 
@@ -341,14 +341,14 @@
         <div class="session">
           <div>
             <p style="font-size:42px; margin-bottom:10px;">🖥</p>
-            <p><strong>Área Guacamole (simulada)</strong></p>
+            <p><strong>Área de sessão SegPortal (simulada)</strong></p>
             <p style="margin-top:8px; font-size:12px;">Sessão individualizada · sem compartilhamento entre usuários</p>
           </div>
         </div>
       </div>
       <div class="footer">
         <span>Protocolo simulado · TLS</span>
-        <span>Pod guacd</span>
+        <span>Sessão SegPortal</span>
       </div>
     </div>
   </div>
@@ -356,7 +356,7 @@
   <script>
     let currentRole = 'user';
     const accounts = {
-      guacadmin: { pass: 'guacadmin', role: 'admin' },
+      admin: { pass: 'admin', role: 'admin' },
       usuario: { pass: 'usuario', role: 'user' }
     };
     const defaultBrowser = { icon: 'WEB', bg: '#e3f2fd', title: 'Navegador Web SegPortal', desc: 'HTML5 · sites internos e externos · padrão para todos' };
@@ -373,8 +373,8 @@
 
     function fillRole(role) {
       if (role === 'admin') {
-        document.getElementById('user').value = 'guacadmin';
-        document.getElementById('pass').value = 'guacadmin';
+        document.getElementById('user').value = 'admin';
+        document.getElementById('pass').value = 'admin';
       } else {
         document.getElementById('user').value = 'usuario';
         document.getElementById('pass').value = 'usuario';
@@ -388,9 +388,9 @@
         document.getElementById('view-' + v).classList.toggle('hidden', v !== id);
       });
       const urls = {
-        login: 'https://segportal.aqne.jus.br/guacamole',
-        portal: 'https://segportal.aqne.jus.br/guacamole/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
-        session: 'https://segportal.aqne.jus.br/guacamole/#/client/SESSION'
+        login: 'https://segportal.aqne.jus.br',
+        portal: 'https://segportal.aqne.jus.br/#/' + (currentRole === 'admin' ? 'settings' : 'client'),
+        session: 'https://segportal.aqne.jus.br/#/client/SESSION'
       };
       document.getElementById('url').textContent = urls[id];
     }

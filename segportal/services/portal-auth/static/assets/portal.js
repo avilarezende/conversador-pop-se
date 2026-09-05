@@ -1,6 +1,6 @@
 /**
- * SegPortal — dashboard pessoal + gerenciador de arquivos
- * IDs alinhados com static/index.html
+ * SegPortal — dashboard, arquivos, navegador embutido e computadores.
+ * Sem exposição de stack interna de sessões ao usuário final.
  */
 
 const state = {
@@ -10,6 +10,41 @@ const state = {
   shareId: null,
   path: "",
 };
+
+const BROWSER_HOME = "/browser/home.html";
+const BROWSER_PRESETS = {
+  "segportal://inicio": "/browser/home.html",
+  "segportal://bacen": "/browser/bacen.html",
+  "https://www.bcb.gov.br/": "/browser/bacen.html",
+  "https://www.bcb.gov.br": "/browser/bacen.html",
+};
+
+const COMPUTERS = [
+  {
+    id: "browser-html",
+    title: "Navegador Web SegPortal",
+    description: "Navegação corporativa HTML5 já disponível na aba Navegador.",
+    kind: "browser",
+    badge: "Padrão",
+  },
+  {
+    id: "desktop-financeiro",
+    title: "Desktop Financeiro",
+    description: "Estação remota com sistemas financeiros (liberação sob demanda).",
+    kind: "desktop",
+    badge: "RDP",
+    embed: "/browser/desktop.html?name=Desktop%20Financeiro",
+  },
+  {
+    id: "desktop-admin",
+    title: "Desktop Administrativo",
+    description: "Estação remota para tarefas administrativas.",
+    kind: "desktop",
+    badge: "RDP",
+    embed: "/browser/desktop.html?name=Desktop%20Administrativo",
+    adminOnly: true,
+  },
+];
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -64,12 +99,23 @@ function setPanel(name) {
   $$(".panel").forEach((p) => {
     p.hidden = p.id !== `panel-${name}`;
   });
-  const titles = { home: "Dashboard pessoal", files: "Arquivos", sessions: "Sessões remotas" };
+  const titles = {
+    home: "Dashboard pessoal",
+    files: "Arquivos",
+    browser: "Navegador corporativo",
+    computers: "Computadores",
+  };
   const sub = $("#nav-subtitle");
   if (sub) sub.textContent = titles[name] || "SegPortal";
   if (name === "files") {
     if (state.shareId) loadListing().catch((e) => toast(e.message));
     else renderPlaces();
+  }
+  if (name === "browser") {
+    ensureBrowserLoaded();
+  }
+  if (name === "computers") {
+    renderComputers();
   }
 }
 
@@ -105,7 +151,6 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
-/** Diálogo acessível no lugar de window.prompt (melhor ergonomia). */
 function askName(title, initial = "") {
   const dlg = $("#name-dialog");
   const form = $("#name-dialog-form");
@@ -124,11 +169,7 @@ function askName(title, initial = "") {
     };
     const onSubmit = (ev) => {
       const submitter = ev.submitter;
-      if (submitter && submitter.value === "cancel") {
-        dlg.returnValue = "cancel";
-      } else {
-        dlg.returnValue = "ok";
-      }
+      dlg.returnValue = submitter && submitter.value === "cancel" ? "cancel" : "ok";
     };
     form.addEventListener("submit", onSubmit);
     dlg.addEventListener("close", onClose);
@@ -138,6 +179,36 @@ function askName(title, initial = "") {
   });
 }
 
+function ensureBrowserLoaded() {
+  const frame = $("#browser-frame");
+  const urlInput = $("#browser-url");
+  if (!frame.src || frame.src === "about:blank") {
+    frame.src = BROWSER_HOME;
+    urlInput.value = "segportal://inicio";
+  }
+}
+
+function navigateBrowser(raw) {
+  const value = (raw || "").trim();
+  const mapped = BROWSER_PRESETS[value] || BROWSER_PRESETS[value.replace(/\/$/, "")];
+  const frame = $("#browser-frame");
+  const urlInput = $("#browser-url");
+  if (mapped) {
+    frame.src = mapped;
+    urlInput.value = value.startsWith("http") ? value : Object.keys(BROWSER_PRESETS).find((k) => BROWSER_PRESETS[k] === mapped) || value;
+    return;
+  }
+  if (value.startsWith("/browser/")) {
+    frame.src = value;
+    urlInput.value = value;
+    return;
+  }
+  // Sites externos: abre página orientativa dentro do portal (mesmo iframe)
+  frame.src = `/browser/home.html?q=${encodeURIComponent(value)}`;
+  urlInput.value = value;
+  toast("Neste ambiente demo, use atalhos segportal://inicio ou segportal://bacen");
+}
+
 function renderDashboard() {
   const d = state.dashboard;
   if (!d) return;
@@ -145,10 +216,6 @@ function renderDashboard() {
   $("#user-name").textContent = u.display_name;
   $("#user-meta").textContent = `${u.username} · ${u.auth_source === "ldap" ? "Active Directory" : "Local"} · ${u.role}`;
   $("#hello-name").textContent = (u.display_name || "usuário").split(" ")[0];
-  const guac = d.guacamole_url || "http://localhost:8080/guacamole";
-  $("#btn-open-guacamole").href = guac;
-  $("#btn-sessions-guac").href = guac;
-  $("#btn-session-browser").href = guac;
 
   const shares = d.shares || [];
   const adShares = shares.filter((s) => s.source !== "cloud");
@@ -197,6 +264,59 @@ function renderDashboard() {
   });
 
   renderPlaces();
+}
+
+function renderComputers() {
+  const grid = $("#computers-grid");
+  const session = $("#computer-session");
+  if (!grid) return;
+  const isAdmin = state.dashboard?.user?.role === "admin";
+  grid.hidden = false;
+  if (session) session.hidden = true;
+  grid.innerHTML = "";
+  COMPUTERS.filter((c) => !c.adminOnly || isAdmin).forEach((c) => {
+    const card = document.createElement("article");
+    card.className = "place-card computer-card";
+    card.setAttribute("role", "listitem");
+    card.innerHTML = `
+      <span class="badge">${escapeHtml(c.badge)}</span>
+      <h4>${escapeHtml(c.title)}</h4>
+      <p>${escapeHtml(c.description)}</p>
+      <div class="card-actions">
+        <button type="button" class="btn primary" data-action="computer" data-id="${escapeHtml(c.id)}">
+          ${c.kind === "browser" ? "Abrir na aba Navegador" : "Conectar"}
+        </button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openComputer(id) {
+  const item = COMPUTERS.find((c) => c.id === id);
+  if (!item) return;
+  if (item.kind === "browser") {
+    setPanel("browser");
+    navigateBrowser("segportal://inicio");
+    toast("Navegador aberto nesta mesma aba do SegPortal");
+    return;
+  }
+  const grid = $("#computers-grid");
+  const session = $("#computer-session");
+  const frame = $("#computer-frame");
+  const title = $("#computer-session-title");
+  grid.hidden = true;
+  session.hidden = false;
+  title.textContent = item.title;
+  frame.src = item.embed || "/browser/desktop.html";
+}
+
+function closeComputerSession() {
+  const grid = $("#computers-grid");
+  const session = $("#computer-session");
+  const frame = $("#computer-frame");
+  session.hidden = true;
+  grid.hidden = false;
+  frame.src = "about:blank";
 }
 
 function renderPlaces() {
@@ -348,6 +468,10 @@ async function handleAction(el) {
       await openShare(state.shareId, el.dataset.path);
       return;
     }
+    if (action === "computer" && el.dataset.id) {
+      openComputer(el.dataset.id);
+      return;
+    }
     if (action === "rename" && el.dataset.path) {
       const name = await askName("Renomear", el.dataset.name || "");
       if (!name) return;
@@ -407,6 +531,19 @@ function bindUi() {
     showLogin();
   });
 
+  $("#btn-open-computers").addEventListener("click", () => setPanel("computers"));
+  $("#btn-close-session")?.addEventListener("click", closeComputerSession);
+
+  $("#browser-url-form").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    navigateBrowser($("#browser-url").value);
+  });
+  $("#btn-browser-home").addEventListener("click", () => navigateBrowser("segportal://inicio"));
+  $("#btn-browser-reload").addEventListener("click", () => {
+    const frame = $("#browser-frame");
+    frame.src = frame.src;
+  });
+
   document.addEventListener("click", (ev) => {
     const nav = ev.target.closest(".nav-btn[data-panel]");
     if (nav) {
@@ -435,11 +572,6 @@ function bindUi() {
       ev.preventDefault();
       handleAction(actionEl);
     }
-  });
-
-  $("#quick-browser").addEventListener("click", () => {
-    const guac = state.dashboard?.guacamole_url || "http://localhost:8080/guacamole";
-    window.open(guac, "_blank", "noopener");
   });
 
   $("#btn-up").addEventListener("click", () => {

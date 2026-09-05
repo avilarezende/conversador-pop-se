@@ -16,7 +16,7 @@ gerenciador de arquivos HTML.
 | Usuário | Senha | Papel |
 |---------|-------|-------|
 | `usuario` | `usuario` | user |
-| `guacadmin` | `guacadmin` | admin |
+| `admin` | `admin` | admin |
 
 Marque **Autenticar via Active Directory** no login para simular sessão LDAP e
 expor compartilhamentos AD (home, departamental) no dashboard.

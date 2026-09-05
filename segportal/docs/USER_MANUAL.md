@@ -14,8 +14,9 @@ Documentos relacionados: [USAGE.md](USAGE.md) (resumo visual) · [FILES.md](FILE
 | Abrir pastas corporativas (home, departamental, público) | **Início** → Arquivos do AD | Trabalhar em compartilhamentos liberados |
 | Montar **OneDrive** e/ou **Google Drive** | **Início** → Nuvem pessoal | Acessar arquivos pessoais na nuvem |
 | Gerenciar arquivos (enviar, pasta, renomear, baixar, excluir) | Aba **Arquivos** | Explorar como no Windows/macOS |
-| Abrir sessões remotas (navegador HTML5, RDP, VNC, SSH) | Aba **Sessões remotas** / Guacamole | Usar sistemas sem VPN |
-| Solicitar terminal adicional | Pedido + aprovação do admin | RDP/VNC/SSH sob demanda |
+| Abrir o **navegador corporativo** (HTML5 embutido) | Aba **Navegador** | Navegar sem sair do SegPortal |
+| Abrir **computadores** e desktops liberados | Aba **Computadores** ou botão **Abrir Computadores** | Usar estações remotas sem VPN |
+| Solicitar computador/aplicação adicional | Pedido + aprovação do admin | RDP/VNC/SSH sob demanda |
 
 ---
 
@@ -35,9 +36,9 @@ Documentos relacionados: [USAGE.md](USAGE.md) (resumo visual) · [FILES.md](FILE
 | Usuário | Senha | Perfil |
 |---------|-------|--------|
 | `usuario` | `usuario` | Usuário padrão |
-| `guacadmin` | `guacadmin` | Administrador |
+| `admin` | `admin` | Administrador |
 
-Sessões Guacamole (RDP/VNC/navegador HTML5): `http://localhost:8080/guacamole`.
+Sessões remotas (RDP/VNC/navegador HTML5): `http://localhost:8090`.
 
 ---
 
@@ -50,7 +51,7 @@ Após o login você vê:
 1. **Arquivos do Active Directory** — cartões com home, departamental e público (quando liberados).
 2. **Nuvem pessoal** — OneDrive e Google Drive para montar ou abrir.
 3. **Acesso rápido** — atalhos para o gerenciador de arquivos e o navegador web do SegPortal.
-4. Botão **Abrir Guacamole** — portal de sessões remotas.
+4. Botão **Abrir Computadores** — abre a aba de desktops e aplicações remotas no próprio SegPortal.
 
 ### 3.1 Abrir uma pasta do AD
 
@@ -98,22 +99,31 @@ Dicas:
 
 ---
 
-## 5. Sessões remotas
+## 5. Navegador e Computadores
 
-![Painel de sessões remotas](images/portal-sessions.jpg)
+![Aba Navegador embutida](images/usage-browser.jpg)
 
-1. Abra a aba **Sessões remotas** ou use **Abrir Guacamole**.
-2. Conecte no **Navegador Web SegPortal** (Firefox HTML5) — disponível para todos.
-3. Exemplo: na sessão do navegador, acesse o site do **Bacen** em `https://www.bcb.gov.br/`.
+### 5.1 Navegador (aba própria)
 
-![Navegador HTML5 no Bacen](images/usage-browser-bacen.jpg)
+1. Clique em **Navegador** na barra superior.
+2. O navegador corporativo abre **embutido na mesma aba** do SegPortal (não há redirecionamento para outro sistema).
+3. Use a barra de endereço ou os atalhos (ex.: Bacen) para navegar.
 
-4. RDP/VNC/SSH extras aparecem só se o administrador liberar ou aprovar o seu pedido.
+![Navegador no Bacen](images/usage-browser-bacen.jpg)
 
-Pedido de terminal (exemplo):
+### 5.2 Computadores
+
+![Painel de computadores](images/portal-sessions.jpg)
+
+1. Clique em **Computadores** ou no botão **Abrir Computadores** no Início.
+2. Escolha o desktop ou aplicação liberado ao seu perfil.
+3. A sessão abre **dentro do SegPortal** (mesma aba). Use **Fechar sessão** para encerrar.
+4. Computadores extras aparecem somente após aprovação do administrador.
+
+Pedido de computador (exemplo):
 
 ```bash
-./scripts/request-connection.sh usuario "RDP Financeiro" rdp 10.10.20.51 3389 "Justificativa"
+./scripts/request-connection.sh usuario "Desktop Financeiro" rdp 10.10.20.51 3389 "Justificativa"
 ```
 
 Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
@@ -137,7 +147,7 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 | Nenhuma pasta AD | Marque Active Directory no login; peça liberação ao admin |
 | Montar nuvem não abre OAuth | Ambiente em modo demo — esperado sem `client_id` |
 | Não envia arquivo | Pasta pode ser somente leitura ou arquivo acima do limite |
-| Guacamole não abre | Verifique se o serviço está em `:8080` e a URL em `GUACAMOLE_PUBLIC_URL` |
+| SegPortal / Computadores não abre | Confirme o serviço do portal em `:8090` e as abas **Navegador** / **Computadores** |
 
 ---
 
@@ -150,4 +160,7 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 | [portal-cloud-mounted.jpg](images/portal-cloud-mounted.jpg) | OneDrive/Google Drive |
 | [portal-files.jpg](images/portal-files.jpg) | Gerenciador |
 | [portal-files-folder.jpg](images/portal-files-folder.jpg) | Nova pasta |
-| [portal-sessions.jpg](images/portal-sessions.jpg) | Sessões remotas |
+| [portal-sessions.jpg](images/portal-sessions.jpg) | Aba Computadores |
+| [usage-browser.jpg](images/usage-browser.jpg) | Aba Navegador |
+| [usage-browser-bacen.jpg](images/usage-browser-bacen.jpg) | Navegador no Bacen |
+| [usage-session.jpg](images/usage-session.jpg) | Sessão de computador |

@@ -11,8 +11,9 @@ Fluxo visual do usuário final. Manuais completos: [USER_MANUAL.md](USER_MANUAL.
 1. Autenticar no dashboard (`:8090`) — local e/ou Active Directory  
 2. Usar pastas AD e montar OneDrive/Google Drive  
 3. Gerenciar arquivos no explorador HTML  
-4. Abrir sessões remotas (navegador HTML5, RDP, VNC, SSH)  
-5. Se precisar de terminal extra, **solicitar** e aguardar o admin  
+4. Usar o **navegador corporativo** embutido (aba Navegador)  
+5. Abrir **computadores** remotos liberados (aba Computadores)  
+6. Se precisar de computador extra, **solicitar** e aguardar o admin  
 
 ---
 
@@ -22,12 +23,12 @@ Fluxo visual do usuário final. Manuais completos: [USER_MANUAL.md](USER_MANUAL.
 
 | Campo | Produção | Demo local |
 |-------|----------|------------|
-| Usuário | `sAMAccountName` ou local | `usuario` / `guacadmin` |
-| Senha | AD / local | `usuario` / `guacadmin` |
+| Usuário | `sAMAccountName` ou local | `usuario` / `admin` |
+| Senha | AD / local | `usuario` / `admin` |
 | Active Directory | Marque se for conta de domínio | Marque para ver shares demo AD |
-| MFA | Se habilitado no Guacamole | Não exigido no compose.dev |
+| MFA | Se habilitado no SegPortal | Não exigido no compose.dev |
 
-URLs demo: dashboard `http://localhost:8090` · Guacamole `http://localhost:8080/guacamole`.
+URLs demo: dashboard `http://localhost:8090` · SegPortal `http://localhost:8090`.
 
 ---
 
@@ -40,7 +41,8 @@ URLs demo: dashboard `http://localhost:8090` · Guacamole `http://localhost:8080
 | **Arquivos do Active Directory** | Home, departamental, público |
 | **Nuvem pessoal** | Montar/abrir OneDrive e Google Drive |
 | **Acesso rápido** | Atalhos para arquivos e navegador web |
-| **Abrir Guacamole** | Sessões remotas |
+| **Abrir Computadores** | Abre a aba de desktops/aplicações no próprio SegPortal |
+| **Navegador** | Navegação HTML5 embutida na mesma aba |
 
 ### 2.1 Arquivos corporativos e nuvem
 
@@ -56,19 +58,27 @@ Detalhes: [FILES.md](FILES.md) · [USER_MANUAL.md](USER_MANUAL.md).
 
 ---
 
-## 3. Navegador HTML padrão (exemplo: site do Bacen)
+## 3. Navegador corporativo (aba Navegador)
 
-![Navegador HTML5 no site do Bacen](images/usage-browser.jpg)
+![Navegador embutido no SegPortal](images/usage-browser.jpg)
 
-No boot, `web-browser` sobe e o bootstrap cria a conexão **Navegador Web SegPortal** para todos. O Firefox roda via VNC e é entregue em **HTML5** no Guacamole — sem cliente VPN.
+O **Navegador Web SegPortal** está embutido como aba do próprio portal: o conteúdo abre **na mesma aba** do navegador do usuário — sem redirecionar para outro sistema.
 
-**Exemplo de uso:** abra a sessão **Navegador Web SegPortal** e acesse `https://www.bcb.gov.br/` (Banco Central do Brasil). A navegação sai pelo `proxy-egress` com IP institucional, quando configurado.
+**Exemplo:** na barra de endereço digite `https://www.bcb.gov.br/` (Banco Central / Bacen) ou use o atalho Bacen. A navegação corporativa segue as políticas de egresso do portal.
 
-![Sessão remota no Bacen](images/usage-session.jpg)
+![Navegador no Bacen](images/usage-browser-bacen.jpg)
+
+### 3.1 Computadores
+
+![Aba Computadores](images/portal-sessions.jpg)
+
+Use a aba **Computadores** ou o botão **Abrir Computadores** no Início. Desktops e aplicações liberados abrem **dentro do SegPortal** (mesma aba).
+
+![Sessão de computador](images/usage-session.jpg)
 
 ---
 
-## 4. Pedido de terminal adicional
+## 4. Pedido de computador adicional
 
 ```bash
 ./scripts/request-connection.sh usuario "RDP Financeiro" rdp 10.10.20.51 3389 "Justificativa"
@@ -81,7 +91,7 @@ No boot, `web-browser` sobe e o bootstrap cria a conexão **Navegador Web SegPor
 
 ## 5. Encerramento
 
-- **Encerrar sessão** na conexão Guacamole  
+- **Fechar sessão** na aba Computadores  
 - Timeout por inatividade  
 - **Sair** no dashboard  
 
@@ -96,7 +106,8 @@ No boot, `web-browser` sobe e o bootstrap cria a conexão **Navegador Web SegPor
 | [usage-portal.jpg](images/usage-portal.jpg) | Dashboard |
 | [portal-files.jpg](images/portal-files.jpg) | Arquivos |
 | [portal-cloud-mounted.jpg](images/portal-cloud-mounted.jpg) | Nuvem |
-| [usage-browser.jpg](images/usage-browser.jpg) | Navegador HTML5 no Bacen |
-| [usage-session.jpg](images/usage-session.jpg) | Sessão remota (mesmo exemplo) |
-| [usage-browser-bacen.jpg](images/usage-browser-bacen.jpg) | Alias do exemplo Bacen |
+| [usage-browser.jpg](images/usage-browser.jpg) | Aba Navegador embutida |
+| [usage-browser-bacen.jpg](images/usage-browser-bacen.jpg) | Navegador no Bacen |
+| [portal-sessions.jpg](images/portal-sessions.jpg) | Aba Computadores |
+| [usage-session.jpg](images/usage-session.jpg) | Sessão de computador |
 | [admin-approvals.jpg](images/admin-approvals.jpg) | Admin |

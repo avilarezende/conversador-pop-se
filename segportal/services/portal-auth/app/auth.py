@@ -14,11 +14,11 @@ from fastapi import HTTPException, Request, Response
 from .config import ldap_config, settings
 
 DEMO_USERS: dict[str, dict[str, Any]] = {
-    "guacadmin": {
-        "password": "guacadmin",
+    "admin": {
+        "password": "admin",
         "display_name": "Administrador SegPortal",
         "role": "admin",
-        "email": "guacadmin@aqne.jus.br",
+        "email": "admin@aqne.jus.br",
     },
     "usuario": {
         "password": "usuario",

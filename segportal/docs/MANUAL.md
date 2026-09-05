@@ -24,7 +24,7 @@ Manual de referência do portal ZTNA do AQNE.
 O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pelo navegador**, sem VPN. Inclui:
 
 - **Dashboard pessoal** (`:8090`) — pastas do Active Directory, OneDrive/Google Drive e gerenciador HTML
-- **Sessões remotas** (Guacamole `:8080`) — RDP, VNC, SSH e **Navegador Web SegPortal** (Firefox HTML5)
+- **Sessões remotas** (Sessões remotas `:8080`) — RDP, VNC, SSH e **Navegador Web SegPortal** (Firefox HTML5)
 
 ![Mockup do portal](images/segportal-mockup.jpg)
 
@@ -47,7 +47,7 @@ O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pel
 
 | Papel | Usuário | Senha |
 |-------|---------|-------|
-| Administrador | `guacadmin` | `guacadmin` |
+| Administrador | `admin` | `admin` |
 | Usuário | `usuario` | `usuario` |
 
 ### 2.2 Depois do login
@@ -59,7 +59,7 @@ O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pel
 | Pastas AD | Início → cartões Active Directory |
 | OneDrive / Google Drive | Início → Nuvem pessoal |
 | Gerenciador de arquivos | Aba **Arquivos** |
-| Navegador HTML5 / RDP / VNC / SSH | Aba **Sessões remotas** ou Guacamole |
+| Navegador HTML5 / RDP / VNC / SSH | Aba **Sessões remotas** ou SegPortal |
 
 Passo a passo completo: [USER_MANUAL.md](USER_MANUAL.md).
 
@@ -85,7 +85,7 @@ Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Exempl
 
 | Tema | Documento |
 |------|-----------|
-| Contas locais / senha guacadmin | [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |
+| Contas locais / senha admin | [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |
 | Shares AD, OAuth nuvem, API | [ADMIN_MANUAL.md](ADMIN_MANUAL.md) · [FILES.md](FILES.md) |
 | Papéis e aprovações | [ROLES.md](ROLES.md) · [CONNECTIONS.md](CONNECTIONS.md) |
 | LDAP, MFA, K8s | [CONFIGURATION.md](CONFIGURATION.md) · [DEPLOYMENT.md](DEPLOYMENT.md) |
@@ -101,7 +101,7 @@ Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Exempl
 | Componente | Porta | Função |
 |------------|-------|--------|
 | portal-auth | 8090 | Dashboard, arquivos AD/nuvem |
-| guacamole | 8080 | Sessões remotas |
+| sessions | 8080 | Sessões remotas |
 | guacd | 4822 | Proxy RDP/VNC/SSH |
 | web-browser | 5900 | Firefox VNC |
 | postgres | 5432 | Metadados |
@@ -118,6 +118,6 @@ docker compose up --build
 ```
 
 - Dashboard: http://localhost:8090  
-- Guacamole: http://localhost:8080/guacamole  
+- SegPortal: http://localhost:8090  
 
-Credenciais demo: `usuario`/`usuario` · `guacadmin`/`guacadmin`.
+Credenciais demo: `usuario`/`usuario` · `admin`/`admin`.

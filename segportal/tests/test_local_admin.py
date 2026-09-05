@@ -35,14 +35,14 @@ class TestLdapSettings:
     def test_local_users_always_enabled(self, settings: dict) -> None:
         local = settings["local_users"]
         assert local["enabled"] is True
-        assert local["default_admin"]["username"] == "guacadmin"
-        assert local["default_admin"]["initial_password"] == "guacadmin"
+        assert local["default_admin"]["username"] == "admin"
+        assert local["default_admin"]["initial_password"] == "admin"
 
 
 class TestLocalAdminDocsAndScripts:
     def test_local_admin_doc(self) -> None:
         text = (ROOT / "docs" / "LOCAL_ADMIN.md").read_text(encoding="utf-8")
-        assert "guacadmin" in text
+        assert "admin" in text
         assert "change-local-password" in text
         assert "delete-local-user" in text
         assert "LDAP_ENABLED" in text
