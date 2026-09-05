@@ -12,8 +12,8 @@ async def generate_reply(system: str, user_message: str, context: str = "") -> s
     prompt = user_message
     if context:
         prompt = (
-            f"Contexto recuperado das fontes:\n{context}\n\n"
-            f"Pergunta do usuário:\n{user_message}"
+            f"Contexto recuperado das fontes:\n{context}"
+            f"\n\nPergunta do usuário:\n{user_message}"
         )
 
     try:
