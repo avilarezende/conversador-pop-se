@@ -3,8 +3,13 @@ name: SegPortal CI
 on:
   push:
     branches: [main, develop]
+    paths:
+      - "segportal/**"
+      - ".github/workflows/segportal-ci.yml"
   pull_request:
-    branches: [main, develop]
+    paths:
+      - "segportal/**"
+      - ".github/workflows/segportal-ci.yml"
   workflow_dispatch:
 
 concurrency:

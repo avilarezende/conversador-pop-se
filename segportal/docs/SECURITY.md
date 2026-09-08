@@ -28,7 +28,7 @@ Guia do admin local: [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
 | **Administrador** | `segportal-admins` / `GG-SegPortal-Admin` | Todas (`ADMINISTER`) | Completa + aprovações |
 | **Usuário** | `segportal-users` / `GG-SegPortal-Usuarios` | Apenas a própria | Nenhuma |
 
-Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas conexões dos grupos de negócio / aprovadas. Detalhes: [ROLES.md](ROLES.md) · [CONNECTIONS.md](CONNECTIONS.md).
+Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas conexões dos grupos de negócio / aprovadas. No portal-auth, o admin aloca **computadores** e define a política de proxy; o usuário só vê o que foi liberado. Detalhes: [ROLES.md](ROLES.md) · [CONNECTIONS.md](CONNECTIONS.md) · [ADMIN_MANUAL.md](ADMIN_MANUAL.md).
 
 ## Navegador HTML padrão
 
@@ -48,7 +48,20 @@ Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas 
 
 ## Egress controlado
 
-O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus.br`, `*.gov.br`). Demais destinos são **negados**. O IP de saída é o institucional do tribunal.
+### Squid (`proxy-egress`)
+
+O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus.br`, `*.gov.br`). Demais destinos são **negados**. O IP de saída é o institucional do tribunal. Aplica-se ao Firefox/VNC (`web-browser`).
+
+### Política do navegador embutido (`portal-auth`)
+
+O dashboard aplica `proxy_policy.json` (editável pelo admin) em `/api/browser/proxy`:
+
+1. Bloqueios explícitos (domínio / prefixo / palavra-chave)
+2. Janelas de horário (`outside_action`)
+3. Exceções por usuário/AD (ou modo aberto)
+4. Allowlist / blocklist / allow_all
+
+Administradores podem ter **bypass**. Usuários comuns recebem `403` com mensagem clara quando a URL é negada.
 
 ## Dados sensíveis
 
@@ -80,7 +93,7 @@ O proxy Squid permite apenas destinos na whitelist (ex.: `*.aqne.jus.br`, `*.jus
 
 - Acesso remoto substitui VPN legada com controles equivalentes ou superiores
 - Dados processuais acessados via RDP/VNC permanecem nos sistemas de origem
-- Revisão periódica de grupos AD, aprovações pendentes e whitelist Squid
+- Revisão periódica de grupos AD, aprovações pendentes, whitelist Squid e política `proxy_policy.json`
 
 ## Referências
 

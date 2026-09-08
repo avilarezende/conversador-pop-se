@@ -116,9 +116,14 @@ class TestDocumentationImages:
             "usage-session.jpg",
             "usage-browser.jpg",
             "usage-browser-bacen.jpg",
+            "usage-browser-proxy.jpg",
             "admin-approvals.jpg",
             "portal-files.jpg",
             "portal-home-ad.jpg",
+            "portal-computers.jpg",
+            "portal-admin-home.jpg",
+            "portal-admin-proxy.jpg",
+            "portal-admin-computers.jpg",
         ],
     )
     def test_jpg_images_exist(self, images_dir: Path, name: str) -> None:
@@ -145,3 +150,24 @@ class TestDocumentationImages:
         for rel in ("docs/USAGE.md", "docs/USER_MANUAL.md", "README.md"):
             text = (ROOT / rel).read_text(encoding="utf-8")
             assert "bcb.gov.br" in text or "Bacen" in text, f"Falta exemplo Bacen em {rel}"
+
+    def test_docs_mention_admin_proxy_and_computers(self) -> None:
+        for rel in (
+            "docs/ADMIN_MANUAL.md",
+            "docs/USAGE.md",
+            "docs/USER_MANUAL.md",
+            "docs/CONFIGURATION.md",
+            "docs/SECURITY.md",
+            "README.md",
+        ):
+            text = (ROOT / rel).read_text(encoding="utf-8").lower()
+            assert "proxy" in text, f"Falta proxy em {rel}"
+            assert "computador" in text or "computers" in text, (
+                f"Falta menção a computadores em {rel}"
+            )
+    def test_docs_mention_proxy_policy_controls(self) -> None:
+        admin = (ROOT / "docs" / "ADMIN_MANUAL.md").read_text(encoding="utf-8").lower()
+        assert "allowlist" in admin
+        assert "exceções" in admin or "excecoes" in admin
+        assert "horário" in admin or "horario" in admin
+        assert "proxy_policy.json" in admin or "proxy-policy" in admin

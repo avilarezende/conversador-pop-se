@@ -9,6 +9,10 @@ const state = {
   panel: "home",
   shareId: null,
   path: "",
+  computers: [],
+  adminUsers: [],
+  adminComputers: [],
+  proxyPolicy: null,
 };
 
 const BROWSER_HOME = "/browser/home.html";
@@ -18,33 +22,6 @@ const BROWSER_PRESETS = {
   "https://www.bcb.gov.br/": "/browser/bacen.html",
   "https://www.bcb.gov.br": "/browser/bacen.html",
 };
-
-const COMPUTERS = [
-  {
-    id: "browser-html",
-    title: "Navegador Web SegPortal",
-    description: "Navegação corporativa HTML5 já disponível na aba Navegador.",
-    kind: "browser",
-    badge: "Padrão",
-  },
-  {
-    id: "desktop-financeiro",
-    title: "Desktop Financeiro",
-    description: "Estação remota com sistemas financeiros (liberação sob demanda).",
-    kind: "desktop",
-    badge: "RDP",
-    embed: "/browser/desktop.html?name=Desktop%20Financeiro",
-  },
-  {
-    id: "desktop-admin",
-    title: "Desktop Administrativo",
-    description: "Estação remota para tarefas administrativas.",
-    kind: "desktop",
-    badge: "RDP",
-    embed: "/browser/desktop.html?name=Desktop%20Administrativo",
-    adminOnly: true,
-  },
-];
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -88,6 +65,9 @@ function showLogin() {
   $("#view-app").hidden = true;
   setProductivityVisible(false);
   closeCalendarDrawer();
+  $$(".admin-only").forEach((el) => {
+    el.hidden = true;
+  });
 }
 
 function showApp() {
@@ -109,6 +89,7 @@ function setPanel(name) {
     files: "Arquivos",
     browser: "Navegador corporativo",
     computers: "Computadores",
+    admin: "Administração",
   };
   const sub = $("#nav-subtitle");
   if (sub) sub.textContent = titles[name] || "SegPortal";
@@ -121,6 +102,9 @@ function setPanel(name) {
   }
   if (name === "computers") {
     renderComputers();
+  }
+  if (name === "admin") {
+    loadAdminPanel().catch((e) => toast(e.message));
   }
 }
 
@@ -195,23 +179,35 @@ function ensureBrowserLoaded() {
 
 function navigateBrowser(raw) {
   const value = (raw || "").trim();
-  const mapped = BROWSER_PRESETS[value] || BROWSER_PRESETS[value.replace(/\/$/, "")];
   const frame = $("#browser-frame");
   const urlInput = $("#browser-url");
+  if (!frame || !urlInput) return;
+
+  const mapped = BROWSER_PRESETS[value] || BROWSER_PRESETS[value.replace(/\/$/, "")];
   if (mapped) {
     frame.src = mapped;
-    urlInput.value = value.startsWith("http") ? value : Object.keys(BROWSER_PRESETS).find((k) => BROWSER_PRESETS[k] === mapped) || value;
+    urlInput.value =
+      value.startsWith("http") || value.startsWith("segportal://")
+        ? value
+        : Object.keys(BROWSER_PRESETS).find((k) => BROWSER_PRESETS[k] === mapped) || value;
     return;
   }
-  if (value.startsWith("/browser/")) {
+  if (value.startsWith("/browser/") || value.startsWith("/api/browser/proxy")) {
     frame.src = value;
     urlInput.value = value;
     return;
   }
-  // Sites externos: abre página orientativa dentro do portal (mesmo iframe)
-  frame.src = `/browser/home.html?q=${encodeURIComponent(value)}`;
-  urlInput.value = value;
-  toast("Neste ambiente demo, use atalhos segportal://inicio ou segportal://bacen");
+
+  let target = value;
+  if (!/^https?:\/\//i.test(target) && !target.includes("://")) {
+    target = `https://${target}`;
+  }
+  if (!/^https?:\/\//i.test(target)) {
+    toast("Informe uma URL http(s):// ou um atalho segportal://");
+    return;
+  }
+  frame.src = `/api/browser/proxy?url=${encodeURIComponent(target)}`;
+  urlInput.value = target;
 }
 
 function renderDashboard() {
@@ -271,22 +267,38 @@ function renderDashboard() {
   renderPlaces();
 }
 
+function isAdmin() {
+  return state.dashboard?.user?.role === "admin" || state.user?.role === "admin";
+}
+
+function updateAdminNav() {
+  const show = isAdmin();
+  $$(".admin-only").forEach((el) => {
+    el.hidden = !show;
+  });
+}
+
 function renderComputers() {
   const grid = $("#computers-grid");
   const session = $("#computer-session");
   if (!grid) return;
-  const isAdmin = state.dashboard?.user?.role === "admin";
   grid.hidden = false;
   if (session) session.hidden = true;
   grid.innerHTML = "";
-  COMPUTERS.filter((c) => !c.adminOnly || isAdmin).forEach((c) => {
+  const items = state.computers || [];
+  if (!items.length) {
+    grid.innerHTML = `<p class="empty">Nenhum computador liberado para o seu usuário. Peça ao administrador.</p>`;
+    return;
+  }
+  items.forEach((c) => {
     const card = document.createElement("article");
     card.className = "place-card computer-card";
     card.setAttribute("role", "listitem");
+    const hostHint = c.host ? `${c.host}${c.port ? `:${c.port}` : ""}` : c.description;
     card.innerHTML = `
-      <span class="badge">${escapeHtml(c.badge)}</span>
+      <span class="badge">${escapeHtml(c.badge || (c.protocol || "").toUpperCase())}</span>
       <h4>${escapeHtml(c.title)}</h4>
-      <p>${escapeHtml(c.description)}</p>
+      <p>${escapeHtml(hostHint || c.description || "")}</p>
       <div class="card-actions">
         <button type="button" class="btn primary" data-action="computer" data-id="${escapeHtml(c.id)}">
           ${c.kind === "browser" ? "Abrir na aba Navegador" : "Conectar"}
@@ -297,9 +309,9 @@ function renderComputers() {
 }
 
 function openComputer(id) {
-  const item = COMPUTERS.find((c) => c.id === id);
+  const item = (state.computers || []).find((c) => c.id === id);
   if (!item) return;
-  if (item.kind === "browser") {
+  if (item.kind === "browser" || item.protocol === "browser") {
     setPanel("browser");
     navigateBrowser("segportal://inicio");
     toast("Navegador aberto nesta mesma aba do SegPortal");
@@ -312,7 +324,7 @@ function openComputer(id) {
   grid.hidden = true;
   session.hidden = false;
   title.textContent = item.title;
-  frame.src = item.embed || "/browser/desktop.html";
+  frame.src = item.embed || `/browser/desktop.html?name=${encodeURIComponent(item.title)}`;
 }
 
 function closeComputerSession() {
@@ -419,7 +431,368 @@ function renderBreadcrumbs(data) {
 async function refreshDashboard() {
   state.dashboard = await api("/api/dashboard");
   state.user = state.dashboard.user;
+  state.computers = state.dashboard.computers || [];
+  updateAdminNav();
   renderDashboard();
+}
+
+function renderAdminUsers(selected = []) {
+  const host = $("#admin-users-list");
+  if (!host) return;
+  const selectedSet = new Set((selected || []).map((s) => String(s).toLowerCase()));
+  host.innerHTML = "";
+  (state.adminUsers || []).forEach((u) => {
+    const id = `admin-user-${u.username}`;
+    const label = document.createElement("label");
+    label.className = "admin-user-chip";
+    label.htmlFor = id;
+    label.innerHTML = `
+      <input type="checkbox" id="${escapeHtml(id)}" name="assignees" value="${escapeHtml(u.username)}" ${
+        selectedSet.has(u.username.toLowerCase()) ? "checked" : ""
+      } />
+      <span>
+        <strong>${escapeHtml(u.display_name || u.username)}</strong>
+        <small>${escapeHtml(u.username)} · ${u.source === "ad" ? "AD" : "Local"}</small>
+      </span>`;
+    host.appendChild(label);
+  });
+}
+
+function renderAdminComputers() {
+  const tbody = $("#admin-computers-tbody");
+  const empty = $("#admin-computers-empty");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const items = state.adminComputers || [];
+  if (empty) empty.hidden = items.length > 0;
+  items.forEach((c) => {
+    const tr = document.createElement("tr");
+    const assignees = (c.assignees || []).join(", ") || "—";
+    const host = c.host ? `${c.host}${c.port ? `:${c.port}` : ""}` : "—";
+    tr.innerHTML = `
+      <td>
+        <strong>${escapeHtml(c.title)}</strong>
+        <div class="muted small">${escapeHtml(c.description || "")}</div>
+      </td>
+      <td>${escapeHtml((c.protocol || "").toUpperCase())}</td>
+      <td>${escapeHtml(host)}</td>
+      <td>${escapeHtml(assignees)}</td>
+      <td class="actions-col">
+        <button type="button" class="btn ghost sm" data-admin-action="edit-assignees" data-id="${escapeHtml(c.id)}">Alocar</button>
+        ${
+          c.builtin
+            ? ""
+            : `<button type="button" class="btn ghost sm" data-admin-action="delete" data-id="${escapeHtml(c.id)}">Excluir</button>`
+        }
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadAdminPanel() {
+  if (!isAdmin()) {
+    toast("Acesso restrito a administradores");
+    setPanel("home");
+    return;
+  }
+  const [usersResp, compsResp, proxyResp] = await Promise.all([
+    api("/api/admin/users"),
+    api("/api/admin/computers"),
+    api("/api/admin/proxy-policy"),
+  ]);
+  state.adminUsers = usersResp.users || [];
+  state.adminComputers = compsResp.computers || [];
+  state.proxyPolicy = proxyResp.policy || null;
+  renderAdminUsers(["usuario"]);
+  renderAdminComputers();
+  renderProxyPolicyForm(state.proxyPolicy);
+}
+
+const PROXY_DAY_OPTIONS = [
+  { v: 0, l: "Dom" },
+  { v: 1, l: "Seg" },
+  { v: 2, l: "Ter" },
+  { v: 3, l: "Qua" },
+  { v: 4, l: "Qui" },
+  { v: 5, l: "Sex" },
+  { v: 6, l: "Sáb" },
+];
+
+function linesFromList(arr) {
+  return (arr || []).join("\n");
+}
+
+function listFromTextarea(sel) {
+  return (sel?.value || "")
+    .split(/\n|,/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function renderProxyPolicyForm(policy) {
+  if (!policy || !$("#admin-proxy-form")) return;
+  $("#proxy-mode").value = policy.mode || "allowlist";
+  $("#proxy-exception-mode").value = policy.exception_mode || "per_user";
+  $("#proxy-default-action").value = policy.default_action || "deny";
+  $("#proxy-admin-bypass").checked = !!policy.admin_bypass;
+  $("#proxy-allowed-domains").value = linesFromList(policy.allowed_domains);
+  $("#proxy-allowed-prefixes").value = linesFromList(policy.allowed_url_prefixes);
+  $("#proxy-blocked-domains").value = linesFromList(policy.blocked_domains);
+  $("#proxy-blocked-prefixes").value = linesFromList(policy.blocked_url_prefixes);
+  $("#proxy-blocked-keywords").value = linesFromList(policy.blocked_keywords);
+  renderProxyExceptions(policy.exceptions || []);
+  renderProxySchedules(policy.schedules || []);
+  const meta = $("#proxy-policy-meta");
+  if (meta) {
+    const when = policy.updated_at
+      ? new Date(policy.updated_at * 1000).toLocaleString("pt-BR")
+      : "padrão do sistema";
+    meta.textContent = `Atualizado: ${when}${policy.updated_by ? ` · ${policy.updated_by}` : ""}`;
+  }
+}
+
+function renderProxyExceptions(items) {
+  const host = $("#proxy-exceptions-list");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!items.length) {
+    host.innerHTML = `<p class="empty">Nenhuma exceção cadastrada.</p>`;
+    return;
+  }
+  items.forEach((item, idx) => {
+    const card = document.createElement("div");
+    card.className = "proxy-rule-card";
+    card.dataset.index = String(idx);
+    card.innerHTML = `
+      <div class="admin-form-grid">
+        <label>Rótulo<input data-f="label" value="${escapeHtml(item.label || "")}" /></label>
+        <label>Domínios (vírgula)<input data-f="domains" value="${escapeHtml((item.domains || []).join(", "))}" /></label>
+        <label>Usuários (vírgula)<input data-f="assignees" value="${escapeHtml((item.assignees || []).join(", "))}" placeholder="usuario, admin" /></label>
+        <label>Motivo<input data-f="reason" value="${escapeHtml(item.reason || "")}" /></label>
+        <label>Expira (unix opcional)<input data-f="expires_at" value="${escapeHtml(item.expires_at ?? "")}" /></label>
+        <label class="admin-check-label"><span>Ativa</span><input type="checkbox" data-f="enabled" ${item.enabled !== false ? "checked" : ""} /></label>
+      </div>
+      <input type="hidden" data-f="id" value="${escapeHtml(item.id || "")}" />
+      <button type="button" class="btn ghost sm" data-proxy-remove="exception">Remover</button>`;
+    host.appendChild(card);
+  });
+}
+
+function renderProxySchedules(items) {
+  const host = $("#proxy-schedules-list");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!items.length) {
+    host.innerHTML = `<p class="empty">Nenhuma janela de horário.</p>`;
+    return;
+  }
+  items.forEach((item, idx) => {
+    const days = new Set(item.days || []);
+    const dayChecks = PROXY_DAY_OPTIONS.map(
+      (d) =>
+        `<label class="day-chip"><input type="checkbox" data-day="${d.v}" ${days.has(d.v) ? "checked" : ""} /> ${d.l}</label>`,
+    ).join("");
+    const card = document.createElement("div");
+    card.className = "proxy-rule-card";
+    card.dataset.index = String(idx);
+    card.innerHTML = `
+      <div class="admin-form-grid">
+        <label>Rótulo<input data-f="label" value="${escapeHtml(item.label || "")}" /></label>
+        <label>Timezone<input data-f="timezone" value="${escapeHtml(item.timezone || "America/Sao_Paulo")}" /></label>
+        <label>Início<input data-f="start" type="time" value="${escapeHtml(item.start || "08:00")}" /></label>
+        <label>Fim<input data-f="end" type="time" value="${escapeHtml(item.end || "19:00")}" /></label>
+        <label>Fora do horário
+          <select data-f="outside_action">
+            <option value="deny" ${item.outside_action !== "allow" ? "selected" : ""}>Negar</option>
+            <option value="allow" ${item.outside_action === "allow" ? "selected" : ""}>Permitir</option>
+          </select>
+        </label>
+        <label class="admin-check-label"><span>Ativa</span><input type="checkbox" data-f="enabled" ${item.enabled ? "checked" : ""} /></label>
+      </div>
+      <div class="proxy-days">${dayChecks}</div>
+      <input type="hidden" data-f="id" value="${escapeHtml(item.id || "")}" />
+      <button type="button" class="btn ghost sm" data-proxy-remove="schedule">Remover</button>`;
+    host.appendChild(card);
+  });
+}
+
+function collectProxyExceptions() {
+  return $$("#proxy-exceptions-list .proxy-rule-card").map((card) => {
+    const get = (f) => card.querySelector(`[data-f="${f}"]`);
+    const domains = (get("domains")?.value || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const assignees = (get("assignees")?.value || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const expiresRaw = (get("expires_at")?.value || "").trim();
+    return {
+      id: get("id")?.value || undefined,
+      label: get("label")?.value || "Exceção",
+      domains,
+      assignees,
+      reason: get("reason")?.value || "",
+      expires_at: expiresRaw === "" ? null : Number(expiresRaw) || expiresRaw,
+      enabled: !!get("enabled")?.checked,
+    };
+  });
+}
+
+function collectProxySchedules() {
+  return $$("#proxy-schedules-list .proxy-rule-card").map((card) => {
+    const get = (f) => card.querySelector(`[data-f="${f}"]`);
+    const days = $$("[data-day]", card)
+      .filter((el) => el.checked)
+      .map((el) => Number(el.dataset.day));
+    return {
+      id: get("id")?.value || undefined,
+      label: get("label")?.value || "Janela",
+      timezone: get("timezone")?.value || "America/Sao_Paulo",
+      start: get("start")?.value || "08:00",
+      end: get("end")?.value || "19:00",
+      outside_action: get("outside_action")?.value || "deny",
+      enabled: !!get("enabled")?.checked,
+      days,
+    };
+  });
+}
+
+async function saveProxyPolicy(ev) {
+  ev.preventDefault();
+  const err = $("#proxy-form-error");
+  if (err) err.hidden = true;
+  const body = {
+    mode: $("#proxy-mode").value,
+    exception_mode: $("#proxy-exception-mode").value,
+    default_action: $("#proxy-default-action").value,
+    admin_bypass: $("#proxy-admin-bypass").checked,
+    allowed_domains: listFromTextarea($("#proxy-allowed-domains")),
+    allowed_url_prefixes: listFromTextarea($("#proxy-allowed-prefixes")),
+    blocked_domains: listFromTextarea($("#proxy-blocked-domains")),
+    blocked_url_prefixes: listFromTextarea($("#proxy-blocked-prefixes")),
+    blocked_keywords: listFromTextarea($("#proxy-blocked-keywords")),
+    exceptions: collectProxyExceptions(),
+    schedules: collectProxySchedules(),
+  };
+  try {
+    const resp = await api("/api/admin/proxy-policy", { method: "PUT", body });
+    state.proxyPolicy = resp.policy;
+    renderProxyPolicyForm(resp.policy);
+    toast("Política de proxy salva");
+  } catch (e) {
+    if (err) {
+      err.textContent = e.message || "Falha ao salvar";
+      err.hidden = false;
+    } else toast(e.message);
+  }
+}
+
+function addProxyExceptionRow() {
+  const current = collectProxyExceptions();
+  current.push({
+    id: "",
+    label: "Nova exceção",
+    domains: [],
+    assignees: ["usuario"],
+    reason: "",
+    expires_at: null,
+    enabled: true,
+  });
+  renderProxyExceptions(current);
+}
+
+function addProxyScheduleRow() {
+  const current = collectProxySchedules();
+  current.push({
+    id: "",
+    label: "Nova janela",
+    days: [1, 2, 3, 4, 5],
+    start: "08:00",
+    end: "18:00",
+    timezone: "America/Sao_Paulo",
+    outside_action: "deny",
+    enabled: true,
+  });
+  renderProxySchedules(current);
+}
+
+function selectedAssignees() {
+  return $$('#admin-users-list input[name="assignees"]:checked').map((el) => el.value);
+}
+
+async function createAdminComputer(ev) {
+  ev.preventDefault();
+  const err = $("#admin-form-error");
+  if (err) err.hidden = true;
+  const title = $("#admin-pc-title").value.trim();
+  const protocol = $("#admin-pc-protocol").value;
+  const host = $("#admin-pc-host").value.trim();
+  const port = $("#admin-pc-port").value;
+  const description = $("#admin-pc-description").value.trim();
+  const assignees = selectedAssignees();
+  try {
+    await api("/api/admin/computers", {
+      method: "POST",
+      body: { title, protocol, host, port: port || null, description, assignees },
+    });
+    $("#admin-computer-form").reset();
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Acesso criado e alocado");
+  } catch (e) {
+    if (err) {
+      err.textContent = e.message || "Falha ao criar";
+      err.hidden = false;
+    } else {
+      toast(e.message);
+    }
+  }
+}
+
+async function editComputerAssignees(id) {
+  const item = (state.adminComputers || []).find((c) => c.id === id);
+  if (!item) return;
+  const current = new Set((item.assignees || []).map((a) => a.toLowerCase()));
+  const choices = (state.adminUsers || [])
+    .map((u) => `${current.has(u.username.toLowerCase()) ? "[x]" : "[ ]"} ${u.username}`)
+    .join("\n");
+  const raw = window.prompt(
+    `Usuários alocados a "${item.title}" (separados por vírgula).\nDisponíveis:\n${choices}`,
+    (item.assignees || []).join(", "),
+  );
+  if (raw == null) return;
+  const assignees = raw
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  try {
+    await api(`/api/admin/computers/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: { assignees },
+    });
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Alocação atualizada");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteAdminComputer(id) {
+  if (!confirm("Excluir este acesso?")) return;
+  try {
+    await api(`/api/admin/computers/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Acesso removido");
+  } catch (e) {
+    toast(e.message);
+  }
 }
 
 async function mountCloud(provider) {
@@ -538,6 +911,45 @@ function bindUi() {
 
   $("#btn-open-computers").addEventListener("click", () => setPanel("computers"));
   $("#btn-close-session")?.addEventListener("click", closeComputerSession);
+  $("#admin-computer-form")?.addEventListener("submit", createAdminComputer);
+  $("#admin-proxy-form")?.addEventListener("submit", saveProxyPolicy);
+  $("#btn-add-proxy-exception")?.addEventListener("click", addProxyExceptionRow);
+  $("#btn-add-proxy-schedule")?.addEventListener("click", addProxyScheduleRow);
+  $("#proxy-exceptions-list")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-proxy-remove=exception]");
+    if (!btn) return;
+    btn.closest(".proxy-rule-card")?.remove();
+    if (!$("#proxy-exceptions-list .proxy-rule-card")) renderProxyExceptions([]);
+  });
+  $("#proxy-schedules-list")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-proxy-remove=schedule]");
+    if (!btn) return;
+    btn.closest(".proxy-rule-card")?.remove();
+    if (!$("#proxy-schedules-list .proxy-rule-card")) renderProxySchedules([]);
+  });
+  $("#btn-add-custom-user")?.addEventListener("click", () => {
+    const input = $("#admin-pc-custom-user");
+    const username = (input?.value || "").trim().toLowerCase();
+    if (!username) return;
+    if (!(state.adminUsers || []).some((u) => u.username === username)) {
+      state.adminUsers.push({
+        username,
+        display_name: username,
+        role: "user",
+        source: "ad",
+      });
+    }
+    const selected = selectedAssignees();
+    if (!selected.includes(username)) selected.push(username);
+    renderAdminUsers(selected);
+    if (input) input.value = "";
+  });
+  $("#admin-computers-tbody")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-admin-action]");
+    if (!btn) return;
+    if (btn.dataset.adminAction === "edit-assignees") editComputerAssignees(btn.dataset.id);
+    if (btn.dataset.adminAction === "delete") deleteAdminComputer(btn.dataset.id);
+  });
   bindProductivityUi();
 
   $("#browser-url-form").addEventListener("submit", (ev) => {
@@ -547,7 +959,12 @@ function bindUi() {
   $("#btn-browser-home").addEventListener("click", () => navigateBrowser("segportal://inicio"));
   $("#btn-browser-reload").addEventListener("click", () => {
     const frame = $("#browser-frame");
-    frame.src = frame.src;
+    if (!frame) return;
+    const current = frame.getAttribute("src") || frame.src;
+    frame.src = "about:blank";
+    requestAnimationFrame(() => {
+      frame.src = current;
+    });
   });
 
   document.addEventListener("click", (ev) => {

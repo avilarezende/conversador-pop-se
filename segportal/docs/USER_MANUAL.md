@@ -14,9 +14,10 @@ Documentos relacionados: [USAGE.md](USAGE.md) (resumo visual) · [FILES.md](FILE
 | Abrir pastas corporativas (home, departamental, público) | **Início** → Arquivos do AD | Trabalhar em compartilhamentos liberados |
 | Montar **OneDrive** e/ou **Google Drive** | **Início** → Nuvem pessoal | Acessar arquivos pessoais na nuvem |
 | Gerenciar arquivos (enviar, pasta, renomear, baixar, excluir) | Aba **Arquivos** | Explorar como no Windows/macOS |
-| Abrir o **navegador corporativo** (HTML5 embutido) | Aba **Navegador** | Navegar sem sair do SegPortal |
-| Abrir **computadores** e desktops liberados | Aba **Computadores** ou botão **Abrir Computadores** | Usar estações remotas sem VPN |
-| Solicitar computador/aplicação adicional | Pedido + aprovação do admin | RDP/VNC/SSH sob demanda |
+| Abrir o **navegador corporativo** (HTML5 embutido) | Aba **Navegador** | Digite URLs; a navegação segue a política de proxy do admin |
+| Abrir **computadores** e desktops liberados | Aba **Computadores** ou **Abrir Computadores** | Usar estações remotas sem VPN |
+| Lembretes e calendário | Painel flutuante / aba lateral | Organizar o dia (Google/Microsoft/agenda local) |
+| (Admin) Liberar computadores e proxy | Aba **Administração** | Criar acessos, alocar usuários e filtrar URLs |
 
 ---
 
@@ -112,32 +113,33 @@ Alvos de clique grandes e contraste alto seguem boas práticas de ergonomia (ár
 
 ## 6. Navegador e Computadores
 
-![Aba Navegador embutida](images/usage-browser.jpg)
+![Aba Navegador via proxy](images/usage-browser-proxy.jpg)
 
 ### 6.1 Navegador (aba própria)
 
 1. Clique em **Navegador** na barra superior.
-2. O navegador corporativo abre **embutido na mesma aba** do SegPortal (não há redirecionamento para outro sistema).
-3. Use a barra de endereço ou os atalhos (ex.: Bacen) para navegar.
+2. O navegador corporativo abre **embutido na mesma aba** do SegPortal.
+3. Digite um endereço (`https://…` ou atalhos `segportal://inicio` / `segportal://bacen`).
+4. Sites externos passam pelo **proxy autenticado** do portal e obedecem à política definida pelo administrador (allowlist, filtros, exceções e horários).
 
 ![Navegador no Bacen](images/usage-browser-bacen.jpg)
 
 ### 6.2 Computadores
 
-![Painel de computadores](images/portal-sessions.jpg)
+![Painel de computadores](images/portal-computers.jpg)
 
 1. Clique em **Computadores** ou no botão **Abrir Computadores** no Início.
-2. Escolha o desktop ou aplicação liberado ao seu perfil.
-3. A sessão abre **dentro do SegPortal** (mesma aba). Use **Fechar sessão** para encerrar.
-4. Computadores extras aparecem somente após aprovação do administrador.
+2. Escolha o desktop ou aplicação **liberado ao seu perfil** pelo administrador.
+3. A sessão abre **dentro do SegPortal**. Use **Fechar sessão** para encerrar.
+4. Novos acessos são criados na aba **Administração** (somente admin) e alocados a usuários locais ou AD.
 
-Pedido de computador (exemplo):
+Pedido legado via script (ainda suportado):
 
 ```bash
 ./scripts/request-connection.sh usuario "Desktop Financeiro" rdp 10.10.20.51 3389 "Justificativa"
 ```
 
-Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
+Detalhes: [CONNECTIONS.md](CONNECTIONS.md) · [ADMIN_MANUAL.md](ADMIN_MANUAL.md).
 
 ---
 
@@ -158,7 +160,9 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 | Nenhuma pasta AD | Marque Active Directory no login; peça liberação ao admin |
 | Montar nuvem não abre OAuth | Ambiente em modo demo — esperado sem `client_id` |
 | Não envia arquivo | Pasta pode ser somente leitura ou arquivo acima do limite |
-| SegPortal / Computadores não abre | Confirme o serviço do portal em `:8090` e as abas **Navegador** / **Computadores** |
+| SegPortal / Computadores não abre | Confirme `:8090` e as abas **Navegador** / **Computadores** |
+| Site bloqueado no Navegador | Fora da allowlist, filtrado ou fora do horário — fale com o admin |
+| Computador não aparece | Peça ao admin para alocar o acesso ao seu usuário |
 
 ---
 
@@ -171,7 +175,9 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md).
 | [portal-cloud-mounted.jpg](images/portal-cloud-mounted.jpg) | OneDrive/Google Drive |
 | [portal-files.jpg](images/portal-files.jpg) | Gerenciador |
 | [portal-files-folder.jpg](images/portal-files-folder.jpg) | Nova pasta |
-| [portal-sessions.jpg](images/portal-sessions.jpg) | Aba Computadores |
+| [portal-sessions.jpg](images/portal-sessions.jpg) | Aba Computadores (legado) |
+| [portal-computers.jpg](images/portal-computers.jpg) | Aba Computadores |
 | [usage-browser.jpg](images/usage-browser.jpg) | Aba Navegador |
+| [usage-browser-proxy.jpg](images/usage-browser-proxy.jpg) | Navegação via proxy |
 | [usage-browser-bacen.jpg](images/usage-browser-bacen.jpg) | Navegador no Bacen |
 | [usage-session.jpg](images/usage-session.jpg) | Sessão de computador |

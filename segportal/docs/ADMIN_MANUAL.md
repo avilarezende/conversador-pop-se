@@ -10,7 +10,7 @@ Documentos técnicos: [CONFIGURATION.md](CONFIGURATION.md) · [LOCAL_ADMIN.md](L
 
 | Serviço | Porta | Função |
 |---------|-------|--------|
-| **portal-auth** | **8090** | Dashboard pessoal, arquivos AD, OneDrive/Google Drive, UI HTML |
+| **portal-auth** | **8090** | Dashboard, AD/nuvem, navegador/proxy, computadores, admin, lembretes/calendário |
 | **sessions** | **8080** | Sessões RDP/VNC/SSH/navegador HTML5 |
 | **guacd** | 4822 | Proxy de protocolos |
 | **postgres** | 5432 | Metadados SegPortal |
@@ -94,10 +94,51 @@ Variáveis de ambiente relevantes:
 | `GET` | `/api/dashboard` |
 | `GET/POST/DELETE` | `/api/files/{share_id}` … |
 | `POST` | `/api/cloud/{provider}/mount` |
+| `GET` | `/api/computers` |
+| `GET/POST/PATCH/DELETE` | `/api/admin/computers` … |
+| `GET` | `/api/admin/users` |
+| `GET/PUT` | `/api/admin/proxy-policy` |
+| `GET` | `/api/proxy-policy` (resumo) |
+| `GET` | `/api/browser/proxy?url=` |
 
 ---
 
-## 4. Sessões remotas e navegador padrão
+## 4. Administração no portal (UI)
+
+A aba **Administração** aparece apenas para `role=admin`.
+
+![Proxy de navegação](images/portal-admin-proxy.jpg)
+
+### 4.1 Política de proxy (navegador embutido)
+
+Persistência: `{DEMO_SHARES_ROOT}/proxy_policy.json`.
+
+| Campo | Função |
+|-------|--------|
+| **Modo** | `allowlist` (padrão), `blocklist` ou `allow_all` |
+| **Domínios / prefixos permitidos** | Destinos liberados na allowlist |
+| **Domínios / prefixos / palavras filtrados** | Bloqueio explícito |
+| **Modo de exceções** | `disabled`, `per_user` (local/AD) ou `open` |
+| **Exceções** | Domínios extras + assignees + validade |
+| **Horários** | Dias, início/fim, timezone e ação fora da janela |
+| **Bypass admin** | Administradores ignoram filtros (opcional) |
+
+A política é aplicada em `GET /api/browser/proxy` **antes** do fetch. O Squid (`proxy-egress`) continua sendo o gate de egress do Firefox/VNC.
+
+### 4.2 Computadores e alocação
+
+![Criar acesso a computador](images/portal-admin-computers.jpg)
+
+1. Informe título, protocolo (RDP/VNC/SSH/navegador), host/porta e descrição.
+2. Selecione usuários **locais** ou **AD** (ou inclua um sAMAccountName adicional).
+3. **Criar acesso** — o usuário passa a ver o item em **Computadores**.
+4. Use **Alocar** / **Excluir** na tabela (acessos builtin não são excluídos).
+
+Persistência: `{DEMO_SHARES_ROOT}/computers.json`.
+
+---
+
+## 5. Sessões remotas e navegador padrão
 
 ![Sessões remotas](images/portal-sessions.jpg)
 
@@ -118,18 +159,18 @@ Detalhes: [CONNECTIONS.md](CONNECTIONS.md) · [ROLES.md](ROLES.md).
 
 ---
 
-## 5. Papéis
+## 6. Papéis
 
 | Papel | Capacidades típicas |
 |-------|---------------------|
-| **user** | Dashboard pessoal, arquivos liberados, nuvem própria, conexões READ atribuídas |
-| **admin** | Tudo do user + administração SegPortal (usuários, conexões, aprovações) |
+| **user** | Dashboard, arquivos liberados, nuvem, navegador (sujeito à política), computadores alocados |
+| **admin** | Tudo do user + aba **Administração** (computadores + proxy) + administração SegPortal |
 
 Mapeamento LDAP → papéis: [ROLES.md](ROLES.md).
 
 ---
 
-## 6. Deploy e saúde
+## 7. Deploy e saúde
 
 ### Compose local
 
@@ -154,38 +195,45 @@ Kubernetes: overlays em `k8s/overlays/*` — ver [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ---
 
-## 7. Troubleshooting admin
+## 8. Troubleshooting admin
 
 | Problema | Verificação |
 |----------|-------------|
 | portal-auth unhealthy | Logs do serviço; `DEMO_SHARES_ROOT` gravável; YAML válido |
 | Pastas AD vazias no demo | `shares.demo.users.<login>` em `shares.yaml` |
 | OAuth nuvem falha | `client_id`, redirect URL pública, firewall de saída |
-| Navegador HTML5 preto | `web-browser` healthy na 5900; senha VNC = SQL |
+| Navegação bloqueada no portal | Política em Administração → Proxy; allowlist/filtros/horários |
+| Usuário sem computador | Admin deve alocar em Administração → Computadores |
+| Navegador HTML5 (VNC) preto | `web-browser` healthy na 5900; senha VNC = SQL |
 | LDAP não autentica no SegPortal | `LDAP_ENABLED`, bind DN, CA em `config/ldap/certs` |
 
 ---
 
-## 8. Checklist de go-live
+## 9. Checklist de go-live
 
 - [ ] Senha `admin` alterada
 - [ ] `PORTAL_SESSION_SECRET` forte
 - [ ] LDAP/MFA validados (se aplicável)
 - [ ] `shares.yaml` com corporativos corretos
+- [ ] Política de proxy revisada (allowlist / horários)
+- [ ] Acessos a computadores alocados aos usuários corretos
 - [ ] OAuth nuvem ou decisão explícita de manter demo
-- [ ] Backup do volume Postgres
+- [ ] Backup do volume Postgres / `DEMO_SHARES_ROOT`
 - [ ] Monitoramento de `/api/health` e SegPortal
 - [ ] Comunicação aos usuários com [USER_MANUAL.md](USER_MANUAL.md)
 
 ---
 
-## 9. Imagens deste manual
+## 10. Imagens deste manual
 
 | Arquivo | Conteúdo |
 |---------|----------|
 | [portal-admin-home.jpg](images/portal-admin-home.jpg) | Dashboard admin |
-| [admin-approvals.jpg](images/admin-approvals.jpg) | Visão administrativa |
+| [portal-admin-proxy.jpg](images/portal-admin-proxy.jpg) | Política de proxy |
+| [portal-admin-computers.jpg](images/portal-admin-computers.jpg) | Criar/alocar computadores |
+| [admin-approvals.jpg](images/admin-approvals.jpg) | Visão administrativa legado |
 | [portal-files.jpg](images/portal-files.jpg) | Gerenciador |
-| [portal-sessions.jpg](images/portal-sessions.jpg) | Sessões |
+| [portal-computers.jpg](images/portal-computers.jpg) | Aba Computadores |
+| [usage-browser-proxy.jpg](images/usage-browser-proxy.jpg) | Navegador via proxy |
 | [architecture-overview.jpg](images/architecture-overview.jpg) | Arquitetura |
 | [auth-flow.jpg](images/auth-flow.jpg) | Fluxo de autenticação |

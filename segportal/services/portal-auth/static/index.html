@@ -61,6 +61,7 @@
         <button type="button" class="nav-btn" data-panel="files">Arquivos</button>
         <button type="button" class="nav-btn" data-panel="browser">Navegador</button>
         <button type="button" class="nav-btn" data-panel="computers">Computadores</button>
+        <button type="button" class="nav-btn admin-only" data-panel="admin" hidden>Administração</button>
       </nav>
       <div class="topnav-user">
         <button type="button" id="btn-open-calendar" class="btn secondary nav-calendar" aria-controls="calendar-drawer" aria-expanded="false">
@@ -141,6 +142,10 @@
             <button type="button" class="quick-card" data-panel="computers">
               <span class="qi" aria-hidden="true">PC</span>
               <span>Computadores remotos</span>
+            </button>
+            <button type="button" class="quick-card admin-only" data-panel="admin" hidden>
+              <span class="qi" aria-hidden="true">ADM</span>
+              <span>Administração</span>
             </button>
           </div>
         </section>
@@ -246,7 +251,170 @@
             sandbox="allow-same-origin allow-scripts allow-forms"
           ></iframe>
         </div>
-        <p class="hint muted">Pedidos de novos computadores ou aplicações seguem aprovação do administrador.</p>
+        <p class="hint muted">Novos acessos são liberados pelo administrador na aba Administração.</p>
+      </div>
+
+      <div id="panel-admin" class="panel" hidden>
+        <header class="panel-head">
+          <div>
+            <h2>Administração</h2>
+            <p class="lede">Crie acessos a computadores, aloque usuários e gerencie a política do proxy de navegação.</p>
+          </div>
+        </header>
+
+        <section class="block admin-proxy" aria-labelledby="admin-proxy-title">
+          <div class="block-head">
+            <h3 id="admin-proxy-title">Proxy de navegação</h3>
+            <p>Defina URLs permitidas, filtradas, modo de exceções e janelas de horário do navegador corporativo.</p>
+          </div>
+          <form id="admin-proxy-form" class="admin-form">
+            <div class="admin-form-grid">
+              <label>
+                Modo de filtragem
+                <select id="proxy-mode" name="mode">
+                  <option value="allowlist">Allowlist (só o que for permitido)</option>
+                  <option value="blocklist">Blocklist (bloqueia só o filtrado)</option>
+                  <option value="allow_all">Permitir tudo (exceto lista filtrada)</option>
+                </select>
+              </label>
+              <label>
+                Modo de exceções
+                <select id="proxy-exception-mode" name="exception_mode">
+                  <option value="disabled">Desabilitado</option>
+                  <option value="per_user">Por usuário / AD</option>
+                  <option value="open">Abertas (qualquer autenticado)</option>
+                </select>
+              </label>
+              <label>
+                Ação padrão
+                <select id="proxy-default-action" name="default_action">
+                  <option value="deny">Negar</option>
+                  <option value="allow">Permitir</option>
+                </select>
+              </label>
+              <label class="admin-check-label">
+                <span>Bypass para administradores</span>
+                <input id="proxy-admin-bypass" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="admin-form-grid proxy-lists">
+              <label class="admin-full">
+                Domínios permitidos (um por linha; use <code>.gov.br</code> para sufixo)
+                <textarea id="proxy-allowed-domains" rows="5" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Prefixos de URL permitidos
+                <textarea id="proxy-allowed-prefixes" rows="3" spellcheck="false" placeholder="https://www.bcb.gov.br/"></textarea>
+              </label>
+              <label class="admin-full">
+                Domínios filtrados / bloqueados
+                <textarea id="proxy-blocked-domains" rows="4" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Prefixos filtrados
+                <textarea id="proxy-blocked-prefixes" rows="2" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Palavras-chave filtradas (na URL)
+                <textarea id="proxy-blocked-keywords" rows="2" spellcheck="false"></textarea>
+              </label>
+            </div>
+
+            <fieldset class="admin-assignees">
+              <legend>Exceções</legend>
+              <p class="hint muted">Libera domínios fora da allowlist para usuários específicos (ou todos, no modo aberto).</p>
+              <div id="proxy-exceptions-list" class="proxy-rules-list"></div>
+              <button type="button" class="btn secondary sm" id="btn-add-proxy-exception">Adicionar exceção</button>
+            </fieldset>
+
+            <fieldset class="admin-assignees">
+              <legend>Horários de navegação</legend>
+              <p class="hint muted">Fora da janela, aplica a ação configurada (negar ou permitir).</p>
+              <div id="proxy-schedules-list" class="proxy-rules-list"></div>
+              <button type="button" class="btn secondary sm" id="btn-add-proxy-schedule">Adicionar horário</button>
+            </fieldset>
+
+            <div class="admin-form-actions">
+              <span id="proxy-policy-meta" class="muted small"></span>
+              <button type="submit" class="btn primary">Salvar política de proxy</button>
+            </div>
+            <p id="proxy-form-error" class="form-error" hidden></p>
+          </form>
+        </section>
+
+        <section class="block admin-create" aria-labelledby="admin-create-title">
+          <div class="block-head">
+            <h3 id="admin-create-title">Novo acesso a computador</h3>
+            <p>Defina host/protocolo e selecione quem poderá conectar.</p>
+          </div>
+          <form id="admin-computer-form" class="admin-form">
+            <div class="admin-form-grid">
+              <label>
+                Título
+                <input id="admin-pc-title" name="title" required maxlength="120" placeholder="Ex.: Desktop Contábil" />
+              </label>
+              <label>
+                Protocolo
+                <select id="admin-pc-protocol" name="protocol">
+                  <option value="rdp">RDP</option>
+                  <option value="vnc">VNC</option>
+                  <option value="ssh">SSH</option>
+                  <option value="browser">Navegador</option>
+                </select>
+              </label>
+              <label>
+                Host / IP
+                <input id="admin-pc-host" name="host" maxlength="200" placeholder="10.10.20.80" />
+              </label>
+              <label>
+                Porta
+                <input id="admin-pc-port" name="port" type="number" min="1" max="65535" placeholder="3389" />
+              </label>
+            </div>
+            <label class="admin-full">
+              Descrição
+              <input id="admin-pc-description" name="description" maxlength="240" placeholder="Sistemas e uso previsto" />
+            </label>
+            <fieldset class="admin-assignees">
+              <legend>Alocar a usuários (local ou AD)</legend>
+              <div id="admin-users-list" class="admin-users-list" role="group" aria-label="Usuários"></div>
+              <label class="admin-custom-user">
+                Usuário AD adicional
+                <span class="admin-custom-row">
+                  <input id="admin-pc-custom-user" type="text" maxlength="80" placeholder="ex.: maria.silva" />
+                  <button type="button" class="btn secondary sm" id="btn-add-custom-user">Incluir</button>
+                </span>
+              </label>
+            </fieldset>
+            <div class="admin-form-actions">
+              <button type="submit" class="btn primary">Criar acesso</button>
+            </div>
+            <p id="admin-form-error" class="form-error" hidden></p>
+          </form>
+        </section>
+
+        <section class="block" aria-labelledby="admin-list-title">
+          <div class="block-head">
+            <h3 id="admin-list-title">Acessos cadastrados</h3>
+            <p>Edite alocações ou remova acessos criados pelo administrador.</p>
+          </div>
+          <div id="admin-computers-table-wrap" class="admin-table-wrap">
+            <table class="files-table admin-table" aria-label="Acessos a computadores">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Protocolo</th>
+                  <th>Host</th>
+                  <th>Usuários</th>
+                  <th class="actions-col">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="admin-computers-tbody"></tbody>
+            </table>
+            <p id="admin-computers-empty" class="empty" hidden>Nenhum acesso cadastrado.</p>
+          </div>
+        </section>
       </div>
     </main>
   </section>
