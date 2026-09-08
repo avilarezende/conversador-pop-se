@@ -220,7 +220,7 @@ body {
   [data-avatar].is-talking .parrot__beak-lower { animation: pp-talk .28s ease-in-out infinite; }
   [data-avatar].is-talking .parrot__head { animation: pp-nod .6s ease-in-out infinite; }
 
-  .calisto-float__disc { animation: pp-float 3.6s ease-in-out infinite; }
+  .calisto-float__disc .parrot { animation: pp-float 3.6s ease-in-out infinite; }
 }
 
 @keyframes pp-breathe {
@@ -253,7 +253,7 @@ body {
 }
 @keyframes pp-float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-7px); }
 }
 
 /* ---- Calisto: avatar flutuante ------------------------------------------- */
@@ -266,7 +266,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .4rem;
+  gap: .75rem; /* respiro extra: o pulo do papagaio não encosta no balão */
   pointer-events: none; /* não bloqueia cliques na página; o disco reativa */
 }
 
@@ -297,15 +297,20 @@ body {
   cursor: pointer;
   width: clamp(96px, 22vw, 132px);
   height: clamp(96px, 22vw, 132px);
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 32%, #eafaf0, #cfeecf);
-  border: 3px solid #ffffff;
-  box-shadow: var(--shadow-md);
+  background: transparent; /* fundo transparente: só o papagaio aparece */
+  border: none;
+  box-shadow: none;
   display: grid;
   place-items: center;
-  overflow: hidden;
+  overflow: visible;
 }
-.calisto-float__disc .parrot { width: 92%; height: 92%; display: block; }
+.calisto-float__disc .parrot {
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* leve sombra projetada para destacar o mascote sobre qualquer fundo */
+  filter: drop-shadow(0 4px 5px rgba(16, 42, 67, .28));
+}
 
 @media (max-width: 560px) {
   .calisto-float__bubble { display: none; }
