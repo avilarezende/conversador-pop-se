@@ -7,7 +7,7 @@ As credenciais são somente-escrita: nas leituras retornam mascaradas.
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 
-from app import settings_store
+from app import rag, settings_store
 from app.config import settings
 from app.llm.catalog import PROVIDER_CATALOG, PROVIDER_IDS
 
@@ -44,6 +44,13 @@ class GuardrailPatch(BaseModel):
     name: str | None = None
     message: str | None = None
     keywords: list[str] | None = None
+
+
+class RagDocument(BaseModel):
+    collection: str
+    id: str
+    text: str
+    source: str | None = None
 
 
 @router.get("/config")
@@ -94,4 +101,40 @@ def patch_guardrail(
 def delete_guardrail(guardrail_id: str, _: None = Depends(require_admin)) -> dict:
     if not settings_store.delete_guardrail(guardrail_id):
         raise HTTPException(status_code=404, detail="Guardrail não encontrado.")
+    return {"ok": True}
+
+
+# --- Base de conhecimento (RAG) ------------------------------------------------
+
+
+@router.get("/rag/collections")
+def rag_collections(_: None = Depends(require_admin)) -> dict:
+    return {"collections": rag.collection_counts()}
+
+
+@router.get("/rag/documents")
+def rag_documents(collection: str, _: None = Depends(require_admin)) -> dict:
+    if not collection:
+        raise HTTPException(status_code=400, detail="Coleção obrigatória.")
+    return {"collection": collection, "documents": rag.list_documents(collection)}
+
+
+@router.post("/rag/documents")
+def rag_upsert(body: RagDocument, _: None = Depends(require_admin)) -> dict:
+    if not body.collection or not body.id.strip() or not body.text.strip():
+        raise HTTPException(
+            status_code=400, detail="Coleção, identificador e texto são obrigatórios."
+        )
+    metadata = {"source": (body.source or "manual").strip()}
+    rag.ingest_documents(
+        body.collection,
+        [{"id": body.id.strip(), "text": body.text.strip(), "metadata": metadata}],
+    )
+    return {"ok": True, "id": body.id.strip(), "collection": body.collection}
+
+
+@router.delete("/rag/documents")
+def rag_delete(collection: str, doc_id: str, _: None = Depends(require_admin)) -> dict:
+    if not rag.delete_document(collection, doc_id):
+        raise HTTPException(status_code=404, detail="Documento não encontrado.")
     return {"ok": True}

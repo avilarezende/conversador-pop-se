@@ -9,6 +9,9 @@ from chromadb.config import Settings as ChromaSettings
 
 from app.config import settings
 
+# Coleções usadas pelo pipeline de conversa (ver chat_service).
+KNOWN_COLLECTIONS = ["operacional", "institucional", "manutencoes"]
+
 _client: chromadb.PersistentClient | None = None
 
 
@@ -38,6 +41,46 @@ def ingest_documents(collection: str, docs: list[dict]) -> int:
         metadatas=[d.get("metadata", {}) for d in docs],
     )
     return len(docs)
+
+
+def list_documents(collection: str) -> list[dict]:
+    """Retorna os documentos de uma coleção: [{id, text, metadata}]."""
+    col = get_collection(collection)
+    data = col.get(include=["documents", "metadatas"])
+    ids = data.get("ids", []) or []
+    docs = data.get("documents", []) or []
+    metas = data.get("metadatas", []) or []
+    out = []
+    for i, doc_id in enumerate(ids):
+        out.append(
+            {
+                "id": doc_id,
+                "text": docs[i] if i < len(docs) else "",
+                "metadata": metas[i] if i < len(metas) else {},
+            }
+        )
+    return out
+
+
+def delete_document(collection: str, doc_id: str) -> bool:
+    """Remove um documento pelo id. Retorna False se não existir."""
+    col = get_collection(collection)
+    existing = col.get(ids=[doc_id])
+    if not existing.get("ids"):
+        return False
+    col.delete(ids=[doc_id])
+    return True
+
+
+def collection_counts() -> list[dict]:
+    """Coleções conhecidas com a contagem de documentos."""
+    counts = []
+    for name in KNOWN_COLLECTIONS:
+        try:
+            counts.append({"name": name, "count": get_collection(name).count()})
+        except Exception:
+            counts.append({"name": name, "count": 0})
+    return counts
 
 
 def query_context(collection: str, question: str, top_k: int = 6) -> str:

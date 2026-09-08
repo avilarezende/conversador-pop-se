@@ -95,6 +95,46 @@
           </form>
         </details>
       </section>
+
+      <!-- Base de conhecimento (RAG) -->
+      <section class="card" aria-labelledby="rag-title">
+        <h2 id="rag-title">Base de conhecimento (RAG)</h2>
+        <p class="card__hint">Adicione ou edite os documentos que o Calisto usa como contexto. Escolha a coleção, revise os documentos e edite/exclua conforme necessário.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="rag-collection">Coleção</label>
+            <select id="rag-collection" data-rag-collection></select>
+          </div>
+          <button type="button" class="btn btn--ghost" data-rag-refresh>Atualizar lista</button>
+        </div>
+
+        <ul class="guardrails" data-rag-list></ul>
+
+        <details class="new-guardrail" data-rag-details>
+          <summary data-rag-form-title>+ Adicionar documento</summary>
+          <form data-rag-form>
+            <div class="row">
+              <div class="field field--grow">
+                <label for="rag-id">Identificador</label>
+                <input id="rag-id" type="text" required placeholder="ex.: ifs-link-principal" data-rag-id />
+              </div>
+              <div class="field">
+                <label for="rag-source">Fonte <span class="muted">(source)</span></label>
+                <input id="rag-source" type="text" placeholder="ex.: manual, zabbix" data-rag-source />
+              </div>
+            </div>
+            <div class="field">
+              <label for="rag-text">Conteúdo do documento</label>
+              <textarea id="rag-text" rows="4" required placeholder="Texto que o Calisto usará como contexto (ex.: 'O link principal do IFS opera normalmente; sem manutenções nos próximos 30 dias.')." data-rag-text></textarea>
+            </div>
+            <div class="row row--end">
+              <button type="button" class="btn btn--ghost" data-rag-cancel hidden>Cancelar edição</button>
+              <button type="submit" class="btn btn--primary" data-rag-submit>Salvar documento</button>
+            </div>
+          </form>
+        </details>
+      </section>
     </div>
 
     <p class="admin-feedback" data-feedback role="status" aria-live="polite"></p>

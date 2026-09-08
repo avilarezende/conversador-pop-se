@@ -33,6 +33,18 @@ const dom = {
   gKeywords: el("[data-g-keywords]"),
   gMessage: el("[data-g-message]"),
   feedback: el("[data-feedback]"),
+  // RAG
+  ragCollection: el("[data-rag-collection]"),
+  ragRefresh: el("[data-rag-refresh]"),
+  ragList: el("[data-rag-list]"),
+  ragDetails: el("[data-rag-details]"),
+  ragFormTitle: el("[data-rag-form-title]"),
+  ragForm: el("[data-rag-form]"),
+  ragId: el("[data-rag-id]"),
+  ragSource: el("[data-rag-source]"),
+  ragText: el("[data-rag-text]"),
+  ragCancel: el("[data-rag-cancel]"),
+  ragSubmit: el("[data-rag-submit]"),
 };
 
 function feedback(msg, ok = true) {
@@ -173,12 +185,115 @@ function renderGuardrails() {
   }
 }
 
+/* --- Base de conhecimento (RAG) ------------------------------------------- */
+async function loadRagCollections() {
+  const previous = dom.ragCollection.value;
+  const data = await api("GET", "/rag/collections");
+  dom.ragCollection.innerHTML = "";
+  for (const c of data.collections) {
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = `${c.name} (${c.count})`;
+    dom.ragCollection.appendChild(opt);
+  }
+  if (previous) dom.ragCollection.value = previous;
+  if (!dom.ragCollection.value && data.collections.length) {
+    dom.ragCollection.value = data.collections[0].name;
+  }
+  await loadRagDocuments();
+}
+
+async function loadRagDocuments() {
+  const collection = dom.ragCollection.value;
+  if (!collection) return;
+  const data = await api("GET", `/rag/documents?collection=${encodeURIComponent(collection)}`);
+  dom.ragList.innerHTML = "";
+  if (!data.documents.length) {
+    const li = document.createElement("li");
+    li.className = "muted";
+    li.textContent = "Nenhum documento nesta coleção.";
+    dom.ragList.appendChild(li);
+    return;
+  }
+  for (const doc of data.documents) {
+    const li = document.createElement("li");
+    li.className = "guardrail";
+
+    const main = document.createElement("div");
+    main.className = "guardrail__main";
+
+    const name = document.createElement("p");
+    name.className = "guardrail__name";
+    name.textContent = doc.id;
+    const tag = document.createElement("span");
+    tag.className = "guardrail__tag";
+    tag.textContent = (doc.metadata && doc.metadata.source) || "manual";
+    name.appendChild(tag);
+
+    const text = document.createElement("p");
+    text.className = "guardrail__msg";
+    text.textContent = doc.text;
+
+    main.append(name, text);
+
+    const actions = document.createElement("div");
+    actions.className = "guardrail__actions";
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "btn btn--ghost";
+    edit.textContent = "Editar";
+    edit.addEventListener("click", () => startEditRag(doc));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "btn btn--danger";
+    del.textContent = "Excluir";
+    del.addEventListener("click", () => deleteRag(doc.id));
+
+    actions.append(edit, del);
+    li.append(main, actions);
+    dom.ragList.appendChild(li);
+  }
+}
+
+function startEditRag(doc) {
+  dom.ragId.value = doc.id;
+  dom.ragSource.value = (doc.metadata && doc.metadata.source) || "";
+  dom.ragText.value = doc.text;
+  dom.ragFormTitle.textContent = `Editar documento: ${doc.id}`;
+  dom.ragSubmit.textContent = "Salvar alterações";
+  dom.ragCancel.hidden = false;
+  dom.ragDetails.open = true;
+  dom.ragId.focus();
+}
+
+function resetRagForm() {
+  dom.ragForm.reset();
+  dom.ragFormTitle.textContent = "+ Adicionar documento";
+  dom.ragSubmit.textContent = "Salvar documento";
+  dom.ragCancel.hidden = true;
+}
+
+async function deleteRag(docId) {
+  const collection = dom.ragCollection.value;
+  try {
+    await api(
+      "DELETE",
+      `/rag/documents?collection=${encodeURIComponent(collection)}&doc_id=${encodeURIComponent(docId)}`
+    );
+    await loadRagCollections();
+    feedback("Documento removido.");
+  } catch (e) { feedback(e.message, false); }
+}
+
 /* --- Ações ---------------------------------------------------------------- */
 async function loadConfig() {
   state.config = await api("GET", "/config");
   dom.authed.hidden = false;
   renderProviders();
   renderGuardrails();
+  await loadRagCollections();
 }
 
 async function toggleGuardrail(id, enabled) {
@@ -243,6 +358,25 @@ dom.guardrailForm.addEventListener("submit", async (e) => {
     dom.guardrailForm.reset();
     await loadConfig();
     feedback("Guardrail criado.");
+  } catch (err) { feedback(err.message, false); }
+});
+
+dom.ragCollection.addEventListener("change", () => loadRagDocuments().catch((e) => feedback(e.message, false)));
+dom.ragRefresh.addEventListener("click", () => loadRagCollections().catch((e) => feedback(e.message, false)));
+dom.ragCancel.addEventListener("click", resetRagForm);
+
+dom.ragForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    await api("POST", "/rag/documents", {
+      collection: dom.ragCollection.value,
+      id: dom.ragId.value.trim(),
+      text: dom.ragText.value.trim(),
+      source: dom.ragSource.value.trim(),
+    });
+    resetRagForm();
+    await loadRagCollections();
+    feedback("Documento salvo na base de conhecimento.");
   } catch (err) { feedback(err.message, false); }
 });
 
