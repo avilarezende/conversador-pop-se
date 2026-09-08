@@ -213,12 +213,14 @@ body {
   .parrot__eye { animation: pp-blink 5.5s infinite; }
 
   /* Estado: pensando (aguardando resposta) */
-  .avatar.is-thinking .parrot__head { animation: pp-think 1.1s ease-in-out infinite; }
-  .avatar.is-thinking .parrot__wing { animation: pp-flap .5s ease-in-out infinite; }
+  [data-avatar].is-thinking .parrot__head { animation: pp-think 1.1s ease-in-out infinite; }
+  [data-avatar].is-thinking .parrot__wing { animation: pp-flap .5s ease-in-out infinite; }
 
   /* Estado: falando (resposta chegando) */
-  .avatar.is-talking .parrot__beak-lower { animation: pp-talk .28s ease-in-out infinite; }
-  .avatar.is-talking .parrot__head { animation: pp-nod .6s ease-in-out infinite; }
+  [data-avatar].is-talking .parrot__beak-lower { animation: pp-talk .28s ease-in-out infinite; }
+  [data-avatar].is-talking .parrot__head { animation: pp-nod .6s ease-in-out infinite; }
+
+  .calisto-float__disc { animation: pp-float 3.6s ease-in-out infinite; }
 }
 
 @keyframes pp-breathe {
@@ -248,6 +250,65 @@ body {
 @keyframes pp-nod {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-1.5px); }
+}
+@keyframes pp-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---- Calisto: avatar flutuante ------------------------------------------- */
+
+.calisto-float {
+  position: fixed;
+  right: clamp(12px, 3vw, 28px);
+  bottom: clamp(12px, 3vw, 28px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  pointer-events: none; /* não bloqueia cliques na página; o disco reativa */
+}
+
+.calisto-float__bubble {
+  max-width: 15rem;
+  background: var(--rnp-blue);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .35rem .7rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  position: relative;
+}
+.calisto-float__bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px; height: 10px;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.calisto-float__disc {
+  pointer-events: auto;
+  cursor: pointer;
+  width: clamp(96px, 22vw, 132px);
+  height: clamp(96px, 22vw, 132px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 32%, #eafaf0, #cfeecf);
+  border: 3px solid #ffffff;
+  box-shadow: var(--shadow-md);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.calisto-float__disc .parrot { width: 92%; height: 92%; display: block; }
+
+@media (max-width: 560px) {
+  .calisto-float__bubble { display: none; }
 }
 
 /* ---- Registro de mensagens ---------------------------------------------- */

@@ -3,7 +3,7 @@
    ========================================================================== */
 
 const USER_ID_KEY = "conversador_popse_user_id";
-const ASSISTANT_NAME = "Louro";
+const ASSISTANT_NAME = "Calisto";
 
 const els = {
   form: document.querySelector("[data-form]"),
@@ -13,6 +13,7 @@ const els = {
   typing: document.querySelector("[data-typing]"),
   avatar: document.querySelector("[data-avatar]"),
   statusText: document.querySelector("[data-status-text]"),
+  floatStatus: document.querySelector("[data-float-status]"),
 };
 
 /* Mini mascote (cabeça) usado no avatar de cada resposta */
@@ -156,6 +157,7 @@ function setAvatarState(stateClass) {
 }
 function setStatus(text) {
   if (els.statusText) els.statusText.textContent = text;
+  if (els.floatStatus) els.floatStatus.textContent = text;
 }
 function showTyping(show) {
   els.typing.hidden = !show;
@@ -230,10 +232,15 @@ els.input.addEventListener("keydown", (e) => {
 });
 els.input.addEventListener("input", autoGrow);
 
+// Clique no mascote flutuante leva o foco ao campo de mensagem.
+if (els.avatar) {
+  els.avatar.addEventListener("click", () => els.input.focus());
+}
+
 /* --- Saudação inicial ----------------------------------------------------- */
 addMessage(
   "assistant",
-  "Olá! Sou o **Louro**, assistente virtual do PoP-SE. Estou à disposição para ajudá-lo com informações sobre conectividade, manutenções e a situação dos links da sua instituição. Como posso ajudá-lo hoje?",
+  "Olá! Sou o **Calisto**, assistente virtual do PoP-SE. Estou à disposição para ajudá-lo com informações sobre conectividade, manutenções e a situação dos links da sua instituição. Como posso ajudá-lo hoje?",
   { markdown: true }
 );
 els.input.focus();
