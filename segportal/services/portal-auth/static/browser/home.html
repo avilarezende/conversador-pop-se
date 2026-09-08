@@ -18,12 +18,13 @@
     a.card strong { display:block; color:var(--navy); margin-bottom:.35rem; }
     a.card span { color:var(--muted); font-size:.92rem; }
     .note { margin-top:1.5rem; padding:1rem; background:#fff8e8; border-left:4px solid var(--gold); border-radius:8px; color:var(--muted); font-size:.95rem; }
+    code { background:#e8eef5; padding:.1rem .35rem; border-radius:4px; font-size:.9em; }
   </style>
 </head>
 <body>
   <header>
     <h1>Navegador corporativo SegPortal</h1>
-    <p>Ambiente HTML5 integrado ao portal — navegue sem sair desta aba.</p>
+    <p>Ambiente HTML5 integrado ao portal — digite um endereço na barra superior e navegue.</p>
   </header>
   <main>
     <div class="grid">
@@ -31,12 +32,20 @@
         <strong>Banco Central do Brasil</strong>
         <span>Portal público do Bacen (demo embutida)</span>
       </a>
+      <a class="card" href="/api/browser/proxy?url=https%3A%2F%2Fexample.com">
+        <strong>example.com</strong>
+        <span>Teste de navegação via proxy do SegPortal</span>
+      </a>
       <a class="card" href="/browser/home.html">
         <strong>Página inicial</strong>
         <span>Atalhos institucionais do SegPortal</span>
       </a>
     </div>
-    <p class="note">Em produção, esta aba carrega a sessão de navegação corporativa do SegPortal (HTML5) diretamente no portal, sem redirecionar o usuário para outro sistema.</p>
+    <p class="note">
+      Use a barra de endereço do portal com URLs <code>https://…</code> ou atalhos
+      <code>segportal://inicio</code> e <code>segportal://bacen</code>.
+      A navegação externa passa pelo proxy autenticado do SegPortal.
+    </p>
   </main>
 </body>
 </html>

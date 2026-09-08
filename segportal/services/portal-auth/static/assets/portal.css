@@ -1099,6 +1099,132 @@ a {
   }
 }
 
+/* —— Administração de computadores —— */
+.admin-form {
+  background: var(--surface, #fff);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem 1.1rem 1.15rem;
+  box-shadow: var(--shadow);
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.admin-form label,
+.admin-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.admin-form input,
+.admin-form select {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+
+.admin-full {
+  margin-top: 0.85rem;
+}
+
+.admin-assignees {
+  margin: 1rem 0 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem 1rem;
+}
+
+.admin-assignees legend {
+  padding: 0 0.35rem;
+  font-weight: 600;
+  color: var(--navy, #003366);
+}
+
+.admin-users-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.55rem;
+  margin: 0.5rem 0 0.85rem;
+}
+
+.admin-user-chip {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f7fafc;
+  cursor: pointer;
+}
+
+.admin-user-chip input {
+  margin-top: 0.2rem;
+}
+
+.admin-user-chip strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.admin-user-chip small {
+  color: var(--muted);
+}
+
+.admin-custom-user {
+  margin-top: 0.35rem;
+}
+
+.admin-custom-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-custom-row input {
+  flex: 1;
+}
+
+.admin-form-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table .muted.small {
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.form-error {
+  margin: 0.75rem 0 0;
+  color: #9b1c1c;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-custom-row {
+    flex-direction: column;
+  }
+}
+
 /* —— Login destaque / ergonomia —— */
 .login-kicker {
   margin: 0 0 0.35rem !important;

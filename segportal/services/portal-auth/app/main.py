@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .auth import (
@@ -15,7 +15,16 @@ from .auth import (
     current_user,
     set_session_cookie,
 )
+from .browser_proxy import proxy_page
 from .cloud_drives import mount_demo, start_oauth, unmount, user_cloud_state
+from .computers import (
+    create_computer,
+    delete_computer,
+    list_all,
+    list_directory_users,
+    list_for_user,
+    update_computer,
+)
 from .config import settings
 from .files import delete, list_dir, mkdir, open_file_path, rename, upload_file
 from .ldap_shares import ensure_demo_tree, list_user_shares
@@ -29,7 +38,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="SegPortal AQNE", version="1.2.0", lifespan=lifespan)
+app = FastAPI(title="SegPortal AQNE", version="1.3.0", lifespan=lifespan)
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
 app.mount("/browser", StaticFiles(directory=str(STATIC_DIR / "browser")), name="browser")
 
@@ -105,7 +114,9 @@ def dashboard(request: Request) -> dict:
             "computers": True,
             "reminders": True,
             "calendar": True,
+            "admin": user.role == "admin",
         },
+        "computers": list_for_user(user),
     }
 
 
@@ -175,3 +186,51 @@ def api_cloud_unmount(provider: str, request: Request) -> dict:
 def api_cloud_callback(provider: str) -> RedirectResponse:
     _ = provider
     return RedirectResponse("/?cloud=connected", status_code=302)
+
+
+@app.get("/api/computers")
+def api_computers(request: Request) -> dict:
+    user = current_user(request)
+    return {"computers": list_for_user(user)}
+
+
+@app.get("/api/admin/computers")
+def api_admin_computers(request: Request) -> dict:
+    user = current_user(request)
+    return {"computers": list_all(user)}
+
+
+@app.post("/api/admin/computers")
+async def api_admin_create_computer(request: Request) -> dict:
+    user = current_user(request)
+    body = await request.json()
+    return create_computer(user, body)
+
+
+@app.patch("/api/admin/computers/{computer_id}")
+async def api_admin_update_computer(computer_id: str, request: Request) -> dict:
+    user = current_user(request)
+    body = await request.json()
+    return update_computer(user, computer_id, body)
+
+
+@app.delete("/api/admin/computers/{computer_id}")
+def api_admin_delete_computer(computer_id: str, request: Request) -> dict:
+    user = current_user(request)
+    return delete_computer(user, computer_id)
+
+
+@app.get("/api/admin/users")
+def api_admin_users(request: Request) -> dict:
+    user = current_user(request)
+    from .computers import require_admin
+
+    require_admin(user)
+    return {"users": list_directory_users()}
+
+
+@app.get("/api/browser/proxy")
+async def api_browser_proxy(request: Request, url: str) -> Response:
+    # Exige sessão autenticada para evitar proxy aberto
+    current_user(request)
+    return await proxy_page(url)

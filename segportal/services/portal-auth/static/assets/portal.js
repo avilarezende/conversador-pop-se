@@ -9,6 +9,9 @@ const state = {
   panel: "home",
   shareId: null,
   path: "",
+  computers: [],
+  adminUsers: [],
+  adminComputers: [],
 };
 
 const BROWSER_HOME = "/browser/home.html";
@@ -18,33 +21,6 @@ const BROWSER_PRESETS = {
   "https://www.bcb.gov.br/": "/browser/bacen.html",
   "https://www.bcb.gov.br": "/browser/bacen.html",
 };
-
-const COMPUTERS = [
-  {
-    id: "browser-html",
-    title: "Navegador Web SegPortal",
-    description: "Navegação corporativa HTML5 já disponível na aba Navegador.",
-    kind: "browser",
-    badge: "Padrão",
-  },
-  {
-    id: "desktop-financeiro",
-    title: "Desktop Financeiro",
-    description: "Estação remota com sistemas financeiros (liberação sob demanda).",
-    kind: "desktop",
-    badge: "RDP",
-    embed: "/browser/desktop.html?name=Desktop%20Financeiro",
-  },
-  {
-    id: "desktop-admin",
-    title: "Desktop Administrativo",
-    description: "Estação remota para tarefas administrativas.",
-    kind: "desktop",
-    badge: "RDP",
-    embed: "/browser/desktop.html?name=Desktop%20Administrativo",
-    adminOnly: true,
-  },
-];
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -88,6 +64,9 @@ function showLogin() {
   $("#view-app").hidden = true;
   setProductivityVisible(false);
   closeCalendarDrawer();
+  $$(".admin-only").forEach((el) => {
+    el.hidden = true;
+  });
 }
 
 function showApp() {
@@ -109,6 +88,7 @@ function setPanel(name) {
     files: "Arquivos",
     browser: "Navegador corporativo",
     computers: "Computadores",
+    admin: "Administração",
   };
   const sub = $("#nav-subtitle");
   if (sub) sub.textContent = titles[name] || "SegPortal";
@@ -121,6 +101,9 @@ function setPanel(name) {
   }
   if (name === "computers") {
     renderComputers();
+  }
+  if (name === "admin") {
+    loadAdminPanel().catch((e) => toast(e.message));
   }
 }
 
@@ -195,23 +178,35 @@ function ensureBrowserLoaded() {
 
 function navigateBrowser(raw) {
   const value = (raw || "").trim();
-  const mapped = BROWSER_PRESETS[value] || BROWSER_PRESETS[value.replace(/\/$/, "")];
   const frame = $("#browser-frame");
   const urlInput = $("#browser-url");
+  if (!frame || !urlInput) return;
+
+  const mapped = BROWSER_PRESETS[value] || BROWSER_PRESETS[value.replace(/\/$/, "")];
   if (mapped) {
     frame.src = mapped;
-    urlInput.value = value.startsWith("http") ? value : Object.keys(BROWSER_PRESETS).find((k) => BROWSER_PRESETS[k] === mapped) || value;
+    urlInput.value =
+      value.startsWith("http") || value.startsWith("segportal://")
+        ? value
+        : Object.keys(BROWSER_PRESETS).find((k) => BROWSER_PRESETS[k] === mapped) || value;
     return;
   }
-  if (value.startsWith("/browser/")) {
+  if (value.startsWith("/browser/") || value.startsWith("/api/browser/proxy")) {
     frame.src = value;
     urlInput.value = value;
     return;
   }
-  // Sites externos: abre página orientativa dentro do portal (mesmo iframe)
-  frame.src = `/browser/home.html?q=${encodeURIComponent(value)}`;
-  urlInput.value = value;
-  toast("Neste ambiente demo, use atalhos segportal://inicio ou segportal://bacen");
+
+  let target = value;
+  if (!/^https?:\/\//i.test(target) && !target.includes("://")) {
+    target = `https://${target}`;
+  }
+  if (!/^https?:\/\//i.test(target)) {
+    toast("Informe uma URL http(s):// ou um atalho segportal://");
+    return;
+  }
+  frame.src = `/api/browser/proxy?url=${encodeURIComponent(target)}`;
+  urlInput.value = target;
 }
 
 function renderDashboard() {
@@ -271,22 +266,38 @@ function renderDashboard() {
   renderPlaces();
 }
 
+function isAdmin() {
+  return state.dashboard?.user?.role === "admin" || state.user?.role === "admin";
+}
+
+function updateAdminNav() {
+  const show = isAdmin();
+  $$(".admin-only").forEach((el) => {
+    el.hidden = !show;
+  });
+}
+
 function renderComputers() {
   const grid = $("#computers-grid");
   const session = $("#computer-session");
   if (!grid) return;
-  const isAdmin = state.dashboard?.user?.role === "admin";
   grid.hidden = false;
   if (session) session.hidden = true;
   grid.innerHTML = "";
-  COMPUTERS.filter((c) => !c.adminOnly || isAdmin).forEach((c) => {
+  const items = state.computers || [];
+  if (!items.length) {
+    grid.innerHTML = `<p class="empty">Nenhum computador liberado para o seu usuário. Peça ao administrador.</p>`;
+    return;
+  }
+  items.forEach((c) => {
     const card = document.createElement("article");
     card.className = "place-card computer-card";
     card.setAttribute("role", "listitem");
+    const hostHint = c.host ? `${c.host}${c.port ? `:${c.port}` : ""}` : c.description;
     card.innerHTML = `
-      <span class="badge">${escapeHtml(c.badge)}</span>
+      <span class="badge">${escapeHtml(c.badge || (c.protocol || "").toUpperCase())}</span>
       <h4>${escapeHtml(c.title)}</h4>
-      <p>${escapeHtml(c.description)}</p>
+      <p>${escapeHtml(hostHint || c.description || "")}</p>
       <div class="card-actions">
         <button type="button" class="btn primary" data-action="computer" data-id="${escapeHtml(c.id)}">
           ${c.kind === "browser" ? "Abrir na aba Navegador" : "Conectar"}
@@ -297,9 +308,9 @@ function renderComputers() {
 }
 
 function openComputer(id) {
-  const item = COMPUTERS.find((c) => c.id === id);
+  const item = (state.computers || []).find((c) => c.id === id);
   if (!item) return;
-  if (item.kind === "browser") {
+  if (item.kind === "browser" || item.protocol === "browser") {
     setPanel("browser");
     navigateBrowser("segportal://inicio");
     toast("Navegador aberto nesta mesma aba do SegPortal");
@@ -312,7 +323,7 @@ function openComputer(id) {
   grid.hidden = true;
   session.hidden = false;
   title.textContent = item.title;
-  frame.src = item.embed || "/browser/desktop.html";
+  frame.src = item.embed || `/browser/desktop.html?name=${encodeURIComponent(item.title)}`;
 }
 
 function closeComputerSession() {
@@ -419,7 +430,155 @@ function renderBreadcrumbs(data) {
 async function refreshDashboard() {
   state.dashboard = await api("/api/dashboard");
   state.user = state.dashboard.user;
+  state.computers = state.dashboard.computers || [];
+  updateAdminNav();
   renderDashboard();
+}
+
+function renderAdminUsers(selected = []) {
+  const host = $("#admin-users-list");
+  if (!host) return;
+  const selectedSet = new Set((selected || []).map((s) => String(s).toLowerCase()));
+  host.innerHTML = "";
+  (state.adminUsers || []).forEach((u) => {
+    const id = `admin-user-${u.username}`;
+    const label = document.createElement("label");
+    label.className = "admin-user-chip";
+    label.htmlFor = id;
+    label.innerHTML = `
+      <input type="checkbox" id="${escapeHtml(id)}" name="assignees" value="${escapeHtml(u.username)}" ${
+        selectedSet.has(u.username.toLowerCase()) ? "checked" : ""
+      } />
+      <span>
+        <strong>${escapeHtml(u.display_name || u.username)}</strong>
+        <small>${escapeHtml(u.username)} · ${u.source === "ad" ? "AD" : "Local"}</small>
+      </span>`;
+    host.appendChild(label);
+  });
+}
+
+function renderAdminComputers() {
+  const tbody = $("#admin-computers-tbody");
+  const empty = $("#admin-computers-empty");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const items = state.adminComputers || [];
+  if (empty) empty.hidden = items.length > 0;
+  items.forEach((c) => {
+    const tr = document.createElement("tr");
+    const assignees = (c.assignees || []).join(", ") || "—";
+    const host = c.host ? `${c.host}${c.port ? `:${c.port}` : ""}` : "—";
+    tr.innerHTML = `
+      <td>
+        <strong>${escapeHtml(c.title)}</strong>
+        <div class="muted small">${escapeHtml(c.description || "")}</div>
+      </td>
+      <td>${escapeHtml((c.protocol || "").toUpperCase())}</td>
+      <td>${escapeHtml(host)}</td>
+      <td>${escapeHtml(assignees)}</td>
+      <td class="actions-col">
+        <button type="button" class="btn ghost sm" data-admin-action="edit-assignees" data-id="${escapeHtml(c.id)}">Alocar</button>
+        ${
+          c.builtin
+            ? ""
+            : `<button type="button" class="btn ghost sm" data-admin-action="delete" data-id="${escapeHtml(c.id)}">Excluir</button>`
+        }
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadAdminPanel() {
+  if (!isAdmin()) {
+    toast("Acesso restrito a administradores");
+    setPanel("home");
+    return;
+  }
+  const [usersResp, compsResp] = await Promise.all([
+    api("/api/admin/users"),
+    api("/api/admin/computers"),
+  ]);
+  state.adminUsers = usersResp.users || [];
+  state.adminComputers = compsResp.computers || [];
+  renderAdminUsers(["usuario"]);
+  renderAdminComputers();
+}
+
+function selectedAssignees() {
+  return $$('#admin-users-list input[name="assignees"]:checked').map((el) => el.value);
+}
+
+async function createAdminComputer(ev) {
+  ev.preventDefault();
+  const err = $("#admin-form-error");
+  if (err) err.hidden = true;
+  const title = $("#admin-pc-title").value.trim();
+  const protocol = $("#admin-pc-protocol").value;
+  const host = $("#admin-pc-host").value.trim();
+  const port = $("#admin-pc-port").value;
+  const description = $("#admin-pc-description").value.trim();
+  const assignees = selectedAssignees();
+  try {
+    await api("/api/admin/computers", {
+      method: "POST",
+      body: { title, protocol, host, port: port || null, description, assignees },
+    });
+    $("#admin-computer-form").reset();
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Acesso criado e alocado");
+  } catch (e) {
+    if (err) {
+      err.textContent = e.message || "Falha ao criar";
+      err.hidden = false;
+    } else {
+      toast(e.message);
+    }
+  }
+}
+
+async function editComputerAssignees(id) {
+  const item = (state.adminComputers || []).find((c) => c.id === id);
+  if (!item) return;
+  const current = new Set((item.assignees || []).map((a) => a.toLowerCase()));
+  const choices = (state.adminUsers || [])
+    .map((u) => `${current.has(u.username.toLowerCase()) ? "[x]" : "[ ]"} ${u.username}`)
+    .join("\n");
+  const raw = window.prompt(
+    `Usuários alocados a "${item.title}" (separados por vírgula).\nDisponíveis:\n${choices}`,
+    (item.assignees || []).join(", "),
+  );
+  if (raw == null) return;
+  const assignees = raw
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  try {
+    await api(`/api/admin/computers/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: { assignees },
+    });
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Alocação atualizada");
+  } catch (e) {
+    toast(e.message);
+  }
+}
+
+async function deleteAdminComputer(id) {
+  if (!confirm("Excluir este acesso?")) return;
+  try {
+    await api(`/api/admin/computers/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await loadAdminPanel();
+    const comps = await api("/api/computers");
+    state.computers = comps.computers || [];
+    toast("Acesso removido");
+  } catch (e) {
+    toast(e.message);
+  }
 }
 
 async function mountCloud(provider) {
@@ -538,6 +697,30 @@ function bindUi() {
 
   $("#btn-open-computers").addEventListener("click", () => setPanel("computers"));
   $("#btn-close-session")?.addEventListener("click", closeComputerSession);
+  $("#admin-computer-form")?.addEventListener("submit", createAdminComputer);
+  $("#btn-add-custom-user")?.addEventListener("click", () => {
+    const input = $("#admin-pc-custom-user");
+    const username = (input?.value || "").trim().toLowerCase();
+    if (!username) return;
+    if (!(state.adminUsers || []).some((u) => u.username === username)) {
+      state.adminUsers.push({
+        username,
+        display_name: username,
+        role: "user",
+        source: "ad",
+      });
+    }
+    const selected = selectedAssignees();
+    if (!selected.includes(username)) selected.push(username);
+    renderAdminUsers(selected);
+    if (input) input.value = "";
+  });
+  $("#admin-computers-tbody")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-admin-action]");
+    if (!btn) return;
+    if (btn.dataset.adminAction === "edit-assignees") editComputerAssignees(btn.dataset.id);
+    if (btn.dataset.adminAction === "delete") deleteAdminComputer(btn.dataset.id);
+  });
   bindProductivityUi();
 
   $("#browser-url-form").addEventListener("submit", (ev) => {
@@ -547,7 +730,12 @@ function bindUi() {
   $("#btn-browser-home").addEventListener("click", () => navigateBrowser("segportal://inicio"));
   $("#btn-browser-reload").addEventListener("click", () => {
     const frame = $("#browser-frame");
-    frame.src = frame.src;
+    if (!frame) return;
+    const current = frame.getAttribute("src") || frame.src;
+    frame.src = "about:blank";
+    requestAnimationFrame(() => {
+      frame.src = current;
+    });
   });
 
   document.addEventListener("click", (ev) => {
