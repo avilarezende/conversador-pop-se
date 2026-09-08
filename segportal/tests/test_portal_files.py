@@ -239,3 +239,102 @@ def test_ui_has_admin_panel(client):
     assert "novo acesso a computador" in html
     assert "alocar a usuários" in html
     assert "admin-computer-form" in html
+    assert "proxy de navegação" in html
+    assert "admin-proxy-form" in html
+    assert "proxy-allowed-domains" in html
+
+
+def test_admin_proxy_policy_and_enforcement(client, monkeypatch):
+    client.post("/api/login", json={"username": "usuario", "password": "usuario"})
+    denied = client.put(
+        "/api/admin/proxy-policy",
+        json={"mode": "allowlist", "allowed_domains": ["example.com"]},
+    )
+    assert denied.status_code == 403
+
+    client.post("/api/logout", json={})
+    client.post("/api/login", json={"username": "admin", "password": "admin"})
+    saved = client.put(
+        "/api/admin/proxy-policy",
+        json={
+            "mode": "allowlist",
+            "default_action": "deny",
+            "exception_mode": "per_user",
+            "admin_bypass": True,
+            "allowed_domains": [".gov.br", "example.com"],
+            "allowed_url_prefixes": [],
+            "blocked_domains": ["blocked.test"],
+            "blocked_url_prefixes": [],
+            "blocked_keywords": ["evil"],
+            "exceptions": [
+                {
+                    "label": "Docs",
+                    "domains": ["docs.google.com"],
+                    "assignees": ["usuario"],
+                    "enabled": True,
+                }
+            ],
+            "schedules": [
+                {
+                    "label": "Sempre",
+                    "enabled": False,
+                    "days": [0, 1, 2, 3, 4, 5, 6],
+                    "start": "00:00",
+                    "end": "23:59",
+                    "timezone": "America/Sao_Paulo",
+                    "outside_action": "deny",
+                }
+            ],
+        },
+    )
+    assert saved.status_code == 200
+    policy = saved.json()["policy"]
+    assert policy["mode"] == "allowlist"
+    assert "example.com" in policy["allowed_domains"]
+
+    class FakeResp:
+        status_code = 200
+        headers = {"content-type": "text/html; charset=utf-8"}
+        text = "<html><body>ok</body></html>"
+        content = text.encode()
+        url = "https://example.com/"
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def get(self, url):
+            return FakeResp()
+
+    import app.browser_proxy as browser_proxy
+
+    monkeypatch.setattr(browser_proxy.httpx, "AsyncClient", FakeClient)
+
+    # admin bypass
+    ok_admin = client.get("/api/browser/proxy", params={"url": "https://blocked.test"})
+    assert ok_admin.status_code == 200
+
+    client.post("/api/logout", json={})
+    client.post("/api/login", json={"username": "usuario", "password": "usuario"})
+    blocked = client.get("/api/browser/proxy", params={"url": "https://blocked.test/page"})
+    assert blocked.status_code == 403
+    assert "filtrado" in blocked.json()["detail"].lower() or "filtrado" in blocked.json()["detail"]
+
+    not_allowed = client.get("/api/browser/proxy", params={"url": "https://random-site.xyz"})
+    assert not_allowed.status_code == 403
+
+    allowed = client.get("/api/browser/proxy", params={"url": "https://example.com"})
+    assert allowed.status_code == 200
+
+    exception_ok = client.get("/api/browser/proxy", params={"url": "https://docs.google.com/doc"})
+    assert exception_ok.status_code == 200
+
+    summary = client.get("/api/proxy-policy")
+    assert summary.status_code == 200
+    assert summary.json()["policy"]["mode"] == "allowlist"

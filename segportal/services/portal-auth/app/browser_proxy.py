@@ -67,8 +67,12 @@ def _rewrite_html(base_url: str, body: str) -> str:
     return inject + rewritten
 
 
-async def proxy_page(raw_url: str) -> Response:
+async def proxy_page(raw_url: str, user=None) -> Response:
     url = normalize_url(raw_url)
+    if user is not None:
+        from .proxy_policy import assert_url_allowed
+
+        assert_url_allowed(url, user)
     try:
         async with httpx.AsyncClient(
             follow_redirects=True,

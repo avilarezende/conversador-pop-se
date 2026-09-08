@@ -25,6 +25,7 @@ from .computers import (
     list_for_user,
     update_computer,
 )
+from .proxy_policy import get_policy, update_policy
 from .config import settings
 from .files import delete, list_dir, mkdir, open_file_path, rename, upload_file
 from .ldap_shares import ensure_demo_tree, list_user_shares
@@ -38,7 +39,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="SegPortal AQNE", version="1.3.0", lifespan=lifespan)
+app = FastAPI(title="SegPortal AQNE", version="1.4.0", lifespan=lifespan)
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
 app.mount("/browser", StaticFiles(directory=str(STATIC_DIR / "browser")), name="browser")
 
@@ -231,6 +232,24 @@ def api_admin_users(request: Request) -> dict:
 
 @app.get("/api/browser/proxy")
 async def api_browser_proxy(request: Request, url: str) -> Response:
-    # Exige sessão autenticada para evitar proxy aberto
+    user = current_user(request)
+    return await proxy_page(url, user=user)
+
+
+@app.get("/api/admin/proxy-policy")
+def api_admin_get_proxy_policy(request: Request) -> dict:
+    user = current_user(request)
+    return {"policy": get_policy(user)}
+
+
+@app.put("/api/admin/proxy-policy")
+async def api_admin_put_proxy_policy(request: Request) -> dict:
+    user = current_user(request)
+    body = await request.json()
+    return {"policy": update_policy(user, body)}
+
+
+@app.get("/api/proxy-policy")
+def api_proxy_policy_summary(request: Request) -> dict:
     current_user(request)
-    return await proxy_page(url)
+    return {"policy": get_policy(public=True)}

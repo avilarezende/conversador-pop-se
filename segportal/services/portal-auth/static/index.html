@@ -258,9 +258,90 @@
         <header class="panel-head">
           <div>
             <h2>Administração</h2>
-            <p class="lede">Crie acessos a computadores e aloque a usuários locais ou do Active Directory.</p>
+            <p class="lede">Crie acessos a computadores, aloque usuários e gerencie a política do proxy de navegação.</p>
           </div>
         </header>
+
+        <section class="block admin-proxy" aria-labelledby="admin-proxy-title">
+          <div class="block-head">
+            <h3 id="admin-proxy-title">Proxy de navegação</h3>
+            <p>Defina URLs permitidas, filtradas, modo de exceções e janelas de horário do navegador corporativo.</p>
+          </div>
+          <form id="admin-proxy-form" class="admin-form">
+            <div class="admin-form-grid">
+              <label>
+                Modo de filtragem
+                <select id="proxy-mode" name="mode">
+                  <option value="allowlist">Allowlist (só o que for permitido)</option>
+                  <option value="blocklist">Blocklist (bloqueia só o filtrado)</option>
+                  <option value="allow_all">Permitir tudo (exceto lista filtrada)</option>
+                </select>
+              </label>
+              <label>
+                Modo de exceções
+                <select id="proxy-exception-mode" name="exception_mode">
+                  <option value="disabled">Desabilitado</option>
+                  <option value="per_user">Por usuário / AD</option>
+                  <option value="open">Abertas (qualquer autenticado)</option>
+                </select>
+              </label>
+              <label>
+                Ação padrão
+                <select id="proxy-default-action" name="default_action">
+                  <option value="deny">Negar</option>
+                  <option value="allow">Permitir</option>
+                </select>
+              </label>
+              <label class="admin-check-label">
+                <span>Bypass para administradores</span>
+                <input id="proxy-admin-bypass" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="admin-form-grid proxy-lists">
+              <label class="admin-full">
+                Domínios permitidos (um por linha; use <code>.gov.br</code> para sufixo)
+                <textarea id="proxy-allowed-domains" rows="5" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Prefixos de URL permitidos
+                <textarea id="proxy-allowed-prefixes" rows="3" spellcheck="false" placeholder="https://www.bcb.gov.br/"></textarea>
+              </label>
+              <label class="admin-full">
+                Domínios filtrados / bloqueados
+                <textarea id="proxy-blocked-domains" rows="4" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Prefixos filtrados
+                <textarea id="proxy-blocked-prefixes" rows="2" spellcheck="false"></textarea>
+              </label>
+              <label class="admin-full">
+                Palavras-chave filtradas (na URL)
+                <textarea id="proxy-blocked-keywords" rows="2" spellcheck="false"></textarea>
+              </label>
+            </div>
+
+            <fieldset class="admin-assignees">
+              <legend>Exceções</legend>
+              <p class="hint muted">Libera domínios fora da allowlist para usuários específicos (ou todos, no modo aberto).</p>
+              <div id="proxy-exceptions-list" class="proxy-rules-list"></div>
+              <button type="button" class="btn secondary sm" id="btn-add-proxy-exception">Adicionar exceção</button>
+            </fieldset>
+
+            <fieldset class="admin-assignees">
+              <legend>Horários de navegação</legend>
+              <p class="hint muted">Fora da janela, aplica a ação configurada (negar ou permitir).</p>
+              <div id="proxy-schedules-list" class="proxy-rules-list"></div>
+              <button type="button" class="btn secondary sm" id="btn-add-proxy-schedule">Adicionar horário</button>
+            </fieldset>
+
+            <div class="admin-form-actions">
+              <span id="proxy-policy-meta" class="muted small"></span>
+              <button type="submit" class="btn primary">Salvar política de proxy</button>
+            </div>
+            <p id="proxy-form-error" class="form-error" hidden></p>
+          </form>
+        </section>
 
         <section class="block admin-create" aria-labelledby="admin-create-title">
           <div class="block-head">

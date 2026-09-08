@@ -12,6 +12,7 @@ const state = {
   computers: [],
   adminUsers: [],
   adminComputers: [],
+  proxyPolicy: null,
 };
 
 const BROWSER_HOME = "/browser/home.html";
@@ -494,14 +495,227 @@ async function loadAdminPanel() {
     setPanel("home");
     return;
   }
-  const [usersResp, compsResp] = await Promise.all([
+  const [usersResp, compsResp, proxyResp] = await Promise.all([
     api("/api/admin/users"),
     api("/api/admin/computers"),
+    api("/api/admin/proxy-policy"),
   ]);
   state.adminUsers = usersResp.users || [];
   state.adminComputers = compsResp.computers || [];
+  state.proxyPolicy = proxyResp.policy || null;
   renderAdminUsers(["usuario"]);
   renderAdminComputers();
+  renderProxyPolicyForm(state.proxyPolicy);
+}
+
+const PROXY_DAY_OPTIONS = [
+  { v: 0, l: "Dom" },
+  { v: 1, l: "Seg" },
+  { v: 2, l: "Ter" },
+  { v: 3, l: "Qua" },
+  { v: 4, l: "Qui" },
+  { v: 5, l: "Sex" },
+  { v: 6, l: "Sáb" },
+];
+
+function linesFromList(arr) {
+  return (arr || []).join("\n");
+}
+
+function listFromTextarea(sel) {
+  return (sel?.value || "")
+    .split(/\n|,/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function renderProxyPolicyForm(policy) {
+  if (!policy || !$("#admin-proxy-form")) return;
+  $("#proxy-mode").value = policy.mode || "allowlist";
+  $("#proxy-exception-mode").value = policy.exception_mode || "per_user";
+  $("#proxy-default-action").value = policy.default_action || "deny";
+  $("#proxy-admin-bypass").checked = !!policy.admin_bypass;
+  $("#proxy-allowed-domains").value = linesFromList(policy.allowed_domains);
+  $("#proxy-allowed-prefixes").value = linesFromList(policy.allowed_url_prefixes);
+  $("#proxy-blocked-domains").value = linesFromList(policy.blocked_domains);
+  $("#proxy-blocked-prefixes").value = linesFromList(policy.blocked_url_prefixes);
+  $("#proxy-blocked-keywords").value = linesFromList(policy.blocked_keywords);
+  renderProxyExceptions(policy.exceptions || []);
+  renderProxySchedules(policy.schedules || []);
+  const meta = $("#proxy-policy-meta");
+  if (meta) {
+    const when = policy.updated_at
+      ? new Date(policy.updated_at * 1000).toLocaleString("pt-BR")
+      : "padrão do sistema";
+    meta.textContent = `Atualizado: ${when}${policy.updated_by ? ` · ${policy.updated_by}` : ""}`;
+  }
+}
+
+function renderProxyExceptions(items) {
+  const host = $("#proxy-exceptions-list");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!items.length) {
+    host.innerHTML = `<p class="empty">Nenhuma exceção cadastrada.</p>`;
+    return;
+  }
+  items.forEach((item, idx) => {
+    const card = document.createElement("div");
+    card.className = "proxy-rule-card";
+    card.dataset.index = String(idx);
+    card.innerHTML = `
+      <div class="admin-form-grid">
+        <label>Rótulo<input data-f="label" value="${escapeHtml(item.label || "")}" /></label>
+        <label>Domínios (vírgula)<input data-f="domains" value="${escapeHtml((item.domains || []).join(", "))}" /></label>
+        <label>Usuários (vírgula)<input data-f="assignees" value="${escapeHtml((item.assignees || []).join(", "))}" placeholder="usuario, admin" /></label>
+        <label>Motivo<input data-f="reason" value="${escapeHtml(item.reason || "")}" /></label>
+        <label>Expira (unix opcional)<input data-f="expires_at" value="${escapeHtml(item.expires_at ?? "")}" /></label>
+        <label class="admin-check-label"><span>Ativa</span><input type="checkbox" data-f="enabled" ${item.enabled !== false ? "checked" : ""} /></label>
+      </div>
+      <input type="hidden" data-f="id" value="${escapeHtml(item.id || "")}" />
+      <button type="button" class="btn ghost sm" data-proxy-remove="exception">Remover</button>`;
+    host.appendChild(card);
+  });
+}
+
+function renderProxySchedules(items) {
+  const host = $("#proxy-schedules-list");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!items.length) {
+    host.innerHTML = `<p class="empty">Nenhuma janela de horário.</p>`;
+    return;
+  }
+  items.forEach((item, idx) => {
+    const days = new Set(item.days || []);
+    const dayChecks = PROXY_DAY_OPTIONS.map(
+      (d) =>
+        `<label class="day-chip"><input type="checkbox" data-day="${d.v}" ${days.has(d.v) ? "checked" : ""} /> ${d.l}</label>`,
+    ).join("");
+    const card = document.createElement("div");
+    card.className = "proxy-rule-card";
+    card.dataset.index = String(idx);
+    card.innerHTML = `
+      <div class="admin-form-grid">
+        <label>Rótulo<input data-f="label" value="${escapeHtml(item.label || "")}" /></label>
+        <label>Timezone<input data-f="timezone" value="${escapeHtml(item.timezone || "America/Sao_Paulo")}" /></label>
+        <label>Início<input data-f="start" type="time" value="${escapeHtml(item.start || "08:00")}" /></label>
+        <label>Fim<input data-f="end" type="time" value="${escapeHtml(item.end || "19:00")}" /></label>
+        <label>Fora do horário
+          <select data-f="outside_action">
+            <option value="deny" ${item.outside_action !== "allow" ? "selected" : ""}>Negar</option>
+            <option value="allow" ${item.outside_action === "allow" ? "selected" : ""}>Permitir</option>
+          </select>
+        </label>
+        <label class="admin-check-label"><span>Ativa</span><input type="checkbox" data-f="enabled" ${item.enabled ? "checked" : ""} /></label>
+      </div>
+      <div class="proxy-days">${dayChecks}</div>
+      <input type="hidden" data-f="id" value="${escapeHtml(item.id || "")}" />
+      <button type="button" class="btn ghost sm" data-proxy-remove="schedule">Remover</button>`;
+    host.appendChild(card);
+  });
+}
+
+function collectProxyExceptions() {
+  return $$("#proxy-exceptions-list .proxy-rule-card").map((card) => {
+    const get = (f) => card.querySelector(`[data-f="${f}"]`);
+    const domains = (get("domains")?.value || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const assignees = (get("assignees")?.value || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const expiresRaw = (get("expires_at")?.value || "").trim();
+    return {
+      id: get("id")?.value || undefined,
+      label: get("label")?.value || "Exceção",
+      domains,
+      assignees,
+      reason: get("reason")?.value || "",
+      expires_at: expiresRaw === "" ? null : Number(expiresRaw) || expiresRaw,
+      enabled: !!get("enabled")?.checked,
+    };
+  });
+}
+
+function collectProxySchedules() {
+  return $$("#proxy-schedules-list .proxy-rule-card").map((card) => {
+    const get = (f) => card.querySelector(`[data-f="${f}"]`);
+    const days = $$("[data-day]", card)
+      .filter((el) => el.checked)
+      .map((el) => Number(el.dataset.day));
+    return {
+      id: get("id")?.value || undefined,
+      label: get("label")?.value || "Janela",
+      timezone: get("timezone")?.value || "America/Sao_Paulo",
+      start: get("start")?.value || "08:00",
+      end: get("end")?.value || "19:00",
+      outside_action: get("outside_action")?.value || "deny",
+      enabled: !!get("enabled")?.checked,
+      days,
+    };
+  });
+}
+
+async function saveProxyPolicy(ev) {
+  ev.preventDefault();
+  const err = $("#proxy-form-error");
+  if (err) err.hidden = true;
+  const body = {
+    mode: $("#proxy-mode").value,
+    exception_mode: $("#proxy-exception-mode").value,
+    default_action: $("#proxy-default-action").value,
+    admin_bypass: $("#proxy-admin-bypass").checked,
+    allowed_domains: listFromTextarea($("#proxy-allowed-domains")),
+    allowed_url_prefixes: listFromTextarea($("#proxy-allowed-prefixes")),
+    blocked_domains: listFromTextarea($("#proxy-blocked-domains")),
+    blocked_url_prefixes: listFromTextarea($("#proxy-blocked-prefixes")),
+    blocked_keywords: listFromTextarea($("#proxy-blocked-keywords")),
+    exceptions: collectProxyExceptions(),
+    schedules: collectProxySchedules(),
+  };
+  try {
+    const resp = await api("/api/admin/proxy-policy", { method: "PUT", body });
+    state.proxyPolicy = resp.policy;
+    renderProxyPolicyForm(resp.policy);
+    toast("Política de proxy salva");
+  } catch (e) {
+    if (err) {
+      err.textContent = e.message || "Falha ao salvar";
+      err.hidden = false;
+    } else toast(e.message);
+  }
+}
+
+function addProxyExceptionRow() {
+  const current = collectProxyExceptions();
+  current.push({
+    id: "",
+    label: "Nova exceção",
+    domains: [],
+    assignees: ["usuario"],
+    reason: "",
+    expires_at: null,
+    enabled: true,
+  });
+  renderProxyExceptions(current);
+}
+
+function addProxyScheduleRow() {
+  const current = collectProxySchedules();
+  current.push({
+    id: "",
+    label: "Nova janela",
+    days: [1, 2, 3, 4, 5],
+    start: "08:00",
+    end: "18:00",
+    timezone: "America/Sao_Paulo",
+    outside_action: "deny",
+    enabled: true,
+  });
+  renderProxySchedules(current);
 }
 
 function selectedAssignees() {
@@ -698,6 +912,21 @@ function bindUi() {
   $("#btn-open-computers").addEventListener("click", () => setPanel("computers"));
   $("#btn-close-session")?.addEventListener("click", closeComputerSession);
   $("#admin-computer-form")?.addEventListener("submit", createAdminComputer);
+  $("#admin-proxy-form")?.addEventListener("submit", saveProxyPolicy);
+  $("#btn-add-proxy-exception")?.addEventListener("click", addProxyExceptionRow);
+  $("#btn-add-proxy-schedule")?.addEventListener("click", addProxyScheduleRow);
+  $("#proxy-exceptions-list")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-proxy-remove=exception]");
+    if (!btn) return;
+    btn.closest(".proxy-rule-card")?.remove();
+    if (!$("#proxy-exceptions-list .proxy-rule-card")) renderProxyExceptions([]);
+  });
+  $("#proxy-schedules-list")?.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-proxy-remove=schedule]");
+    if (!btn) return;
+    btn.closest(".proxy-rule-card")?.remove();
+    if (!$("#proxy-schedules-list .proxy-rule-card")) renderProxySchedules([]);
+  });
   $("#btn-add-custom-user")?.addEventListener("click", () => {
     const input = $("#admin-pc-custom-user");
     const username = (input?.value || "").trim().toLowerCase();
