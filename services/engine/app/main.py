@@ -16,9 +16,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Conversador PoP-SE — Engine",
-    description="Motor de conversação com RAG e memória persistente",
-    version="0.1.0",
+    title="Conversador PoP-SE — Engine (Calisto)",
+    description=(
+        "Motor de conversação do assistente Calisto: RAG, memória persistente, "
+        "guardrails de escopo PoP-SE/RNP e administração de IA/guardrails/RAG."
+    ),
+    version="0.2.0",
     lifespan=lifespan,
 )
 
