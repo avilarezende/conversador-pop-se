@@ -11,10 +11,10 @@ Fluxo visual do usuário final. Manuais completos: [USER_MANUAL.md](USER_MANUAL.
 1. Autenticar no dashboard (`:8090`) — local e/ou Active Directory (portal em destaque no login)  
 2. Usar pastas AD e montar OneDrive/Google Drive  
 3. Gerenciar arquivos no explorador HTML  
-4. Usar o **navegador corporativo** embutido (aba Navegador)  
-5. Abrir **computadores** remotos liberados (aba Computadores)  
-6. Organizar o dia com **lembretes arrastáveis** e **calendário** deslizante (Google / Microsoft)  
-7. Se precisar de computador extra, **solicitar** e aguardar o admin  
+4. Usar o **navegador corporativo** embutido (proxy + política do admin)  
+5. Abrir **computadores** remotos liberados ao perfil  
+6. Organizar o dia com **lembretes arrastáveis** e **calendário** deslizante  
+7. (Admin) Em **Administração**, criar acessos, alocar usuários e gerir o proxy  
 
 ---
 
@@ -68,25 +68,36 @@ Detalhes: [FILES.md](FILES.md) · [USER_MANUAL.md](USER_MANUAL.md).
 
 ## 3. Navegador corporativo (aba Navegador)
 
-![Navegador embutido no SegPortal](images/usage-browser.jpg)
+![Navegador via proxy no SegPortal](images/usage-browser-proxy.jpg)
 
-O **Navegador Web SegPortal** está embutido como aba do próprio portal: o conteúdo abre **na mesma aba** do navegador do usuário — sem redirecionar para outro sistema.
+O **Navegador Web SegPortal** está embutido como aba do próprio portal. Digite URLs `https://…` na barra: o conteúdo é carregado pelo **proxy autenticado** (`/api/browser/proxy`), sujeito à política do administrador (allowlist, filtros, exceções e horários).
 
-**Exemplo:** na barra de endereço digite `https://www.bcb.gov.br/` (Banco Central / Bacen) ou use o atalho Bacen. A navegação corporativa segue as políticas de egresso do portal.
+**Exemplo:** `https://www.bcb.gov.br/` (Bacen) ou `example.com` em laboratório.
 
 ![Navegador no Bacen](images/usage-browser-bacen.jpg)
 
 ### 3.1 Computadores
 
-![Aba Computadores](images/portal-sessions.jpg)
+![Aba Computadores](images/portal-computers.jpg)
 
-Use a aba **Computadores** ou o botão **Abrir Computadores** no Início. Desktops e aplicações liberados abrem **dentro do SegPortal** (mesma aba).
+Use a aba **Computadores** ou o botão **Abrir Computadores** no Início. Desktops e aplicações liberados abrem **dentro do SegPortal**.
 
 ![Sessão de computador](images/usage-session.jpg)
 
+### 3.2 Administração (somente admin)
+
+![Política de proxy](images/portal-admin-proxy.jpg)
+
+Na aba **Administração**:
+
+1. **Proxy de navegação** — modos allowlist/blocklist, URLs permitidas/filtradas, exceções por usuário/AD e horários.
+2. **Computadores** — criar acessos RDP/VNC/SSH e alocar a usuários locais ou do Active Directory.
+
+![Criar computador](images/portal-admin-computers.jpg)
+
 ---
 
-## 4. Pedido de computador adicional
+## 4. Pedido legado de computador adicional
 
 ```bash
 ./scripts/request-connection.sh usuario "RDP Financeiro" rdp 10.10.20.51 3389 "Justificativa"

@@ -124,11 +124,31 @@ Compose e Job K8s (`k8s/bootstrap`) já incluem o bootstrap. Imagem: `services/w
 
 ---
 
-## 7. Proxy de egress (Squid)
+## 7. Proxy de egress (Squid) e política do portal
+
+### 7.1 Squid (Firefox / VNC)
 
 Arquivos: `config/proxy/squid.conf` e `services/egress-proxy/`. Serviço Compose/K8s: `proxy-egress`.
 
-Revise a whitelist antes de produção.
+Revise a whitelist antes de produção (ex.: `.aqne.jus.br`, `.jus.br`, `.gov.br`).
+
+### 7.2 Política do navegador embutido (portal-auth)
+
+Gerenciada na UI **Administração → Proxy de navegação** (ou `PUT /api/admin/proxy-policy`).
+
+Persistência: `{DEMO_SHARES_ROOT}/proxy_policy.json`.
+
+| Item | Descrição |
+|------|-----------|
+| Modo | `allowlist` / `blocklist` / `allow_all` |
+| Listas | Domínios e prefixos permitidos / filtrados; palavras-chave |
+| Exceções | Por usuário/AD, abertas ou desabilitadas |
+| Horários | Janelas com timezone e ação fora do horário |
+| Bypass admin | Opcional |
+
+Aplicada em `GET /api/browser/proxy` antes do fetch. Detalhes: [ADMIN_MANUAL.md](ADMIN_MANUAL.md) · [SECURITY.md](SECURITY.md).
+
+![Política de proxy](images/portal-admin-proxy.jpg)
 
 ---
 
@@ -167,10 +187,13 @@ Cadastro manual na UI (Settings → Connections) continua válido para o admin.
 
 - [ ] Login `admin` funciona **sem** LDAP
 - [ ] Conexão **Navegador Web SegPortal** aparece para admin e usuário
+- [ ] Aba **Administração** visível só para admin
+- [ ] Política de proxy salva e aplicada (teste com domínio filtrado)
+- [ ] Computador criado e alocado aparece para o usuário
 - [ ] Senha do admin alterada em produção
 - [ ] (Se LDAP) login AD + CA válida
 - [ ] Usuário normal não vê Settings administrativos
-- [ ] Admin consegue aprovar pedidos
+- [ ] Admin consegue aprovar pedidos legados (scripts)
 
 ```bash
 pytest tests -v

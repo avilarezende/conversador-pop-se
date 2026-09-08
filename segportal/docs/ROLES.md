@@ -27,6 +27,7 @@ Fonte: `config/roles/roles.yaml`.
 
 - Visualizar **sessões ativas** de qualquer usuário
 - Criar, editar e remover **conexões** (RDP, VNC, SSH, browser)
+- Na UI do portal (`:8090`): aba **Administração** — alocar **computadores** a usuários locais/AD e gerir a **política de proxy** (allowlist, filtros, exceções, horários)
 - **Aprovar / rejeitar** pedidos de terminais e aplicações
 - Gerenciar **usuários e grupos** no SegPortal
 - Configurar **apontamentos LDAP** (quando aplicável)
@@ -49,7 +50,8 @@ Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
 
 ### Pode
 
-- Usar o **Navegador Web SegPortal** (padrão automático)
+- Usar o **Navegador Web SegPortal** (padrão automático) e o **navegador embutido** do portal (sujeito à política de proxy)
+- Ver **computadores** alocados ao seu usuário
 - Ver conexões liberadas aos seus grupos de negócio
 - **Solicitar** novos terminais/aplicações (sujeito a aprovação)
 - Abrir sessões no **próprio** contexto
@@ -58,8 +60,8 @@ Ver [LOCAL_ADMIN.md](LOCAL_ADMIN.md).
 ### Não pode
 
 - Ver sessões de outros usuários
-- Criar conexões sem aprovação
-- Acessar Settings administrativos
+- Criar conexões / alterar política de proxy
+- Acessar a aba **Administração** ou Settings administrativos
 - Expandir o próprio perfil além do AD/admin
 
 ### Contas

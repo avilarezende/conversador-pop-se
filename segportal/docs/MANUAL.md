@@ -23,8 +23,11 @@ Manual de referência do portal ZTNA do AQNE.
 
 O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pelo navegador**, sem VPN. Inclui:
 
-- **Dashboard pessoal** (`:8090`) — pastas do Active Directory, OneDrive/Google Drive e gerenciador HTML
-- **Sessões remotas** (Sessões remotas `:8080`) — RDP, VNC, SSH e **Navegador Web SegPortal** (Firefox HTML5)
+- **Dashboard pessoal** (`:8090`) — AD, OneDrive/Google Drive, gerenciador HTML, lembretes e calendário
+- **Navegador corporativo embutido** — proxy autenticado com política administrável
+- **Computadores** — acessos RDP/VNC/SSH alocados pelo admin a usuários locais ou AD
+- **Administração** — criar computadores e gerir allowlist/filtros/exceções/horários do proxy
+- **Sessões remotas** (stack SegPortal) — RDP, VNC, SSH e **Navegador Web SegPortal** (Firefox HTML5)
 
 ![Mockup do portal](images/segportal-mockup.jpg)
 
@@ -59,7 +62,10 @@ O SegPortal permite acessar sistemas do AQNE e sites (internos e externos) **pel
 | Pastas AD | Início → cartões Active Directory |
 | OneDrive / Google Drive | Início → Nuvem pessoal |
 | Gerenciador de arquivos | Aba **Arquivos** |
-| Navegador HTML5 / RDP / VNC / SSH | Aba **Sessões remotas** ou SegPortal |
+| Navegador HTML5 (proxy) | Aba **Navegador** |
+| Computadores remotos | Aba **Computadores** |
+| Lembretes / Calendário | Painel flutuante / aba lateral |
+| Administração (admin) | Aba **Administração** |
 
 Passo a passo completo: [USER_MANUAL.md](USER_MANUAL.md).
 
@@ -71,11 +77,11 @@ Listar, enviar (arrastar e soltar), criar pasta, renomear, baixar e excluir. Det
 
 ### 2.4 Navegador Web SegPortal (ex.: Bacen)
 
-![Navegador HTML5 no Bacen](images/usage-browser.jpg)
+![Navegador via proxy](images/usage-browser-proxy.jpg)
 
-Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Exemplo: na sessão remota, abra `https://www.bcb.gov.br/`. Ver [CONNECTIONS.md](CONNECTIONS.md) e [USAGE.md](USAGE.md).
+Navegação embutida no portal com proxy autenticado. Exemplo: `https://www.bcb.gov.br/`. Ver [CONNECTIONS.md](CONNECTIONS.md) e [USAGE.md](USAGE.md).
 
-![Painel de sessões](images/portal-sessions.jpg)
+![Painel de computadores](images/portal-computers.jpg)
 
 ---
 
@@ -86,9 +92,12 @@ Firefox via VNC em HTML5 — liberado automaticamente para todos no boot. Exempl
 | Tema | Documento |
 |------|-----------|
 | Contas locais / senha admin | [LOCAL_ADMIN.md](LOCAL_ADMIN.md) |
+| Computadores + política de proxy (UI) | [ADMIN_MANUAL.md](ADMIN_MANUAL.md) |
 | Shares AD, OAuth nuvem, API | [ADMIN_MANUAL.md](ADMIN_MANUAL.md) · [FILES.md](FILES.md) |
 | Papéis e aprovações | [ROLES.md](ROLES.md) · [CONNECTIONS.md](CONNECTIONS.md) |
 | LDAP, MFA, K8s | [CONFIGURATION.md](CONFIGURATION.md) · [DEPLOYMENT.md](DEPLOYMENT.md) |
+
+![Proxy no admin](images/portal-admin-proxy.jpg)
 
 ---
 

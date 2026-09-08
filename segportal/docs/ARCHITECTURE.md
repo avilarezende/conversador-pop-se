@@ -8,7 +8,7 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com portal
 
 | Componente | Função | Serviço / pod |
 |------------|--------|----------------|
-| **portal-auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager HTML | `portal-auth` (`:8090`) |
+| **portal-auth** | Dashboard: AD, nuvem, navegador/proxy, computadores, admin, lembretes/calendário | `portal-auth` (`:8090`) |
 | **SegPortal** | Portal web, autenticação e autorização de sessões | `sessões` (`:8080`) |
 | **guacd** | Proxy de protocolos RDP, VNC e SSH | `guacd` |
 | **web-browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` |
@@ -48,7 +48,7 @@ SegPortal implementa **ZTNA (Zero Trust Network Access)** para o AQNE com portal
 
 ```
 segportal/
-├── services/portal-auth/   # Dashboard AD/nuvem + file manager (:8090)
+├── services/portal-auth/   # Dashboard AD/nuvem/navegador/admin (:8090)
 ├── services/guacamole/     # Backend interno de sessões HTML5 (não exposto na UI)
 ├── services/guacd/         # Daemon de protocolos (interno)
 ├── services/web-browser/   # Firefox via VNC
@@ -65,14 +65,15 @@ segportal/
 
 | Decisão | Motivo |
 |---------|--------|
-| portal-auth separado | UI de arquivos/AD/nuvem sem acoplar ao SegPortal Java |
+| portal-auth separado | UI de arquivos/AD/nuvem/admin sem acoplar ao SegPortal Java |
+| Política proxy no portal | Allowlist/filtros/exceções/horários no navegador embutido |
+| Squid whitelist | Egress controlado no Firefox/VNC |
 | SegPortal 1.5.5 | Base estável com JDBC + LDAP oficiais |
 | Navegador padrão no boot | Todo usuário navega sem VPN desde o primeiro login |
 | Bootstrap automático | Elimina seed manual e drift de configuração |
 | Pedidos com aprovação | Usuário não cria conexões sozinho |
 | LDAP opcional | Homologação e emergência sem AD |
 | Pods separados | Escala e blast radius independentes |
-| Squid whitelist | Egress controlado no lugar da VPN HTTP |
 
 ## Referências
 

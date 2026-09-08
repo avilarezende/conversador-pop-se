@@ -74,17 +74,38 @@ psql ... -c "SELECT request_id, requester_username, connection_name, protocol, s
 
 Política em `config/connections/requests.yaml`.
 
-### Pela UI (SegPortal)
+### Pela UI (portal-auth — recomendado)
 
-Enquanto a API/portal-auth não expõe formulário dedicado:
+1. Admin abre a aba **Administração**
+2. Em **Novo acesso a computador**, informa host/protocolo e **aloca** usuários locais ou AD
+3. O usuário vê o acesso imediatamente em **Computadores**
 
-1. Usuário abre chamado / envia pedido (script ou futuro formulário)
+![Admin — computadores](images/portal-admin-computers.jpg)
+
+A política do **navegador embutido** (URLs permitidas/filtradas, exceções, horários) também é gerida nessa aba → **Proxy de navegação**.
+
+![Admin — proxy](images/portal-admin-proxy.jpg)
+
+### Scripts / SegPortal (legado)
+
+1. Usuário abre chamado / envia pedido (script)
 2. Admin em **Settings → Connections** pode criar manualmente e conceder `READ` ao usuário
-3. Ou usa os scripts acima (recomendado — registra auditoria na tabela `segportal_connection_request`)
+3. Ou usa os scripts acima (registra auditoria na tabela `segportal_connection_request`)
 
 ---
 
-## Arquitetura do navegador padrão
+## Arquitetura do navegador
+
+### Embutido no portal (proxy HTTP)
+
+```
+Usuário (aba Navegador)
+    → portal-auth /api/browser/proxy
+        → proxy_policy.json (allowlist/filtros/exceções/horários)
+        → httpx → destino permitido
+```
+
+### Firefox via VNC (stack SegPortal)
 
 ```
 Usuário (HTML5)
@@ -115,7 +136,7 @@ No Kubernetes o Job `segportal-bootstrap` (`k8s/bootstrap`) aplica o mesmo boots
 - Navegador padrão é compartilhado como *conexão*; sessões remotas do SegPortal continuam individualizadas
 - VNC **não** é exposto fora da rede Docker/K8s (só guacd acessa a porta 5900)
 - Senha VNC interna (`segport1`) alinhada entre container e conexão SegPortal — troque em produção via `VNC_PASSWORD`
-- Ajuste a whitelist do Squid para limitar destinos externos
+- Ajuste a whitelist do Squid **e** a política do portal (`Administração → Proxy`) para limitar destinos externos
 
 ## Troubleshooting — “Navegador HTML5 não conecta”
 

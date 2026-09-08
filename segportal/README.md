@@ -1,12 +1,20 @@
 # SegPortal — Portal ZTNA do AQNE
 
-**Versão:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
+**Versão:** 2026-09-08 (portal-auth · AD/nuvem · navegador com proxy · admin de computadores · política de proxy · lembretes/calendário)
 
 [![CI](https://github.com/avilarezende/segportal/actions/workflows/ci.yml/badge.svg)](https://github.com/avilarezende/segportal/actions/workflows/ci.yml)
 
 **Repositório:** https://github.com/avilarezende/segportal
 
 **SegPortal** é o portal de acesso seguro do **AQNE**. Com acesso clientless HTML5, substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`aqne.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
+
+Recursos do dashboard (`portal-auth` `:8090`):
+
+- Pastas do Active Directory e OneDrive/Google Drive
+- Navegador corporativo embutido com **proxy autenticado** e política administrável
+- Aba **Computadores** com acessos alocados pelo admin (local ou AD)
+- Aba **Administração** (admin): criar/alocar computadores e gerir allowlist, filtros, exceções e horários do proxy
+- Lembretes arrastáveis e calendário deslizante (Google / Microsoft / agenda local)
 
 ---
 
@@ -25,7 +33,7 @@
 
 ![Mockup SegPortal AQNE](docs/images/segportal-mockup.jpg)
 
-*Login, portal com navegador HTML padrão, sessão clientless e painel admin de aprovações.*
+*Login em destaque, dashboard com AD/nuvem, navegador HTML5, computadores alocados e painel admin (computadores + proxy).*
 
 Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-preview.html)
 
@@ -42,7 +50,7 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 | **PostgreSQL** | Metadados de conexões e sessões | `postgres` (StatefulSet) |
 | **Proxy egress** | Navegação HTTP com IP institucional AQNE | `proxy-egress` (HPA 1–5) |
 | **Web browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` (HPA 2–10) |
-| **Portal auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager | `portal-auth` |
+| **Portal auth** | Dashboard: AD, nuvem, navegador/proxy, computadores, admin, lembretes/calendário | `portal-auth` |
 | **Bootstrap** | Conexão padrão + papéis no banco | Job `segportal-bootstrap` |
 
 ![Fluxo de autenticação](docs/images/auth-flow.jpg)
@@ -56,10 +64,11 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 | Etapa | Imagem | Descrição |
 |-------|--------|-----------|
 | **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou AD (+ MFA no SegPortal, se habilitado) |
-| **2. Dashboard** | ![Portal](docs/images/usage-portal.jpg) | Pastas AD, OneDrive/Google Drive e atalhos |
+| **2. Dashboard** | ![Portal](docs/images/usage-portal.jpg) | Pastas AD, OneDrive/Google Drive, lembretes e atalhos |
 | **3. Arquivos** | ![Arquivos](docs/images/portal-files.jpg) | Gerenciador HTML (upload, pastas, nuvem) |
-| **4. Navegador HTML5** | ![Bacen](docs/images/usage-browser.jpg) | Firefox no portal acessando o site do **Bacen** (`bcb.gov.br`) |
-| **5. Sessão / Admin** | ![Admin](docs/images/portal-admin-home.jpg) | Sessões remotas e visão administrativa |
+| **4. Navegador HTML5** | ![Proxy](docs/images/usage-browser-proxy.jpg) | Navegação embutida via proxy (ex.: `example.com` / Bacen) |
+| **5. Computadores** | ![Computadores](docs/images/portal-computers.jpg) | Desktops/aplicações liberados ao perfil |
+| **6. Admin** | ![Admin](docs/images/portal-admin-proxy.jpg) | Alocar computadores e política de proxy (allowlist, filtros, horários) |
 
 ---
 
@@ -113,7 +122,9 @@ kubectl apply -k k8s/overlays/production
 | MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#4-mfa-via-radius) |
 | Navegador padrão | `web-browser` + bootstrap | [CONNECTIONS.md](docs/CONNECTIONS.md) |
 | Sessões | `SESSION_TIMEOUT_MINUTES` | Timeout e limite de conexões |
-| Proxy egress | `config/proxy/squid.conf` | Whitelist de domínios externos |
+| Proxy egress (Squid) | `config/proxy/squid.conf` | Whitelist de egress do Firefox/VNC |
+| Política proxy (portal) | Admin → Proxy / `proxy_policy.json` | Allowlist, filtros, exceções e horários do navegador embutido |
+| Computadores (portal) | Admin → Computadores / `computers.json` | Criar acessos e alocar a usuários locais/AD |
 | Secrets K8s | `k8s/*/secret.example.yaml` | Copiar e preencher antes do deploy |
 
 Guia passo a passo: **[docs/CONFIGURATION.md](docs/CONFIGURATION.md)**
