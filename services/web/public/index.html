@@ -3,27 +3,157 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conversador PoP-SE</title>
+  <meta name="description" content="Conversador PoP-SE — assistente virtual de conectividade da RNP em Sergipe. Tire dúvidas sobre links, manutenções e situação dos serviços da sua instituição." />
+  <meta name="theme-color" content="#003366" />
+  <title>Conversador PoP-SE — Assistente de conectividade da RNP em Sergipe</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+  <a href="#composer" class="skip-link">Pular para o campo de mensagem</a>
+
   <header class="header">
-    <div class="brand">
-      <img src="/assets/logo-popse.png" alt="PoP-SE — Ponto de Presença da RNP em Sergipe" class="logo logo-popse" />
-      <img src="/assets/logo-rnp.png" alt="RNP" class="logo logo-rnp" />
-      <div>
+    <div class="header__inner">
+      <div class="brand">
+        <img src="/assets/logo-popse.png" alt="PoP-SE — Ponto de Presença da RNP em Sergipe" class="logo logo-popse" />
+        <img src="/assets/logo-rnp.png" alt="RNP — Rede Nacional de Ensino e Pesquisa" class="logo logo-rnp" />
+      </div>
+      <div class="header__title">
         <h1>Conversador PoP-SE</h1>
         <p>Assistente de conectividade para instituições clientes da RNP em Sergipe</p>
       </div>
     </div>
   </header>
 
-  <main class="chat-container">
-    <div id="messages" class="messages" aria-live="polite"></div>
-    <form id="chat-form" class="chat-form">
-      <label for="message" class="sr-only">Sua mensagem</label>
-      <textarea id="message" rows="2" placeholder="Ex.: Bom dia, sou responsável técnico pelo IFS e gostaria de saber as manutenções dos próximos 30 dias." required></textarea>
-      <button type="submit">Enviar</button>
+  <main id="content" class="app" tabindex="-1">
+    <h2 class="visually-hidden">Conversa com o assistente</h2>
+
+    <section class="chat" aria-label="Janela de conversa">
+      <!-- Barra de identidade do assistente com o mascote animado -->
+      <div class="assistant-bar">
+        <div class="avatar" data-avatar aria-hidden="true">
+          <!-- Papagaio ring-neck verde (mascote do PoP-SE) -->
+          <svg class="parrot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="ppHead" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7cd67f" />
+                <stop offset="1" stop-color="#3fa845" />
+              </linearGradient>
+              <linearGradient id="ppBody" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#57bd5b" />
+                <stop offset="1" stop-color="#2f8b39" />
+              </linearGradient>
+              <linearGradient id="ppTail" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#2f8b39" />
+                <stop offset="1" stop-color="#0d97b3" />
+              </linearGradient>
+              <linearGradient id="ppBeak" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff8a4c" />
+                <stop offset="1" stop-color="#e5392f" />
+              </linearGradient>
+              <radialGradient id="ppBelly" cx="0.5" cy="0.4" r="0.7">
+                <stop offset="0" stop-color="#d6f3c9" />
+                <stop offset="1" stop-color="#8fd48a" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+
+            <g class="parrot__sway">
+              <!-- Cauda -->
+              <g class="parrot__tail">
+                <path d="M96 150 C 82 176, 70 196, 60 196 C 74 188, 82 170, 86 150 Z" fill="url(#ppTail)" />
+                <path d="M104 150 C 112 178, 120 196, 130 196 C 118 186, 112 168, 112 150 Z" fill="url(#ppTail)" opacity="0.85" />
+              </g>
+
+              <!-- Corpo -->
+              <ellipse class="parrot__body" cx="100" cy="138" rx="44" ry="50" fill="url(#ppBody)" />
+              <ellipse cx="100" cy="150" rx="27" ry="34" fill="url(#ppBelly)" />
+
+              <!-- Asa -->
+              <g class="parrot__wing">
+                <path d="M128 112 C 150 120, 150 158, 126 172 C 132 150, 132 130, 122 116 Z" fill="#2f8b39" />
+                <path d="M129 124 C 141 130, 141 150, 129 160" fill="none" stroke="#256e2d" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M126 134 C 136 139, 136 152, 127 160" fill="none" stroke="#256e2d" stroke-width="2.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Colar (anel de pescoço rosa + preto) característico do ring-neck -->
+              <path class="parrot__ring" d="M70 108 C 84 124, 116 124, 130 108" fill="none" stroke="#0f1720" stroke-width="6" stroke-linecap="round" opacity="0.85" />
+              <path d="M70 104 C 84 120, 116 120, 130 104" fill="none" stroke="#f48fb1" stroke-width="4" stroke-linecap="round" />
+
+              <!-- Cabeça -->
+              <g class="parrot__head">
+                <!-- Topete -->
+                <path d="M100 30 C 96 18, 108 14, 110 24 C 118 20, 122 32, 112 36 Z" fill="#3fa845" />
+                <circle cx="100" cy="76" r="42" fill="url(#ppHead)" />
+                <!-- Bochecha clara -->
+                <ellipse cx="100" cy="86" rx="30" ry="24" fill="#bfe9a8" opacity="0.55" />
+
+                <!-- Olhos -->
+                <g class="parrot__eyes">
+                  <g class="parrot__eye">
+                    <circle cx="82" cy="70" r="12" fill="#ffffff" />
+                    <circle cx="83" cy="71" r="6.5" fill="#20303a" />
+                    <circle cx="80.5" cy="68.5" r="2.3" fill="#ffffff" />
+                  </g>
+                  <g class="parrot__eye">
+                    <circle cx="118" cy="70" r="12" fill="#ffffff" />
+                    <circle cx="119" cy="71" r="6.5" fill="#20303a" />
+                    <circle cx="116.5" cy="68.5" r="2.3" fill="#ffffff" />
+                  </g>
+                </g>
+
+                <!-- Bico -->
+                <g class="parrot__beak">
+                  <path d="M88 92 C 92 86, 108 86, 112 92 C 110 104, 100 112, 100 112 C 100 112, 90 104, 88 92 Z" fill="url(#ppBeak)" />
+                  <path class="parrot__beak-lower" d="M92 104 C 96 110, 104 110, 108 104 C 106 112, 100 116, 100 116 C 100 116, 94 112, 92 104 Z" fill="#c62828" />
+                  <circle cx="96" cy="94" r="1.6" fill="#7f1d1d" />
+                  <circle cx="104" cy="94" r="1.6" fill="#7f1d1d" />
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="assistant-bar__info">
+          <p class="assistant-bar__name">Louro <span class="assistant-bar__role">· Assistente PoP-SE</span></p>
+          <p class="assistant-bar__status" data-status>
+            <span class="status-dot" aria-hidden="true"></span>
+            <span data-status-text>Pronto para ajudar</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Registro de mensagens -->
+      <div id="messages" class="messages" data-messages role="log" aria-live="polite" aria-relevant="additions" aria-label="Histórico da conversa"></div>
+
+      <!-- Indicador de digitação -->
+      <div class="typing" data-typing hidden aria-hidden="true">
+        <span class="typing__label">Louro está digitando</span>
+        <span class="typing__dots"><span></span><span></span><span></span></span>
+      </div>
+    </section>
+
+    <!-- Campo de composição -->
+    <form id="composer" class="composer" data-form>
+      <label for="message" class="visually-hidden">Escreva sua mensagem para o assistente</label>
+      <div class="composer__field">
+        <textarea
+          id="message"
+          data-input
+          rows="1"
+          maxlength="8000"
+          placeholder="Ex.: Bom dia, sou responsável técnico pelo IFS e gostaria de saber as manutenções dos próximos 30 dias."
+          aria-describedby="composer-hint"
+          required
+        ></textarea>
+        <button type="submit" class="composer__send" data-send aria-label="Enviar mensagem">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6 3.39 10.2 15 12l-11.61 1.8z" />
+          </svg>
+          <span class="composer__send-label">Enviar</span>
+        </button>
+      </div>
+      <p id="composer-hint" class="composer__hint">
+        Pressione <kbd>Enter</kbd> para enviar · <kbd>Shift</kbd>+<kbd>Enter</kbd> para quebrar linha
+      </p>
     </form>
   </main>
 
@@ -31,6 +161,6 @@
     <p>Ponto de Presença da RNP em Sergipe — <a href="https://www.pop-se.rnp.br" target="_blank" rel="noopener">pop-se.rnp.br</a></p>
   </footer>
 
-  <script src="/js/chat.js"></script>
+  <script src="/js/chat.js" defer></script>
 </body>
 </html>
