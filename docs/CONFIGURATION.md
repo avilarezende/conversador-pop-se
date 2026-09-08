@@ -16,12 +16,42 @@ Referência de todos os arquivos e variáveis que precisam ser preenchidos antes
 | Valor | Quando usar | Variáveis obrigatórias |
 |-------|-------------|------------------------|
 | `ollama` | Desenvolvimento, sem custo, on-premise | `OLLAMA_HOST`, `OLLAMA_MODEL` |
-| `gemini` | Produção leve com tier gratuito Google | `GEMINI_API_KEY` |
+| `gemini` | Produção leve com tier gratuito Google | `GEMINI_API_KEY` (modelo em `GEMINI_MODEL`, padrão `gemini-flash-latest`) |
 | `openai` | Produção com modelos OpenAI | `OPENAI_API_KEY` |
 | `azure` | Ambiente corporativo Microsoft | `AZURE_OPENAI_*` (todas) |
 | `grok` | Modelos xAI Grok | `GROK_API_KEY` |
 
-Altere `LLM_PROVIDER` no `.env` e reinicie o container `engine`.
+Altere `LLM_PROVIDER` no `.env` e reinicie o container `engine` — **ou** use o painel de administração (abaixo), que aplica o provedor/modelo/chave sem reiniciar.
+
+> Nota: `gemini-1.5-flash` foi descontinuado pela API do Google. Use um alias atual (`gemini-flash-latest`) ou um modelo específico (ex.: `gemini-3.6-flash`).
+
+## Administração (`/admin.html`)
+
+Painel web protegido por token para configurar o assistente em runtime.
+
+| Variável | Descrição |
+|----------|-----------|
+| `ADMIN_TOKEN` | Token exigido no header `X-Admin-Token`. **Altere** o padrão `popse-admin`. |
+| `ADMIN_STORE_PATH` | Arquivo JSON com as configurações editáveis (IA + guardrails). Padrão: junto ao volume do RAG (`/data/chroma/admin_settings.json`). |
+
+Recursos do painel:
+
+- **IA e API Keys**: selecionar provedor/modelo (pré-configurados) e informar credenciais (gravadas com segurança, exibidas mascaradas).
+- **Guardrails**: criar/ativar/excluir regras de escopo.
+- **Base de conhecimento (RAG)**: adicionar/editar/excluir documentos das coleções.
+
+## Guardrails
+
+Regras que mantêm o Calisto no escopo do PoP-SE/RNP, avaliadas **antes** de acionar a IA:
+
+- `scope` — bloqueia mensagens que não contêm nenhuma palavra do escopo permitido.
+- `blocked_keywords` — bloqueia mensagens que contêm palavras vetadas.
+
+Vêm com padrões prontos (escopo PoP-SE/RNP + assuntos fora de contexto) e podem ser gerenciados no painel de administração. Implementação em `services/engine/app/guardrails.py`.
+
+## Base de conhecimento (RAG)
+
+Documentos usados como contexto pelo Calisto, organizados em coleções: `operacional`, `institucional` e `manutencoes`. Podem ser adicionados/editados/excluídos pelo painel de administração (cada documento tem identificador, fonte e conteúdo) ou ingeridos pelos coletores (`--profile sources`).
 
 ## Fontes de monitoração
 
@@ -68,7 +98,8 @@ Para cada instituição conectada ao PoP-SE:
 
 - [ ] `.env` criado a partir de `.env.example`
 - [ ] `POSTGRES_PASSWORD` alterado
-- [ ] `LLM_PROVIDER` definido e API key configurada (se remoto)
+- [ ] `ADMIN_TOKEN` alterado (não deixar o padrão `popse-admin`)
+- [ ] `LLM_PROVIDER` definido e API key configurada (se remoto) — no `.env` ou no painel `/admin.html`
 - [ ] `config/clients.yaml` com instituições reais
 - [ ] Fontes necessárias habilitadas em `config/modules.yaml`
 - [ ] Credenciais Zabbix/Cacti/Grafana no `.env` (se aplicável)

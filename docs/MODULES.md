@@ -34,3 +34,16 @@ docker compose --profile core --profile email up -d
 2. Adicionar bloco em `config/sources.yaml`
 3. Implementar função `collect_<nome>()` em `services/modules/sources/main.py`
 4. Mapear para coleção RAG: `operacional`, `institucional` ou `manutencoes`
+
+## Gerenciar documentos RAG manualmente
+
+Além dos coletores automáticos, os documentos das coleções `operacional`,
+`institucional` e `manutencoes` podem ser adicionados/editados/excluídos pelo
+painel de administração (`/admin.html` → **Base de conhecimento (RAG)**), sem
+depender de um coletor. Cada documento tem identificador, fonte e conteúdo.
+
+## Guardrails
+
+O Calisto é mantido no escopo do PoP-SE/RNP por guardrails avaliados antes da
+IA (regras de escopo e de palavras bloqueadas). São gerenciados no painel de
+administração e implementados em `services/engine/app/guardrails.py`.

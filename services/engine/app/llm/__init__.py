@@ -17,6 +17,12 @@ async def generate_reply(system: str, user_message: str, context: str = "") -> s
         )
 
     try:
+        # Aplica provedor/modelo/credenciais definidos na administração (se houver).
+        from app.config import settings
+        from app.settings_store import apply_overrides
+
+        apply_overrides(settings)
+
         provider = get_provider()
         reply = await provider.generate(system, prompt)
         return reply.strip() or FALLBACK_MESSAGE

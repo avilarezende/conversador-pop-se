@@ -2,6 +2,7 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.guardrails import SCOPE_GUIDANCE, evaluate_message
 from app.llm import generate_reply
 from app.memory import save_message, update_user_from_message, user_context_summary
 from app.models import User
@@ -16,6 +17,15 @@ async def handle_chat(
 ) -> str:
     user = await update_user_from_message(session, user, message)
     await save_message(session, user, "user", message)
+
+    # Guardrails: barra mensagens fora do escopo antes de acionar a IA.
+    verdict = evaluate_message(message)
+    if not verdict.allowed:
+        refusal = verdict.message or (
+            "Desculpe, só posso ajudar com assuntos do PoP-SE/RNP."
+        )
+        await save_message(session, user, "assistant", refusal)
+        return refusal
 
     rag_context = query_context("operacional", message, top_k=6)
     inst_context = query_context("institucional", message, top_k=3)
@@ -33,6 +43,6 @@ async def handle_chat(
         )
     )
 
-    reply = await generate_reply(SYSTEM_PROMPT, message, full_context)
+    reply = await generate_reply(SYSTEM_PROMPT + SCOPE_GUIDANCE, message, full_context)
     await save_message(session, user, "assistant", reply)
     return reply

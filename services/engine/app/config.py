@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Google Gemini (API key em https://aistudio.google.com/apikey)
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-flash-latest"
 
     # OpenAI (API key em https://platform.openai.com/api-keys)
     openai_api_key: str | None = None
@@ -45,9 +45,23 @@ class Settings(BaseSettings):
     grok_model: str = "grok-2-latest"
     grok_base_url: str = "https://api.x.ai/v1"
 
+    # --- Administração ---
+    # Token exigido no header X-Admin-Token para acessar a API de administração.
+    # ALTERE em produção via variável de ambiente ADMIN_TOKEN.
+    admin_token: str = "popse-admin"
+    # Caminho do arquivo de configurações editáveis (guardrails + provedor de IA).
+    # Se vazio, é derivado de chroma_path (persiste junto ao volume do RAG).
+    admin_store_path: str | None = None
+
     @property
     def config_dir(self) -> Path:
         return Path(self.config_path)
+
+    @property
+    def store_path(self) -> Path:
+        if self.admin_store_path:
+            return Path(self.admin_store_path)
+        return Path(self.chroma_path).parent / "admin_settings.json"
 
 
 settings = Settings()
