@@ -9,3 +9,5 @@ data/postgres/
 *.log
 .DS_Store
 node_modules/
+data/*.db
+data/admin_settings.json

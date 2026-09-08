@@ -20,6 +20,8 @@ x-engine-env: &engine-env
   CHROMA_PATH: /data/chroma
   CONFIG_PATH: /app/config
   POPSE_CONTEXT_URL: ${POPSE_CONTEXT_URL:-https://www.pop-se.rnp.br}
+  ADMIN_TOKEN: ${ADMIN_TOKEN:-popse-admin}
+  ADMIN_STORE_PATH: ${ADMIN_STORE_PATH:-/data/chroma/admin_settings.json}
 
 services:
   # --- Infraestrutura base ---
