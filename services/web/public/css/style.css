@@ -295,8 +295,8 @@ body {
 .calisto-float__disc {
   pointer-events: auto;
   cursor: pointer;
-  width: clamp(96px, 22vw, 132px);
-  height: clamp(96px, 22vw, 132px);
+  width: clamp(144px, 33vw, 198px);
+  height: clamp(144px, 33vw, 198px);
   background: transparent; /* fundo transparente: só o papagaio aparece */
   border: none;
   box-shadow: none;
