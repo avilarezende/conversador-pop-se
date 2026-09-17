@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: guacamole
-          image: registry.tjse.jus.br/segportal/guacamole:latest
+          image: registry.aqne.jus.br/segportal/guacamole:latest
           ports:
             - containerPort: 8080
               name: http

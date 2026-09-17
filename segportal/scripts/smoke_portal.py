@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Smoke test funcional do portal-auth e Guacamole (stack local).
+"""Smoke test funcional do portal-auth (stack local).
 
 Uso:
   python3 scripts/smoke_portal.py
-  PORTAL_URL=http://127.0.0.1:8090 GUAC_URL=http://127.0.0.1:8080/guacamole/ \\
-    python3 scripts/smoke_portal.py
+  PORTAL_URL=http://127.0.0.1:8090 python3 scripts/smoke_portal.py
 """
 
 from __future__ import annotations
@@ -16,7 +15,6 @@ import urllib.request
 from http.cookiejar import CookieJar
 
 BASE = os.environ.get("PORTAL_URL", "http://127.0.0.1:8090").rstrip("/")
-GUAC = os.environ.get("GUAC_URL", "http://127.0.0.1:8080/guacamole/")
 
 
 def main() -> int:
@@ -56,10 +54,18 @@ def main() -> int:
         check("health", False, str(exc))
 
     try:
-        with urllib.request.urlopen(GUAC, timeout=10) as resp:
-            check("guacamole", resp.status == 200)
+        with urllib.request.urlopen(BASE + "/", timeout=10) as resp:
+            html = resp.read().decode("utf-8", errors="ignore")
+            lower = html.lower()
+            check("ui_open_computers", "Abrir Computadores" in html)
+            check("ui_nav_browser", "Navegador" in html and 'data-panel="browser"' in html)
+            check("ui_nav_computers", "Computadores" in html and 'data-panel="computers"' in html)
+            check(
+                "ui_hides_guacamole",
+                "guacamole" not in lower and "guacadmin" not in lower and "abrir guacamole" not in lower,
+            )
     except Exception as exc:  # noqa: BLE001
-        check("guacamole", False, str(exc))
+        check("ui_shell", False, str(exc))
 
     try:
         st, body = api(
@@ -79,6 +85,11 @@ def main() -> int:
             st == 200 and bool(dash.get("shares")) and bool(dash.get("cloud_drives")),
             f"shares={len(dash.get('shares', []))} cloud={len(dash.get('cloud_drives', []))}",
         )
+        features = (dash or {}).get("features") or {}
+        check("features_embedded_browser", features.get("embedded_browser") is True, str(features))
+        check("features_computers", features.get("computers") is True, str(features))
+        blob = json.dumps(dash).lower()
+        check("dashboard_hides_guacamole", "guacamole" not in blob and "guacadmin" not in blob)
 
         st, files = api("GET", "/api/files/home")
         check("files_home", st == 200 and "entries" in files, f"n={len(files.get('entries', []))}")
@@ -110,7 +121,7 @@ def main() -> int:
         except urllib.error.HTTPError as exc:
             check("auth_required", exc.code in (401, 403), f"HTTP {exc.code}")
 
-        st, body = api("POST", "/api/login", {"username": "guacadmin", "password": "guacadmin"})
+        st, body = api("POST", "/api/login", {"username": "admin", "password": "admin"})
         check("login_admin", st == 200 and body.get("role") == "admin", str(body.get("role")))
     except Exception as exc:  # noqa: BLE001
         check("portal_flow", False, str(exc))

@@ -21,18 +21,18 @@ patches:
         value: 1
 
 images:
-  - name: registry.tjse.jus.br/segportal/guacamole
+  - name: registry.aqne.jus.br/segportal/guacamole
     newTag: dev
-  - name: registry.tjse.jus.br/segportal/guacd
+  - name: registry.aqne.jus.br/segportal/guacd
     newTag: dev
-  - name: registry.tjse.jus.br/segportal/egress-proxy
+  - name: registry.aqne.jus.br/segportal/egress-proxy
     newTag: dev
-  - name: registry.tjse.jus.br/segportal/web-browser
+  - name: registry.aqne.jus.br/segportal/web-browser
     newTag: dev
 
 configMapGenerator:
   - name: segportal-common
     behavior: merge
     literals:
-      - GUACAMOLE_HOSTNAME=segportal-dev.tjse.jus.br
+      - GUACAMOLE_HOSTNAME=segportal-dev.aqne.jus.br
       - SESSION_TIMEOUT_MINUTES=120

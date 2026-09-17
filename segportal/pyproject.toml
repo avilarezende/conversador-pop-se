@@ -1,10 +1,10 @@
 [project]
 name = "segportal"
 version = "1.0.0"
-description = "SegPortal TJSE — validation and tooling for Guacamole ZTNA"
+description = "SegPortal AQNE — validation and tooling for Guacamole ZTNA"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary — TJSE internal use" }
+license = { text = "Proprietary — AQNE internal use" }
 
 [project.optional-dependencies]
 dev = [

@@ -4,7 +4,7 @@
 FROM debian:bookworm-slim
 
 LABEL org.opencontainers.image.title="segportal-web-browser"
-LABEL org.opencontainers.image.description="Navegador HTML padrão SegPortal TJSE (VNC→Guacamole)"
+LABEL org.opencontainers.image.description="Navegador HTML padrão SegPortal AQNE (VNC→Guacamole)"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY=:99 \

@@ -1,4 +1,4 @@
-# Portal Auth — SegPortal TJSE
+# Portal Auth — SegPortal AQNE
 
 Serviço FastAPI do **dashboard pessoal**: autenticação (local / Active Directory),
 montagem de pastas corporativas indicadas pelo AD, OneDrive/Google Drive e
@@ -16,7 +16,7 @@ gerenciador de arquivos HTML.
 | Usuário | Senha | Papel |
 |---------|-------|-------|
 | `usuario` | `usuario` | user |
-| `guacadmin` | `guacadmin` | admin |
+| `admin` | `admin` | admin |
 
 Marque **Autenticar via Active Directory** no login para simular sessão LDAP e
 expor compartilhamentos AD (home, departamental) no dashboard.

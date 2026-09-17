@@ -15,10 +15,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - segportal.tjse.jus.br
+        - segportal.aqne.jus.br
       secretName: segportal-tls
   rules:
-    - host: segportal.tjse.jus.br
+    - host: segportal.aqne.jus.br
       http:
         paths:
           - path: /guacamole

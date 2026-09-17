@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: firefox
-          image: registry.tjse.jus.br/segportal/web-browser:latest
+          image: registry.aqne.jus.br/segportal/web-browser:latest
           ports:
             - containerPort: 5900
               name: vnc
@@ -35,7 +35,7 @@ spec:
             - name: VNC_PASSWORD
               value: "segport1"
             - name: FF_OPEN_URL
-              value: https://www.tjse.jus.br
+              value: https://www.aqne.jus.br
             - name: http_proxy
               value: http://proxy-egress:3128
             - name: https_proxy
@@ -45,7 +45,7 @@ spec:
             - name: HTTPS_PROXY
               value: http://proxy-egress:3128
             - name: no_proxy
-              value: localhost,127.0.0.1,guacd,guacamole,postgres,.tjse.jus.br
+              value: localhost,127.0.0.1,guacd,guacamole,postgres,.aqne.jus.br
           readinessProbe:
             tcpSocket:
               port: 5900

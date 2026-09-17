@@ -13,8 +13,8 @@ data:
   LDAP_PORT: "636"
   LDAP_ENCRYPTION_METHOD: ssl
   LDAP_USERNAME_ATTRIBUTE: sAMAccountName
-  LDAP_USER_BASE_DN: OU=Usuarios,DC=tjse,DC=jus,DC=br
-  LDAP_GROUP_BASE_DN: OU=Grupos,DC=tjse,DC=jus,DC=br
+  LDAP_USER_BASE_DN: OU=Usuarios,DC=aqne,DC=jus,DC=br
+  LDAP_GROUP_BASE_DN: OU=Grupos,DC=aqne,DC=jus,DC=br
   LDAP_MEMBER_ATTRIBUTE: member
   LDAP_USER_SEARCH_FILTER: "(objectClass=user)"
   LDAP_GROUP_SEARCH_FILTER: "(objectClass=group)"
@@ -25,4 +25,4 @@ data:
   SESSION_TIMEOUT_MINUTES: "60"
   MFA_ENABLED: "false"
   MFA_RADIUS_PORT: "1812"
-  GUACAMOLE_HOSTNAME: segportal.tjse.jus.br
+  GUACAMOLE_HOSTNAME: segportal.aqne.jus.br

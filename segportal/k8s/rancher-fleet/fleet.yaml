@@ -1,4 +1,4 @@
-# Rancher Fleet — SegPortal TJSE GitOps bundle
+# Rancher Fleet — SegPortal AQNE GitOps bundle
 defaultNamespace: segportal
 
 targets:

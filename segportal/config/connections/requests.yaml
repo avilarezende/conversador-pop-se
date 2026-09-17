@@ -1,4 +1,4 @@
-# Pedidos de terminais/aplicações — SegPortal TJSE
+# Pedidos de terminais/aplicações — SegPortal AQNE
 # Usuário solicita; administrador aprova ou rejeita.
 
 requests:
@@ -39,4 +39,4 @@ default_browser:
     - segportal-browser-default
   description: >
     Navegador HTML5 clientless para sites internos e externos
-    (tráfego externo via proxy-egress / IP TJSE quando configurado).
+    (tráfego externo via proxy-egress / IP AQNE quando configurado).

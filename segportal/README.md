@@ -1,14 +1,12 @@
-# SegPortal — Portal ZTNA do TJSE
+# SegPortal — Portal ZTNA do AQNE
 
-**Versão documental:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
+**Versão:** 2026-09-05 (portal-auth · pastas AD · OneDrive/Google Drive · navegador Bacen)
 
-[![CI](https://github.com/avilarezende/conversador-pop-se/actions/workflows/segportal-ci.yml/badge.svg)](https://github.com/avilarezende/conversador-pop-se/actions/workflows/segportal-ci.yml)
+[![CI](https://github.com/avilarezende/segportal/actions/workflows/ci.yml/badge.svg)](https://github.com/avilarezende/segportal/actions/workflows/ci.yml)
 
-**SegPortal** é o portal de acesso seguro do **Tribunal de Justiça de Sergipe (TJSE)**. Baseado em [Apache Guacamole](https://guacamole.apache.org/), substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`tjse.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
+**Repositório:** https://github.com/avilarezende/segportal
 
-**Fonte canônica (monorepo):** https://github.com/avilarezende/conversador-pop-se/tree/cursor/segportal-github-d39d/segportal  
-**PR com a nova UI:** https://github.com/avilarezende/conversador-pop-se/pull/11  
-**Espelho standalone (pode estar desatualizado):** https://github.com/avilarezende/segportal
+**SegPortal** é o portal de acesso seguro do **AQNE**. Com acesso clientless HTML5, substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`aqne.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
 
 ---
 
@@ -25,7 +23,7 @@
 
 ## Mockup do portal
 
-![Mockup SegPortal TJSE](docs/images/segportal-mockup.jpg)
+![Mockup SegPortal AQNE](docs/images/segportal-mockup.jpg)
 
 *Login, portal com navegador HTML padrão, sessão clientless e painel admin de aprovações.*
 
@@ -39,10 +37,10 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 
 | Componente | Função | Pod K8s |
 |------------|--------|---------|
-| **Guacamole** | Portal web, autenticação e autorização | `guacamole` (HPA 2–10) |
+| **SegPortal** | Portal web, autenticação e autorização | `sessions` (HPA 2–10) |
 | **guacd** | Proxy RDP, VNC e SSH | `guacd` (HPA 2–20) |
 | **PostgreSQL** | Metadados de conexões e sessões | `postgres` (StatefulSet) |
-| **Proxy egress** | Navegação HTTP com IP institucional TJSE | `proxy-egress` (HPA 1–5) |
+| **Proxy egress** | Navegação HTTP com IP institucional AQNE | `proxy-egress` (HPA 1–5) |
 | **Web browser** | Firefox via VNC — navegador HTML **padrão** | `web-browser` (HPA 2–10) |
 | **Portal auth** | Dashboard pessoal: AD shares, OneDrive/Google Drive, file manager | `portal-auth` |
 | **Bootstrap** | Conexão padrão + papéis no banco | Job `segportal-bootstrap` |
@@ -57,7 +55,7 @@ Preview interativo: [docs/mockup/segportal-preview.html](docs/mockup/segportal-p
 
 | Etapa | Imagem | Descrição |
 |-------|--------|-----------|
-| **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou AD (+ MFA no Guacamole, se habilitado) |
+| **1. Login** | ![Login](docs/images/usage-login.jpg) | Credenciais locais ou AD (+ MFA no SegPortal, se habilitado) |
 | **2. Dashboard** | ![Portal](docs/images/usage-portal.jpg) | Pastas AD, OneDrive/Google Drive e atalhos |
 | **3. Arquivos** | ![Arquivos](docs/images/portal-files.jpg) | Gerenciador HTML (upload, pastas, nuvem) |
 | **4. Navegador HTML5** | ![Bacen](docs/images/usage-browser.jpg) | Firefox no portal acessando o site do **Bacen** (`bcb.gov.br`) |
@@ -84,13 +82,13 @@ docker compose up --build
 
 Acesse:
 - **Dashboard pessoal (arquivos AD + nuvem):** http://localhost:8090  
-- **Guacamole (sessões remotas):** http://localhost:8080/guacamole
+- **SegPortal (sessões remotas):** http://localhost:8090
 
 No primeiro boot o serviço `segportal-bootstrap` cria schema (se preciso), papéis e a conexão **Navegador Web SegPortal** (Firefox via VNC) liberada para todos. Demo sem LDAP:
 
 ```bash
 docker compose -f docker-compose.dev.yml up --build
-# guacadmin / guacadmin  ·  usuario / usuario
+# admin / admin  ·  usuario / usuario
 ```
 
 Detalhes: [docs/CONNECTIONS.md](docs/CONNECTIONS.md)
@@ -110,7 +108,7 @@ kubectl apply -k k8s/overlays/production
 | Item | Arquivo / variável | Detalhes |
 |------|-------------------|----------|
 | **Papéis admin / usuário** | `config/roles/roles.yaml` | [ROLES.md](docs/ROLES.md) |
-| **Admin local padrão** | `guacadmin` / `guacadmin` | [LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md) |
+| **Admin local padrão** | `admin` / `admin` | [LOCAL_ADMIN.md](docs/LOCAL_ADMIN.md) |
 | LDAP (opcional) | `LDAP_ENABLED`, `config/ldap/ldap-settings.yaml` | [CONFIGURATION.md](docs/CONFIGURATION.md#3-active-directory-ldap--opcional) |
 | MFA RADIUS | `MFA_RADIUS_HOST`, `MFA_RADIUS_SECRET` | [CONFIGURATION.md](docs/CONFIGURATION.md#4-mfa-via-radius) |
 | Navegador padrão | `web-browser` + bootstrap | [CONNECTIONS.md](docs/CONNECTIONS.md) |
@@ -126,7 +124,7 @@ Guia passo a passo: **[docs/CONFIGURATION.md](docs/CONFIGURATION.md)**
 
 ```
 segportal/
-├── config/              # guacamole.properties, LDAP, Squid, papéis
+├── config/              # sessions.properties, LDAP, Squid, papéis
 ├── docs/
 │   ├── images/          # diagramas e mockups (JPG)
 │   ├── mockup/          # preview HTML interativo
@@ -147,7 +145,7 @@ segportal/
 
 ## Segurança
 
-- Autenticação **local** sempre disponível (admin `guacadmin` independente do LDAP)
+- Autenticação **local** sempre disponível (admin `admin` independente do LDAP)
 - LDAP **opcional** — apontamentos configuráveis pelo administrador
 - MFA via RADIUS quando habilitado
 - Navegador HTML padrão com VNC **somente na rede interna**
@@ -183,4 +181,4 @@ Leia [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir pull requests.
 
 ## Licença
 
-Uso interno TJSE. Consulte a área de TI para termos de distribuição.
+Uso interno AQNE. Consulte a área de TI para termos de distribuição.

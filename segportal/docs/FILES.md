@@ -59,7 +59,7 @@ Sem `client_id`, a montagem cria pasta demo sob `DEMO_SHARES_ROOT/cloud/...`.
 Interface em HTML/CSS/JS (`services/portal-auth/static`):
 
 - Tipografia Source Sans 3 + Fraunces  
-- Cores institucionais TJSE (navy / ouro)  
+- Cores institucionais AQNE (navy / ouro)  
 - Abas **Início · Arquivos · Sessões**  
 - Diálogo acessível para nova pasta/renomear  
 - Arrastar e soltar; alvos de clique ≥ 44px  
@@ -70,4 +70,4 @@ Interface em HTML/CSS/JS (`services/portal-auth/static`):
 
 ## Operação (admin)
 
-Ver [ADMIN_MANUAL.md](ADMIN_MANUAL.md) §3. Variáveis: `PORTAL_SESSION_SECRET`, `DEMO_SHARES_ROOT`, `GUACAMOLE_PUBLIC_URL`, `LDAP_ENABLED`.
+Ver [ADMIN_MANUAL.md](ADMIN_MANUAL.md) §3. Variáveis: `PORTAL_SESSION_SECRET`, `DEMO_SHARES_ROOT`, `SESSIONS_INTERNAL_URL`, `LDAP_ENABLED`.

@@ -1,4 +1,4 @@
-# SegPortal TJSE — Guacamole web application
+# SegPortal AQNE — Guacamole web application
 # Build context: repository root (docker-compose / CI)
 ARG GUACAMOLE_VERSION=1.5.5
 
@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl gettext-ba
     && rm -rf /tmp/guac-ext \
     && apt-get purge -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
-# TJSE branding and configuration
+# AQNE branding and configuration
 COPY config/guacamole/guacamole.properties /etc/guacamole/guacamole.properties.template
 COPY config/ldap/ldap-settings.yaml /etc/guacamole/ldap-settings.yaml
 COPY services/guacamole/branding/ /etc/guacamole/branding/

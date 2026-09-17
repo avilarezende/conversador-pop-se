@@ -1,9 +1,9 @@
-# SegPortal TJSE — institutional egress proxy (Squid)
+# SegPortal AQNE — institutional egress proxy (Squid)
 FROM ubuntu/squid:6.6-24.04_edge
 
 LABEL org.opencontainers.image.title="segportal-egress-proxy" \
-      org.opencontainers.image.description="Controlled HTTP egress for SegPortal TJSE" \
-      org.opencontainers.image.vendor="TJSE"
+      org.opencontainers.image.description="Controlled HTTP egress for SegPortal AQNE" \
+      org.opencontainers.image.vendor="AQNE"
 
 USER root
 COPY services/egress-proxy/squid.conf /etc/squid/squid.conf

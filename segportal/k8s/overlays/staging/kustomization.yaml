@@ -5,20 +5,20 @@ resources:
   - ../../base
 
 images:
-  - name: registry.tjse.jus.br/segportal/guacamole
+  - name: registry.aqne.jus.br/segportal/guacamole
     newTag: staging
-  - name: registry.tjse.jus.br/segportal/guacd
+  - name: registry.aqne.jus.br/segportal/guacd
     newTag: staging
-  - name: registry.tjse.jus.br/segportal/egress-proxy
+  - name: registry.aqne.jus.br/segportal/egress-proxy
     newTag: staging
-  - name: registry.tjse.jus.br/segportal/web-browser
+  - name: registry.aqne.jus.br/segportal/web-browser
     newTag: staging
 
 configMapGenerator:
   - name: segportal-common
     behavior: merge
     literals:
-      - GUACAMOLE_HOSTNAME=segportal-stg.tjse.jus.br
+      - GUACAMOLE_HOSTNAME=segportal-stg.aqne.jus.br
 
 patches:
   - target:
@@ -27,7 +27,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: segportal-stg.tjse.jus.br
+        value: segportal-stg.aqne.jus.br
       - op: replace
         path: /spec/tls/0/hosts/0
-        value: segportal-stg.tjse.jus.br
+        value: segportal-stg.aqne.jus.br

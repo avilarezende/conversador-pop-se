@@ -1,4 +1,4 @@
-# Scripts — SegPortal TJSE
+# Scripts — SegPortal AQNE
 
 Utilitários de inicialização, bootstrap e operação do portal.
 

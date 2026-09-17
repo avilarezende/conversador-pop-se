@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sessão de computador — SegPortal</title>
+  <style>
+    :root { --navy:#003366; --task:#1b2838; --ink:#e8eef5; }
+    * { box-sizing:border-box; }
+    html,body { height:100%; margin:0; }
+    body { font-family:"Source Sans 3",Segoe UI,sans-serif; background:linear-gradient(160deg,#2b5876,#4e4376); color:var(--ink); display:flex; flex-direction:column; }
+    .desk { flex:1; padding:1.5rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:1rem; align-content:start; }
+    .icon { text-align:center; font-size:.8rem; text-shadow:0 1px 2px rgba(0,0,0,.35); }
+    .icon .box { width:48px; height:48px; margin:0 auto .35rem; border-radius:10px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.25); display:grid; place-items:center; font-weight:700; }
+    .taskbar { height:44px; background:var(--task); display:flex; align-items:center; justify-content:space-between; padding:0 .75rem; }
+    .taskbar .start { background:var(--navy); border:0; color:#fff; border-radius:6px; padding:.35rem .7rem; font:inherit; }
+    .banner { position:absolute; left:50%; top:18%; transform:translateX(-50%); background:rgba(0,26,51,.88); padding:1rem 1.25rem; border-radius:12px; max-width:420px; text-align:center; box-shadow:0 16px 40px rgba(0,0,0,.35); }
+    .banner h1 { margin:0 0 .4rem; font-size:1.15rem; }
+    .banner p { margin:0; opacity:.9; font-size:.92rem; }
+  </style>
+</head>
+<body>
+  <div class="desk" id="desk">
+    <div class="icon"><div class="box">ARQ</div>Arquivos</div>
+    <div class="icon"><div class="box">SYS</div>Sistemas</div>
+    <div class="icon"><div class="box">WEB</div>Intranet</div>
+  </div>
+  <div class="banner">
+    <h1 id="title">Computador remoto</h1>
+    <p>Sessão SegPortal embutida nesta aba. Em produção, o desktop liberado ao seu perfil é apresentado aqui, sem redirecionar para outro portal.</p>
+  </div>
+  <div class="taskbar">
+    <button class="start" type="button">SegPortal</button>
+    <span id="clock"></span>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const name = params.get("name") || "Computador remoto";
+    document.getElementById("title").textContent = name;
+    document.title = name + " — SegPortal";
+    const tick = () => { document.getElementById("clock").textContent = new Date().toLocaleString("pt-BR"); };
+    tick(); setInterval(tick, 1000);
+  </script>
+</body>
+</html>

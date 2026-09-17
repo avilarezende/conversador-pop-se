@@ -14,7 +14,7 @@ HEIGHT="${DISPLAY_HEIGHT:-800}"
 GEOMETRY="${WIDTH}x${HEIGHT}x24"
 VNC_PORT="${VNC_PORT:-5900}"
 VNC_PASSWORD="${VNC_PASSWORD:-segport1}"
-FF_OPEN_URL="${FF_OPEN_URL:-https://www.tjse.jus.br}"
+FF_OPEN_URL="${FF_OPEN_URL:-https://www.aqne.jus.br}"
 PASSFILE="${HOME}/.vnc/passwd"
 LOGDIR="${HOME}/.segportal-logs"
 

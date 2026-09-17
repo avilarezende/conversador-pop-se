@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: registry.tjse.jus.br/segportal
+  REGISTRY: registry.aqne.jus.br/segportal
 
 defaults:
   run:
