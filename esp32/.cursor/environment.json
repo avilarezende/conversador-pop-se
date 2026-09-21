@@ -1,0 +1,4 @@
+{
+  "name": "esp32",
+  "install": "python3 -m pip install --user -U 'platformio' 'click>=8.0.4,<8.4'\nexport PATH=\"$HOME/.local/bin:$PATH\"\npio --version\npython3 tests/test_grok_contract.py\npio pkg install -e cyd || true"
+}
