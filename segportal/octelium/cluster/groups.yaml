@@ -1,0 +1,9 @@
+kind: Group
+metadata:
+  name: usuarios
+spec: {}
+---
+kind: Group
+metadata:
+  name: admins
+spec: {}

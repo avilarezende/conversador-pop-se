@@ -61,6 +61,10 @@ segportal/
 └── k8s/overlays/
 ```
 
+## ZTNA com Octelium
+
+A borda de identidade fica no [Octelium](OCTELIUM.md): o Service público `portal` encaminha só usuários autorizados ao `portal-auth`. O backend de sessões (`sessoes` → Guacamole) não é publicado; só o grupo `admins` chega nele pelo cliente WireGuard/QUIC.
+
 ## Decisões de design
 
 | Decisão | Motivo |
