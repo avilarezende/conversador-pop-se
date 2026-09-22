@@ -1,0 +1,25 @@
+# Políticas CEL do Octelium para o SegPortal.
+# Aplicar com: octeliumctl apply octelium/cluster
+# https://octelium.com/docs/octelium/latest/management/core/policy
+
+kind: Policy
+metadata:
+  name: segportal-usuarios
+spec:
+  rules:
+    - name: humanos-do-dominio
+      effect: ALLOW
+      condition:
+        match: >
+          ctx.user.spec.type == "HUMAN" &&
+          ctx.user.spec.email.endsWith("@aqne.jus.br")
+---
+kind: Policy
+metadata:
+  name: segportal-admins
+spec:
+  rules:
+    - name: grupo-admins
+      effect: ALLOW
+      condition:
+        match: '"admins" in ctx.user.spec.groups'

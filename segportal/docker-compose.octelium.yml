@@ -1,0 +1,14 @@
+# Empilha com o compose principal e deixa o portal só em localhost.
+# A publicação na internet fica a cargo do Service WEB `portal` do Octelium.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.octelium.yml up -d
+#
+# Requer Compose com suporte a !override (Compose Specification 2.24+).
+
+services:
+  guacamole:
+    ports: !override
+      - "127.0.0.1:8080:8080"
+  portal-auth:
+    ports: !override
+      - "127.0.0.1:8090:8090"

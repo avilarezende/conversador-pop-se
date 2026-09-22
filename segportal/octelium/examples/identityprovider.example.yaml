@@ -1,0 +1,19 @@
+# Exemplo — não aplicar com segredos reais no Git.
+# 1) octeliumctl create secret aqne-oidc-client-secret
+# 2) Ajuste issuerURL/clientID e aplique este arquivo à parte.
+# Callback do IdP: https://<OCTELIUM_DOMAIN>/callback
+# https://octelium.com/docs/octelium/latest/management/core/identity-providers
+
+kind: IdentityProvider
+metadata:
+  name: aqne-oidc
+  displayName: AQNE
+spec:
+  displayName: Entrar com AQNE
+  oidc:
+    issuerURL: https://idp.aqne.jus.br
+    clientID: segportal-octelium
+    clientSecret:
+      fromSecret: aqne-oidc-client-secret
+    checkEmailVerified: true
+    scopes: ["openid", "profile", "email"]

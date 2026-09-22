@@ -6,6 +6,8 @@
 
 **Repositório:** https://github.com/avilarezende/segportal
 
+A borda ZTNA pública é o [Octelium](docs/OCTELIUM.md) (`octelium/cluster`): portal clientless para `@aqne.jus.br` e sessões HTML5 só para admins.
+
 **SegPortal** é o portal de acesso seguro do **AQNE**. Com acesso clientless HTML5, substitui a VPN interna por um modelo **ZTNA** (Zero Trust Network Access): autenticação local e/ou LDAP (`aqne.jus.br`) com MFA opcional, e acesso a RDP, VNC, SSH e navegação web **direto no navegador**, sem cliente VPN.
 
 ---

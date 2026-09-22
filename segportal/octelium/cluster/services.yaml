@@ -1,0 +1,28 @@
+# Borda ZTNA: o Octelium publica o portal e mantém o backend de sessões privado.
+# Upstreams são Services ClusterIP do namespace Kubernetes `segportal`.
+# Documentação: https://octelium.com/docs/octelium/latest/overview/management
+
+kind: Service
+metadata:
+  name: portal
+  displayName: SegPortal
+spec:
+  mode: WEB
+  isPublic: true
+  config:
+    upstream:
+      url: http://portal-auth.segportal.svc.cluster.local:8090
+  authorization:
+    policies: ["segportal-usuarios"]
+---
+kind: Service
+metadata:
+  name: sessoes
+  displayName: Sessões HTML5 (admin)
+spec:
+  mode: HTTP
+  config:
+    upstream:
+      url: http://guacamole.segportal.svc.cluster.local:8080
+  authorization:
+    policies: ["segportal-admins"]

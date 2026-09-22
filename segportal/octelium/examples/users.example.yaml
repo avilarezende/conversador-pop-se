@@ -1,0 +1,17 @@
+# Exemplo de usuários humanos. O e-mail precisa coincidir com o claim do IdP.
+
+kind: User
+metadata:
+  name: usuario
+spec:
+  type: HUMAN
+  email: usuario@aqne.jus.br
+  groups: ["usuarios"]
+---
+kind: User
+metadata:
+  name: admin
+spec:
+  type: HUMAN
+  email: admin@aqne.jus.br
+  groups: ["usuarios", "admins"]
