@@ -34,7 +34,29 @@ Usuários demo (substitua por IdentityProvider em produção):
 | `admin` | `segportal-admins`, `segportal-users` (Policy `allow-all` do Cluster) |
 | `usuario` | `segportal-users` |
 
-## Instalar o Cluster
+## Octelium não roda em Docker
+
+O projeto [não oferece Docker Compose](https://github.com/octelium/octelium/issues/17). O Cluster sobe em Kubernetes (k3s numa máquina Linux). O SegPortal (Guacamole, portal-auth, navegador) continua no Compose. O Octelium é **outra instância**.
+
+```bash
+sudo apt-get install -y qemu-system-x86 qemu-utils cloud-image-utils
+./octelium/instance/tools/install-clients.sh
+./octelium/instance/create-instance.sh
+```
+
+A microVM KVM usa Ubuntu 24.04, systemd e o instalador oficial (`install-cluster.sh --domain octelium.segportal.local --nat --force-machine-ip`). SSH no host: porta `2222`. HTTPS do Cluster: porta `8443`. A VM alcança o Compose em `http://10.0.2.2:8080` e `:8090`.
+
+Depois do login no Cluster:
+
+```bash
+export OCTELIUM_DOMAIN=octelium.segportal.local
+export OCTELIUM_INSECURE_TLS=true
+./octelium/scripts/apply.sh --profile instance
+```
+
+`--profile cluster` (padrão) publica os upstreams `*.segportal.svc.cluster.local`, para quando a aplicação também está no Kubernetes do Octelium.
+
+## Instalar o Cluster numa VPS
 
 Um nó Linux (2 GB RAM, 20 GB de disco) e um domínio:
 

@@ -82,6 +82,17 @@ kubectl apply -k k8s/overlays/octelium
 
 O script de apply exige um Cluster já instalado e `octeliumctl` autenticado. Sem o CLI, ele só valida o YAML. Passo a passo: [octelium/README.md](../octelium/README.md).
 
+O Octelium **não roda em Docker**. Os mantenedores não oferecem Compose. O SegPortal em Compose fica no host; o Cluster fica numa segunda instância Linux (microVM KVM):
+
+```bash
+sudo apt-get install -y qemu-system-x86 qemu-utils cloud-image-utils
+./octelium/instance/tools/install-clients.sh
+./octelium/instance/create-instance.sh
+./octelium/scripts/apply.sh --profile instance
+```
+
+Upstreams HTTP dessa instância apontam para o host (`10.0.2.2:8080` e `:8090` no user-net do QEMU).
+
 ## CI/CD
 
 | Pipeline | Trigger | Ação |

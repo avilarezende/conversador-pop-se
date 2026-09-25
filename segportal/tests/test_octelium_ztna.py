@@ -79,6 +79,23 @@ def test_apply_script_exists() -> None:
     assert script.is_file()
     text = script.read_text(encoding="utf-8")
     assert "octeliumctl apply" in text
+    assert "--profile" in text
+
+
+def test_octelium_is_a_separate_instance_not_compose() -> None:
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+    assert "Octelium não é um serviço deste Compose" in compose
+    assert "image: octelium" not in compose
+    user_data = (ROOT / "octelium" / "instance" / "cloud-init" / "user-data").read_text(encoding="utf-8")
+    assert "install-cluster.sh" in user_data
+    assert "--nat" in user_data
+    assert "--force-machine-ip" in user_data
+    assert "docker compose" not in user_data
+    creator = (ROOT / "octelium" / "instance" / "create-instance.sh").read_text(encoding="utf-8")
+    assert "qemu-system-x86_64" in creator
+    template = (ROOT / "octelium" / "instance" / "services.yaml.tpl").read_text(encoding="utf-8")
+    assert "http://__UPSTREAM_HOST__:8080" in template
+    assert "http://__UPSTREAM_HOST__:8090" in template
 
 
 def test_octelium_overlay_drops_public_ingress() -> None:

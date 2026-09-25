@@ -5,17 +5,52 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLUSTER="${ROOT}/cluster"
+PROFILE="cluster"
+UPSTREAM_HOST="${SEGPORTAL_UPSTREAM_HOST:-10.0.2.2}"
 
-python3 - "$CLUSTER" <<'PY'
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --profile)
+      PROFILE="${2:?perfil ausente}"
+      shift 2
+      ;;
+    --upstream-host)
+      UPSTREAM_HOST="${2:?host ausente}"
+      shift 2
+      ;;
+    *)
+      echo "uso: $0 [--profile cluster|instance] [--upstream-host HOST]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+SERVICES="${CLUSTER}/services.yaml"
+if [[ "$PROFILE" == "instance" ]]; then
+  SERVICES="$(mktemp)"
+  trap 'rm -f "$SERVICES"' EXIT
+  sed "s|__UPSTREAM_HOST__|${UPSTREAM_HOST}|g" "${ROOT}/instance/services.yaml.tpl" > "$SERVICES"
+elif [[ "$PROFILE" != "cluster" ]]; then
+  echo "perfil desconhecido: ${PROFILE}" >&2
+  exit 1
+fi
+
+python3 - "$CLUSTER" "$SERVICES" <<'PY'
 import sys
 from pathlib import Path
 
 import yaml
 
 root = Path(sys.argv[1])
+services = Path(sys.argv[2])
 docs = []
 for path in sorted(root.glob("*.yaml")):
+    if path.name == "services.yaml" and path.resolve() != services.resolve():
+        continue
+    if path.resolve() == services.resolve():
+        continue
     docs.extend(d for d in yaml.safe_load_all(path.read_text(encoding="utf-8")) if d)
+docs.extend(d for d in yaml.safe_load_all(services.read_text(encoding="utf-8")) if d)
 kinds = {d["kind"] for d in docs}
 required = {"Group", "User", "Policy", "Service"}
 missing = required - kinds
@@ -31,7 +66,7 @@ if ! command -v octeliumctl >/dev/null 2>&1; then
   exit 0
 fi
 
-for file in "$CLUSTER"/groups.yaml "$CLUSTER"/policies.yaml "$CLUSTER"/users.yaml "$CLUSTER"/services.yaml; do
+for file in "$CLUSTER"/groups.yaml "$CLUSTER"/policies.yaml "$CLUSTER"/users.yaml "$SERVICES"; do
   echo "octeliumctl apply ${file}"
   octeliumctl apply "$file"
 done

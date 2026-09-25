@@ -59,6 +59,7 @@ O fork em [`octelium/`](../octelium/README.md) coloca o [Octelium](https://octel
 - HTTP (`segportal`, `portal-auth`) é público no sentido BeyondCorp: o navegador autentica no Cluster antes do upstream.
 - RDP/SSH não abrem porta na internet; o usuário usa `octelium connect`.
 - Acesso sem identidade válida permanece negado (não há ALLOW implícito).
+- O Cluster não entra no Docker Compose. Ele roda numa instância Linux própria (`octelium/instance/`).
 
 ## Dados sensíveis
 
