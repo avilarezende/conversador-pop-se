@@ -1,0 +1,70 @@
+# Serviços publicados pelo Octelium. Upstreams são endereços privados
+# do namespace Kubernetes `segportal` (ou hosts internos).
+# HTTP público: o usuário autentica no portal do Cluster e abre o app no navegador.
+# TCP/SSH: exigem `octelium connect` (sem VPN de rede).
+kind: Service
+metadata:
+  name: segportal
+spec:
+  mode: HTTP
+  isPublic: true
+  port: 443
+  authorization:
+    policies: ["allow-segportal-users"]
+  config:
+    upstream:
+      url: http://guacamole.segportal.svc.cluster.local:8080
+---
+kind: Service
+metadata:
+  name: portal-auth
+spec:
+  mode: HTTP
+  isPublic: true
+  port: 443
+  authorization:
+    policies: ["allow-segportal-users"]
+  config:
+    upstream:
+      url: http://portal-auth.segportal.svc.cluster.local:8090
+---
+kind: Service
+metadata:
+  name: desktop-financeiro
+spec:
+  mode: TCP
+  port: 3389
+  authorization:
+    policies: ["allow-segportal-users"]
+  config:
+    upstream:
+      url: tcp://10.10.20.51:3389
+---
+kind: Service
+metadata:
+  name: desktop-admin
+spec:
+  mode: TCP
+  port: 3389
+  authorization:
+    policies: ["allow-segportal-admins"]
+  config:
+    upstream:
+      url: tcp://10.10.20.10:3389
+---
+kind: Service
+metadata:
+  name: jump-ssh
+spec:
+  mode: SSH
+  port: 22
+  authorization:
+    policies: ["allow-segportal-admins"]
+  config:
+    upstream:
+      url: ssh://10.10.20.10:22
+    ssh:
+      user: segportal
+      upstreamHostKey:
+        # Laboratório. Em produção fixe a host key do servidor.
+        insecureIgnoreHostKey: true
