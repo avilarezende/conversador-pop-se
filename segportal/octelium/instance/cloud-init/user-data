@@ -57,6 +57,8 @@ write_files:
 
       [Service]
       Type=oneshot
+      Environment=HOME=/root
+      Environment=XDG_CONFIG_HOME=/root/.config
       ExecStart=/usr/local/sbin/install-octelium-segportal.sh
       RemainAfterExit=yes
       TimeoutStartSec=infinity

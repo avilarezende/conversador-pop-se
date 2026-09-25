@@ -88,6 +88,7 @@ def test_octelium_is_a_separate_instance_not_compose() -> None:
     assert "image: octelium" not in compose
     user_data = (ROOT / "octelium" / "instance" / "cloud-init" / "user-data").read_text(encoding="utf-8")
     assert "install-cluster.sh" in user_data
+    assert "Environment=HOME=/root" in user_data
     assert "--nat" in user_data
     assert "--force-machine-ip" in user_data
     assert "docker compose" not in user_data
