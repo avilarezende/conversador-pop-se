@@ -73,6 +73,7 @@ segportal/
 | LDAP opcional | Homologação e emergência sem AD |
 | Pods separados | Escala e blast radius independentes |
 | Squid whitelist | Egress controlado no lugar da VPN HTTP |
+| Octelium como borda ZTNA | Ingress público removido; acesso só depois de identidade + Policy. Ver [octelium/README.md](../octelium/README.md) |
 
 ## Referências
 

@@ -71,6 +71,17 @@ kubectl -n segportal logs job/segportal-bootstrap
 2. O path `k8s/overlays/production` é sincronizado automaticamente
 3. Clusters alvo: label `env=production`
 
+## ZTNA com Octelium
+
+Em vez do Ingress público, publique o SegPortal por um Cluster Octelium e aplique o overlay sem borda aberta:
+
+```bash
+kubectl apply -k k8s/overlays/octelium
+./octelium/scripts/apply.sh
+```
+
+O script de apply exige um Cluster já instalado e `octeliumctl` autenticado. Sem o CLI, ele só valida o YAML. Passo a passo: [octelium/README.md](../octelium/README.md).
+
 ## CI/CD
 
 | Pipeline | Trigger | Ação |
