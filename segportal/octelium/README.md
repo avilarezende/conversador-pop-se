@@ -4,16 +4,17 @@ Fork operacional do SegPortal em que a fronteira **Zero Trust** deixa de ser o I
 
 O Guacamole, o portal-auth, RDP e SSH continuam como aplicações. Eles ficam em endereços **privados**. Quem chega até eles é o Octelium, depois de autenticar a identidade e avaliar a Policy.
 
+![Funções do SegPortal com Octelium](../docs/images/octelium-funcoes.png)
+
+![Fluxo guiado](../docs/images/octelium-fluxo-guiado.png)
+
+O processo inteiro, com perguntas de domínio, IP e certificado:
+
+```bash
+./octelium/scripts/guided.sh
 ```
-Usuário (navegador ou octelium connect)
-        │  identidade (OIDC/SAML/AD) + Policy por requisição
-        ▼
-Cluster Octelium  (namespace Kubernetes `octelium`)
-        │  HTTP público: segportal, portal-auth
-        │  TCP/SSH: desktops e jump host (só via connect)
-        ▼
-Namespace `segportal`  (NetworkPolicy: sem Ingress público)
-```
+
+`--yes` responde com as variáveis de ambiente. `--dry-run` só grava `instance/.local/guided.env`.
 
 ## O que este fork publica
 

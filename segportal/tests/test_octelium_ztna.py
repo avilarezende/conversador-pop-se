@@ -82,11 +82,40 @@ def test_apply_script_exists() -> None:
     assert "--profile" in text
 
 
+def test_guided_dry_run_records_domain_and_upstream() -> None:
+    import os
+    import subprocess
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "MODE": "1",
+            "OCTELIUM_DOMAIN": "lab.exemplo.jus.br",
+            "OCTELIUM_CERT_MODE": "1",
+            "SEGPORTAL_UPSTREAM_HOST": "10.8.8.8",
+            "SEGPORTAL_GUACAMOLE_PORT": "8080",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(ROOT / "octelium" / "scripts" / "guided.sh"), "--yes", "--dry-run"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env=env,
+        cwd=ROOT,
+    )
+    assert "Dry-run" in result.stdout
+    saved = (ROOT / "octelium" / "instance" / ".local" / "guided.env").read_text(encoding="utf-8")
+    assert "OCTELIUM_DOMAIN=lab.exemplo.jus.br" in saved
+    assert "SEGPORTAL_UPSTREAM_HOST=10.8.8.8" in saved
+
+
 def test_octelium_is_a_separate_instance_not_compose() -> None:
     compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
     assert "Octelium não é um serviço deste Compose" in compose
     assert "image: octelium" not in compose
-    user_data = (ROOT / "octelium" / "instance" / "cloud-init" / "user-data").read_text(encoding="utf-8")
+    user_data_path = ROOT / "octelium" / "instance" / "cloud-init" / "user-data"
+    user_data = user_data_path.read_text(encoding="utf-8")
     assert "install-cluster.sh" in user_data
     assert "Environment=HOME=/root" in user_data
     assert "--nat" in user_data
@@ -95,8 +124,8 @@ def test_octelium_is_a_separate_instance_not_compose() -> None:
     creator = (ROOT / "octelium" / "instance" / "create-instance.sh").read_text(encoding="utf-8")
     assert "qemu-system-x86_64" in creator
     template = (ROOT / "octelium" / "instance" / "services.yaml.tpl").read_text(encoding="utf-8")
-    assert "http://__UPSTREAM_HOST__:8080" in template
-    assert "http://__UPSTREAM_HOST__:8090" in template
+    assert "http://__UPSTREAM_HOST__:__GUACAMOLE_PORT__" in template
+    assert "http://__UPSTREAM_HOST__:__PORTAL_PORT__" in template
 
 
 def test_octelium_overlay_drops_public_ingress() -> None:

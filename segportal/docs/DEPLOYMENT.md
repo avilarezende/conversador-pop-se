@@ -86,10 +86,10 @@ O Octelium **não roda em Docker**. Os mantenedores não oferecem Compose. O Seg
 
 ```bash
 sudo apt-get install -y qemu-system-x86 qemu-utils cloud-image-utils
-./octelium/instance/tools/install-clients.sh
-./octelium/instance/create-instance.sh
-./octelium/scripts/apply.sh --profile instance
+./octelium/scripts/guided.sh
 ```
+
+O assistente pergunta domínio, IP, NAT, certificado (laboratório, PEM ou pular) e os IPs dos upstreams. Para repetir sem perguntas: `./octelium/scripts/guided.sh --yes`. Diagramas: [octelium/README.md](../octelium/README.md).
 
 Upstreams HTTP dessa instância apontam para o host (`10.0.2.2:8080` e `:8090` no user-net do QEMU).
 

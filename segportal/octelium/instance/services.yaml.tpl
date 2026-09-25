@@ -12,7 +12,7 @@ spec:
     policies: ["allow-segportal-users"]
   config:
     upstream:
-      url: http://__UPSTREAM_HOST__:8080
+      url: http://__UPSTREAM_HOST__:__GUACAMOLE_PORT__
 ---
 kind: Service
 metadata:
@@ -25,7 +25,7 @@ spec:
     policies: ["allow-segportal-users"]
   config:
     upstream:
-      url: http://__UPSTREAM_HOST__:8090
+      url: http://__UPSTREAM_HOST__:__PORTAL_PORT__
 ---
 kind: Service
 metadata:
@@ -37,7 +37,7 @@ spec:
     policies: ["allow-segportal-users"]
   config:
     upstream:
-      url: tcp://10.10.20.51:3389
+      url: tcp://__DESKTOP_FINANCEIRO__:3389
 ---
 kind: Service
 metadata:
@@ -49,7 +49,7 @@ spec:
     policies: ["allow-segportal-admins"]
   config:
     upstream:
-      url: tcp://10.10.20.10:3389
+      url: tcp://__DESKTOP_ADMIN__:3389
 ---
 kind: Service
 metadata:
@@ -61,7 +61,7 @@ spec:
     policies: ["allow-segportal-admins"]
   config:
     upstream:
-      url: ssh://10.10.20.10:22
+      url: ssh://__JUMP_HOST__:22
     ssh:
       user: segportal
       upstreamHostKey:

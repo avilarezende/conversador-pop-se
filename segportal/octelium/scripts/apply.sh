@@ -29,7 +29,14 @@ SERVICES="${CLUSTER}/services.yaml"
 if [[ "$PROFILE" == "instance" ]]; then
   SERVICES="$(mktemp)"
   trap 'rm -f "$SERVICES"' EXIT
-  sed "s|__UPSTREAM_HOST__|${UPSTREAM_HOST}|g" "${ROOT}/instance/services.yaml.tpl" > "$SERVICES"
+  sed \
+    -e "s|__UPSTREAM_HOST__|${UPSTREAM_HOST}|g" \
+    -e "s|__GUACAMOLE_PORT__|${SEGPORTAL_GUACAMOLE_PORT:-8080}|g" \
+    -e "s|__PORTAL_PORT__|${SEGPORTAL_PORTAL_PORT:-8090}|g" \
+    -e "s|__DESKTOP_FINANCEIRO__|${SEGPORTAL_DESKTOP_FINANCEIRO:-10.10.20.51}|g" \
+    -e "s|__DESKTOP_ADMIN__|${SEGPORTAL_DESKTOP_ADMIN:-10.10.20.10}|g" \
+    -e "s|__JUMP_HOST__|${SEGPORTAL_JUMP_HOST:-10.10.20.10}|g" \
+    "${ROOT}/instance/services.yaml.tpl" > "$SERVICES"
 elif [[ "$PROFILE" != "cluster" ]]; then
   echo "perfil desconhecido: ${PROFILE}" >&2
   exit 1
