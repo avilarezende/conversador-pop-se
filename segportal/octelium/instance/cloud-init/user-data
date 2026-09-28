@@ -2,7 +2,6 @@
 # Instância Linux exclusiva do Cluster Octelium.
 # O SegPortal continua no Docker Compose do host. Esta VM não usa Compose.
 hostname: octelium
-fqdn: octelium.segportal.local
 manage_etc_hosts: true
 package_update: true
 packages:
@@ -25,6 +24,7 @@ write_files:
     permissions: "0644"
     content: |
       OCTELIUM_DOMAIN=__OCTELIUM_DOMAIN__
+      OCTELIUM_INSTALL_FLAGS="__INSTALL_FLAGS__"
   - path: /usr/local/sbin/install-octelium-segportal.sh
     permissions: "0755"
     content: |
@@ -38,13 +38,16 @@ write_files:
         exit 0
       fi
       install -d /var/lib/octelium-segportal
+      ip=$(ip -4 -o addr show scope global | awk '{print $4}' | cut -d/ -f1 | head -1)
+      if [[ -n "${ip}" ]] && ! grep -q "octelium-api.${OCTELIUM_DOMAIN}" /etc/hosts; then
+        echo "${ip} ${OCTELIUM_DOMAIN} octelium-api.${OCTELIUM_DOMAIN} portal.${OCTELIUM_DOMAIN} segportal.${OCTELIUM_DOMAIN} portal-auth.${OCTELIUM_DOMAIN}" >> /etc/hosts
+      fi
       curl -fsSL -o /var/lib/octelium-segportal/install-cluster.sh https://octelium.com/install-cluster.sh
       chmod 0755 /var/lib/octelium-segportal/install-cluster.sh
-      # Laboratório atrás de NAT (microVM). Produção com IP público omite --nat.
+      # shellcheck disable=SC2086
       /var/lib/octelium-segportal/install-cluster.sh \
         --domain "${OCTELIUM_DOMAIN}" \
-        --nat \
-        --force-machine-ip
+        ${OCTELIUM_INSTALL_FLAGS}
       date -Is > "$marker"
   - path: /etc/systemd/system/octelium-segportal.service
     permissions: "0644"

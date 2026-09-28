@@ -118,11 +118,14 @@ def test_octelium_is_a_separate_instance_not_compose() -> None:
     user_data = user_data_path.read_text(encoding="utf-8")
     assert "install-cluster.sh" in user_data
     assert "Environment=HOME=/root" in user_data
-    assert "--nat" in user_data
-    assert "--force-machine-ip" in user_data
+    assert "__INSTALL_FLAGS__" in user_data
+    assert "octelium-api." in user_data
+    assert "fqdn:" not in user_data
     assert "docker compose" not in user_data
     creator = (ROOT / "octelium" / "instance" / "create-instance.sh").read_text(encoding="utf-8")
     assert "qemu-system-x86_64" in creator
+    assert "OCTELIUM_NAT" in creator
+    assert "__INSTALL_FLAGS__" in creator
     template = (ROOT / "octelium" / "instance" / "services.yaml.tpl").read_text(encoding="utf-8")
     assert "http://__UPSTREAM_HOST__:__GUACAMOLE_PORT__" in template
     assert "http://__UPSTREAM_HOST__:__PORTAL_PORT__" in template

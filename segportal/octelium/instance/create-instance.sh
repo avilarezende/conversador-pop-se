@@ -38,9 +38,22 @@ if [[ ! -f "${LOCAL}/id_ed25519" ]]; then
 fi
 pubkey="$(cat "${LOCAL}/id_ed25519.pub")"
 
+install_flags=()
+case "${OCTELIUM_NAT:-s}" in
+  s|S|yes|true|1) install_flags+=(--nat) ;;
+esac
+case "${OCTELIUM_FORCE_MACHINE_IP:-s}" in
+  s|S|yes|true|1) install_flags+=(--force-machine-ip) ;;
+esac
+if [[ -n "${OCTELIUM_PUBLIC_IP:-}" ]]; then
+  install_flags+=(--public-ip "${OCTELIUM_PUBLIC_IP}")
+fi
+flags_text="${install_flags[*]:-}"
+
 sed \
   -e "s|__SSH_PUBLIC_KEY__|${pubkey}|" \
   -e "s|__OCTELIUM_DOMAIN__|${DOMAIN}|" \
+  -e "s|__INSTALL_FLAGS__|${flags_text}|" \
   "${ROOT}/cloud-init/user-data" > "${LOCAL}/user-data"
 cp "${ROOT}/cloud-init/meta-data" "${LOCAL}/meta-data"
 cloud-localds "$SEED" "${LOCAL}/user-data" "${LOCAL}/meta-data"
