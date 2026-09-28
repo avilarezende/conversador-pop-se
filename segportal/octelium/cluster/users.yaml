@@ -1,0 +1,20 @@
+# Usuários demo. Em produção, prefira IdentityProvider OIDC/SAML
+# (Active Directory) e não crie senhas locais no Octelium.
+# O admin recebe a Policy built-in allow-all (acesso ao API Server do Cluster).
+kind: User
+metadata:
+  name: admin
+spec:
+  type: HUMAN
+  email: admin@tjse.jus.br
+  groups: ["segportal-admins", "segportal-users"]
+  authorization:
+    policies: ["allow-all"]
+---
+kind: User
+metadata:
+  name: usuario
+spec:
+  type: HUMAN
+  email: usuario@tjse.jus.br
+  groups: ["segportal-users"]

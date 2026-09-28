@@ -10,4 +10,5 @@ __pycache__/
 .pytest_cache/
 node_modules/
 docker-data/
+octelium/instance/.local/
 .DS_Store
