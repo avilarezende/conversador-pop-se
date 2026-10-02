@@ -6,6 +6,7 @@ __pycache__/
 venv/
 data/chroma/
 data/postgres/
+data/*.db
 *.log
 .DS_Store
 node_modules/
