@@ -1,5 +1,11 @@
 # Módulos — Conversador PoP-SE
 
+## Autenticação contra o engine
+
+Os módulos de canal (WhatsApp, Telegram, Discord) e os coletores chamam a API do engine pelos helpers de `shared/popse_common/engine_client.py` (`send_chat`/`ingest_rag`), que enviam automaticamente o header `X-API-Token` com o valor de `ENGINE_API_TOKEN`. O token deve ser o **mesmo** definido no `.env` do engine, senão as chamadas `/api/v1/*` são recusadas (HTTP 401/503).
+
+O canal **Web** não passa pelo `engine_client`: o Apache do container `web` faz o proxy reverso de `/api` → `http://engine:8000/api` pela rede interna (`popse-net`), e o engine exige o mesmo `X-API-Token` nesses endpoints.
+
 ## Canais
 
 | Módulo | Ativação | Variáveis |
@@ -21,6 +27,13 @@
 | MRTG | Stub | — |
 | Topdesk | Stub | — |
 
+### RAG por instituição
+
+Os coletores marcam os documentos com metadados de contexto institucional:
+
+- **Zabbix** (`services/modules/sources/collectors/zabbix.py`) registra `zabbix_hosts` (hosts afetados) e `instituicao` (sigla deduzida pelo mapeamento em `config/clients.yaml` → `links_monitorados[].zabbix_host`).
+- `query_context` no engine filtra as coleções `operacional`/`institucional`/`manutencoes` pela sigla da instituição do usuário logado, dando prioridade ao filtro por hosts quando disponível.
+
 Para habilitar coletores:
 
 ```bash
@@ -34,3 +47,4 @@ docker compose --profile core --profile email up -d
 2. Adicionar bloco em `config/sources.yaml`
 3. Implementar função `collect_<nome>()` em `services/modules/sources/main.py`
 4. Mapear para coleção RAG: `operacional`, `institucional` ou `manutencoes`
+5. Se a fonte for por instituição, marcar os metadados `zabbix_hosts`/`instituicao`
