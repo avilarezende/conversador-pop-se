@@ -8,8 +8,9 @@ from app.chat_service import handle_chat
 from app.database import get_session
 from app.memory import get_or_create_user
 from app.rag import ingest_documents
+from app.security import require_api_token
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_api_token)])
 
 
 class ChatRequest(BaseModel):
@@ -26,7 +27,14 @@ class ChatResponse(BaseModel):
 
 class IngestRequest(BaseModel):
     collection: str = "operacional"
-    documents: list[dict]
+    documents: list[dict] = Field(default_factory=list, max_length=1000)
+
+    def model_post_init(self, __context) -> None:
+        if not self.collection.strip():
+            raise ValueError("collection não pode ser vazia")
+        for doc in self.documents:
+            if not doc.get("id") or not doc.get("text"):
+                raise ValueError("documentos precisam de 'id' e 'text'")
 
 
 @router.post("/chat", response_model=ChatResponse)
