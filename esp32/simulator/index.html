@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador CYD — Calisto + Grok</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="intro">
+      <p class="brand">esp32 · CYD</p>
+      <h1>Calisto</h1>
+      <p class="lede">Simulador 320×240 do Cheap Yellow Display — avatar + Grok, sem backends externos.</p>
+    </header>
+    <section class="stage" aria-label="Display CYD">
+      <canvas id="screen" width="320" height="240" role="img" aria-label="Tela do CYD"></canvas>
+    </section>
+    <section class="controls">
+      <label>
+        Grok API base
+        <input id="apiBase" type="url" value="https://api.x.ai/v1" />
+      </label>
+      <label>
+        API key (só no browser local; não versionar)
+        <input id="apiKey" type="password" placeholder="xai-..." autocomplete="off" />
+      </label>
+      <label class="check">
+        <input id="useMock" type="checkbox" checked />
+        Usar respostas mock (sem chamar a API)
+      </label>
+      <form id="askForm" class="ask">
+        <input id="message" type="text" placeholder="Digite como no Serial…" maxlength="240" />
+        <button type="submit">Enviar</button>
+      </form>
+      <p id="log" class="log" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
