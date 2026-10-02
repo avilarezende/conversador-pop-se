@@ -1,7 +1,7 @@
 [project]
 name = "conversador-popse"
 version = "0.2.0"
-description = "Chatbot modular PoP-SE/RNP com RAG e múltiplos canais"
+description = "Chatbot modular PoP-SE/RNP (assistente Calisto) com RAG, guardrails, administração e múltiplos canais"
 requires-python = ">=3.12"
 
 [tool.pytest.ini_options]

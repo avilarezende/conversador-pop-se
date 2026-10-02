@@ -14,12 +14,14 @@ Sistema modular de chatbot com IA gratuita (Ollama por padrão) para atender cli
                               ▼
                    ┌───────────────────────┐
                    │  Engine (FastAPI)     │   rede interna,
-                   │  · Persona PoP-SE     │   porta 8000 não
-                   │  · Memória (PG)       │   exposta no host
+                   │  · Persona Calisto    │   porta 8000 não
+                   │  · Guardrails         │   exposta no host
+                   │  · Memória (PG)       │
                    │  · Histórico (8 msgs) │
                    │  · RAG (Chroma)       │
                    │  · LLM (Ollama/remoto)│
                    │  · Rate limiting      │
+                   │  · Admin API          │
                    └──────────┬────────────┘
                               │  X-API-Token
             ┌─────────────────┴─────────────────┐
@@ -75,9 +77,21 @@ As consultas de contexto (`query_context` em `services/engine/app/rag.py`) aceit
 2. **Nova fonte**: adicionar coletor em `services/modules/sources/main.py` e entrada em `config/sources.yaml`.
 3. **Novo cliente**: editar `config/clients.yaml` (montado como volume no Docker).
 
-## Persona
+## Persona e guardrails
 
-O engine usa prompt fixo em `services/engine/app/persona.py` exigindo tom polido, educado e solícito, sem inventar status operacionais.
+O engine usa prompt fixo em `services/engine/app/persona.py` exigindo tom polido, educado e solícito, sem inventar status operacionais. O assistente é o **Calisto** (mascote papagaio ring-neck verde).
+
+Antes de acionar a IA, `services/engine/app/guardrails.py` avalia a mensagem contra regras de escopo (`scope`) e palavras bloqueadas (`blocked_keywords`); mensagens fora do escopo do PoP-SE/RNP recebem uma recusa educada e não chegam ao LLM.
+
+## Administração (runtime)
+
+`services/engine/app/routers/admin.py` expõe a API `/api/v1/admin` (protegida por `X-Admin-Token`) para configurar, sem reiniciar:
+
+- **provedor de IA / modelo / API keys** (aplicados via `settings_store.apply_overrides`);
+- **guardrails** (CRUD);
+- **base de conhecimento RAG** (documentos das coleções).
+
+As configurações são persistidas por `services/engine/app/settings_store.py` (arquivo JSON em `ADMIN_STORE_PATH`). A interface está em `services/web/public/admin.html`.
 
 ### Anti prompt-injection
 
@@ -98,5 +112,6 @@ Implementação em `services/engine/app/llm/providers.py`.
 
 1. Módulo de canal envia `POST /api/v1/chat` com o header `X-API-Token`
 2. Engine extrai nome e instituição, persiste em PostgreSQL e recupera as últimas 8 mensagens (histórico)
-3. RAG busca manutenções em `manutencoes` e status em `operacional`, filtrado pela instituição do usuário
-4. LLM gera resposta educada com base no contexto delimitado por `<contexto_recuperado>` (anti prompt-injection)
+3. Guardrails validam o escopo da mensagem (recusa educada se fora do PoP-SE/RNP)
+4. RAG busca manutenções em `manutencoes` e status em `operacional`, filtrado pela instituição do usuário
+5. LLM (provedor/modelo definidos no `.env` ou na administração) gera resposta educada com base no contexto delimitado por `<contexto_recuperado>` (anti prompt-injection)

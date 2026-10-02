@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#003366" />
+  <title>Administração — Conversador PoP-SE</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <a href="#content" class="skip-link">Pular para o conteúdo</a>
+
+  <header class="header">
+    <div class="header__inner">
+      <div class="header__title">
+        <h1>Administração</h1>
+        <p>Configuração do assistente Calisto — provedor de IA, chaves e guardrails</p>
+      </div>
+      <a class="admin-back" href="/">← Voltar ao chat</a>
+    </div>
+  </header>
+
+  <main id="content" class="admin" tabindex="-1">
+    <!-- Autenticação -->
+    <section class="card" aria-labelledby="auth-title">
+      <h2 id="auth-title">Acesso</h2>
+      <p class="card__hint">Informe o token de administração (header <code>X-Admin-Token</code>, variável <code>ADMIN_TOKEN</code>).</p>
+      <form class="row" data-auth-form>
+        <div class="field field--grow">
+          <label for="admin-token">Token de administração</label>
+          <input id="admin-token" type="password" autocomplete="off" placeholder="ex.: popse-admin" data-token />
+        </div>
+        <button type="submit" class="btn btn--primary">Entrar</button>
+      </form>
+    </section>
+
+    <div data-authed hidden>
+      <!-- IA e API Keys -->
+      <section class="card" aria-labelledby="ai-title">
+        <h2 id="ai-title">Inteligência Artificial e API Keys</h2>
+        <p class="card__hint">Selecione o provedor e o modelo. As chaves são gravadas de forma segura e exibidas mascaradas.</p>
+        <form data-llm-form>
+          <div class="row">
+            <div class="field">
+              <label for="provider">Provedor</label>
+              <select id="provider" data-provider></select>
+            </div>
+            <div class="field">
+              <label for="model">Modelo</label>
+              <select id="model" data-model></select>
+            </div>
+          </div>
+          <div class="creds" data-creds></div>
+          <div class="row row--end">
+            <button type="submit" class="btn btn--primary">Salvar configuração de IA</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Guardrails -->
+      <section class="card" aria-labelledby="gr-title">
+        <h2 id="gr-title">Guardrails</h2>
+        <p class="card__hint">Regras que mantêm o Calisto no escopo do PoP-SE/RNP. Bloqueiam a mensagem antes de acionar a IA.</p>
+
+        <ul class="guardrails" data-guardrails></ul>
+
+        <details class="new-guardrail">
+          <summary>+ Criar novo guardrail</summary>
+          <form data-guardrail-form>
+            <div class="row">
+              <div class="field field--grow">
+                <label for="g-name">Nome</label>
+                <input id="g-name" type="text" required placeholder="Ex.: Bloquear assuntos financeiros" data-g-name />
+              </div>
+              <div class="field">
+                <label for="g-type">Tipo</label>
+                <select id="g-type" data-g-type>
+                  <option value="blocked_keywords">Palavras bloqueadas</option>
+                  <option value="scope">Escopo (palavras permitidas)</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="g-keywords">Palavras-chave <span class="muted">(separadas por vírgula)</span></label>
+              <input id="g-keywords" type="text" placeholder="ex.: bitcoin, aposta, futebol" data-g-keywords />
+            </div>
+            <div class="field">
+              <label for="g-message">Mensagem de recusa</label>
+              <textarea id="g-message" rows="2" placeholder="Ex.: Esse tema foge do meu escopo. Posso ajudar com conectividade do PoP-SE?" data-g-message></textarea>
+            </div>
+            <div class="row row--end">
+              <button type="submit" class="btn btn--primary">Adicionar guardrail</button>
+            </div>
+          </form>
+        </details>
+      </section>
+
+      <!-- Base de conhecimento (RAG) -->
+      <section class="card" aria-labelledby="rag-title">
+        <h2 id="rag-title">Base de conhecimento (RAG)</h2>
+        <p class="card__hint">Adicione ou edite os documentos que o Calisto usa como contexto. Escolha a coleção, revise os documentos e edite/exclua conforme necessário.</p>
+
+        <div class="row">
+          <div class="field">
+            <label for="rag-collection">Coleção</label>
+            <select id="rag-collection" data-rag-collection></select>
+          </div>
+          <button type="button" class="btn btn--ghost" data-rag-refresh>Atualizar lista</button>
+        </div>
+
+        <ul class="guardrails" data-rag-list></ul>
+
+        <details class="new-guardrail" data-rag-details>
+          <summary data-rag-form-title>+ Adicionar documento</summary>
+          <form data-rag-form>
+            <div class="row">
+              <div class="field field--grow">
+                <label for="rag-id">Identificador</label>
+                <input id="rag-id" type="text" required placeholder="ex.: ifs-link-principal" data-rag-id />
+              </div>
+              <div class="field">
+                <label for="rag-source">Fonte <span class="muted">(source)</span></label>
+                <input id="rag-source" type="text" placeholder="ex.: manual, zabbix" data-rag-source />
+              </div>
+            </div>
+            <div class="field">
+              <label for="rag-text">Conteúdo do documento</label>
+              <textarea id="rag-text" rows="4" required placeholder="Texto que o Calisto usará como contexto (ex.: 'O link principal do IFS opera normalmente; sem manutenções nos próximos 30 dias.')." data-rag-text></textarea>
+            </div>
+            <div class="row row--end">
+              <button type="button" class="btn btn--ghost" data-rag-cancel hidden>Cancelar edição</button>
+              <button type="submit" class="btn btn--primary" data-rag-submit>Salvar documento</button>
+            </div>
+          </form>
+        </details>
+      </section>
+    </div>
+
+    <p class="admin-feedback" data-feedback role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="/js/admin.js" defer></script>
+</body>
+</html>
