@@ -1,0 +1,3 @@
+# Coloque aqui a cadeia de CAs do LDAP em PEM (ldap-ca-chain.pem).
+# Exemplo: cat raiz.pem intermediaria.pem > ldap-ca-chain.pem
+# Com LDAP_ENABLED=false este diretório pode ficar vazio.

@@ -124,8 +124,17 @@ services/
   engine/         # FastAPI — chat, RAG, memória, LLM
   web/            # Apache + interface de chat
   modules/        # canais e integrações
+segportal/        # Portal ZTNA AQNE (Guacamole + portal-auth) — ver PR #11
 docs/             # arquitetura, configuração, CI/CD
 ```
+
+### SegPortal (versão AQNE — sincronizada com avilarezende/segportal)
+
+Código e docs alinhados ao `main` de https://github.com/avilarezende/segportal: dashboard AD/nuvem, file manager HTML, navegador Bacen, lembretes/calendário.
+
+- Branch: `cursor/segportal-github-d39d`
+- PR: https://github.com/avilarezende/conversador-pop-se/pull/11
+- Preview: [mockup](segportal/docs/images/segportal-mockup.jpg) · [arquitetura](segportal/docs/images/architecture-overview.jpg) · [Bacen](segportal/docs/images/usage-browser.jpg)
 
 ## Documentação
 

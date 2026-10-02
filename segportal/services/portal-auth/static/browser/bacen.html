@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Banco Central do Brasil — demo SegPortal</title>
+  <style>
+    :root { --bc:#0b3d91; --bc2:#1a5bb8; --ink:#1c2430; --muted:#5b6775; --line:#d9e2ec; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"Source Sans 3",Segoe UI,sans-serif; color:var(--ink); background:#f7f9fc; }
+    .top { background:var(--bc); color:#fff; padding:.75rem 1.25rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .top strong { font-size:1.05rem; letter-spacing:.02em; }
+    .top nav a { color:#d7e6ff; margin-left:1rem; text-decoration:none; font-size:.92rem; }
+    .hero { background:linear-gradient(120deg,var(--bc),var(--bc2)); color:#fff; padding:2rem 1.25rem; }
+    .hero h1 { margin:0 0 .5rem; font-size:clamp(1.4rem,3vw,2rem); }
+    .hero p { margin:0; max-width:52ch; opacity:.92; }
+    .content { padding:1.25rem; max-width:980px; margin:0 auto; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+    .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:1rem; }
+    .card h2 { margin:0 0 .5rem; font-size:1.05rem; color:var(--bc); }
+    .card p { margin:0; color:var(--muted); font-size:.95rem; }
+    .rates { display:flex; gap:1rem; flex-wrap:wrap; margin-top:.75rem; }
+    .rate { background:#eef4ff; border-radius:8px; padding:.65rem .8rem; min-width:120px; }
+    .rate b { display:block; color:var(--bc); }
+    .foot { margin:1.5rem auto; max-width:980px; padding:0 1.25rem 2rem; color:var(--muted); font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <strong>Banco Central do Brasil</strong>
+    <nav>
+      <a href="/browser/home.html">Início SegPortal</a>
+      <a href="/browser/bacen.html">Cidadão</a>
+    </nav>
+  </div>
+  <section class="hero">
+    <h1>Serviços ao cidadão</h1>
+    <p>Demonstração embutida no Navegador do SegPortal. Em operação, o site institucional é acessado pela sessão corporativa HTML5 do portal.</p>
+  </section>
+  <section class="content">
+    <article class="card">
+      <h2>Câmbio — PTAX (demo)</h2>
+      <p>Valores ilustrativos para a documentação do portal.</p>
+      <div class="rates">
+        <div class="rate"><span>USD compra</span><b>R$ 5,42</b></div>
+        <div class="rate"><span>USD venda</span><b>R$ 5,43</b></div>
+        <div class="rate"><span>EUR compra</span><b>R$ 5,95</b></div>
+        <div class="rate"><span>EUR venda</span><b>R$ 5,96</b></div>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Meu BC</h2>
+      <p>Acesse serviços digitais, protocolos e informações ao cidadão no ecossistema Bacen.</p>
+    </article>
+    <article class="card">
+      <h2>Estabilidade financeira</h2>
+      <p>Acompanhe comunicados, normas e indicadores publicados pelo Banco Central.</p>
+    </article>
+  </section>
+  <p class="foot">Conteúdo demonstrativo do SegPortal AQNE. Não substitui o site oficial do Banco Central do Brasil.</p>
+</body>
+</html>
