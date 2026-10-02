@@ -1,6 +1,6 @@
 """API HTTP do motor de conversação."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from app.chat_service import handle_chat
 from app.database import get_session
 from app.memory import get_or_create_user
 from app.rag import ingest_documents
+from app.rate_limit import CHAT_LIMIT, INGEST_LIMIT, limiter
 from app.security import require_api_token
 
 router = APIRouter(dependencies=[Depends(require_api_token)])
@@ -38,7 +39,9 @@ class IngestRequest(BaseModel):
 
 
 @router.post("/chat", response_model=ChatResponse)
+@limiter.limit(CHAT_LIMIT)
 async def chat(
+    request: Request,
     body: ChatRequest,
     session: AsyncSession = Depends(get_session),
 ) -> ChatResponse:
@@ -48,6 +51,7 @@ async def chat(
 
 
 @router.post("/rag/ingest")
-async def rag_ingest(body: IngestRequest) -> dict:
+@limiter.limit(INGEST_LIMIT)
+async def rag_ingest(request: Request, body: IngestRequest) -> dict:
     count = ingest_documents(body.collection, body.documents)
     return {"ingested": count, "collection": body.collection}

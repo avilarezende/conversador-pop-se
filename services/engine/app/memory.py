@@ -53,6 +53,17 @@ async def save_message(session: AsyncSession, user: User, role: str, content: st
     await session.commit()
 
 
+async def get_recent_messages(session: AsyncSession, user: User, limit: int = 8) -> list[Message]:
+    """Recupera as últimas mensagens da conversa (histórico conversacional)."""
+    result = await session.execute(
+        select(Message)
+        .where(Message.user_id == user.id)
+        .order_by(Message.id.desc())
+        .limit(limit)
+    )
+    return list(reversed(result.scalars().all()))
+
+
 async def user_context_summary(user: User) -> str:
     parts = []
     if user.nome:

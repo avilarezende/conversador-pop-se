@@ -8,6 +8,7 @@ def project_config_path(monkeypatch):
     root = Path(__file__).resolve().parents[1]
     monkeypatch.setenv("CONFIG_PATH", str(root / "config"))
     monkeypatch.setenv("ENGINE_API_TOKEN", "test-engine-token")
+    monkeypatch.setenv("ENGINE_RATE_LIMIT_ENABLED", "0")
     # Recarrega settings após alterar env
     from app.config import settings
 
