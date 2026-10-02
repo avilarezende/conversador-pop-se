@@ -176,6 +176,7 @@ docs/             # arquitetura, configuração, CI/CD (+ img/)
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitetura de containers |
 | [MODULES.md](docs/MODULES.md) | Canais e fontes RAG |
 | [CI_CD.md](docs/CI_CD.md) | Pipelines GitHub Actions |
+| [CHANGELOG.md](docs/CHANGELOG.md) | Histórico de atualizações e correções |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Como contribuir |
 
 ## Contato PoP-SE
