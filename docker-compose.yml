@@ -62,8 +62,10 @@ services:
     volumes:
       - ./config:/app/config:ro
       - chroma_data:/data/chroma
-    ports:
-      - "${ENGINE_PORT:-8000}:8000"
+    # Porta 8000 NÃO é publicada no host: o engine só é acessível pela rede
+    # interna (popse-net), e seus endpoints exigem X-API-Token.
+    expose:
+      - "8000"
     depends_on:
       postgres:
         condition: service_healthy

@@ -11,6 +11,39 @@ ZABBIX_PASSWORD = os.getenv("ZABBIX_PASSWORD", "")
 MAINTENANCE_DAYS = int(os.getenv("ZABBIX_MAINTENANCE_DAYS", "30"))
 
 
+def _institution_for_hosts(hosts: list[str]) -> str | None:
+    """Mapeia hosts Zabbix para a sigla da instituição via clients.yaml.
+
+    Retorna a sigla (ex.: IFS) se todos os hosts apontarem para a mesma
+    instituição; None caso contrário.
+    """
+    try:
+        import sys
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[4]  # repo root
+        cfg_dir = Path(os.getenv("CONFIG_PATH", str(root / "config")))
+        clients_file = cfg_dir / "clients.yaml"
+        if not clients_file.exists():
+            return None
+        import yaml
+
+        data = yaml.safe_load(clients_file.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return None
+
+    matched: set[str] = set()
+    for inst in data.get("instituicoes", []):
+        inst_hosts = {
+            link.get("zabbix_host")
+            for link in inst.get("links_monitorados", [])
+            if link.get("zabbix_host")
+        }
+        if any(h in inst_hosts for h in hosts):
+            matched.add(inst.get("sigla", "").upper())
+    return next(iter(matched)) if len(matched) == 1 else None
+
+
 async def _rpc(client: httpx.AsyncClient, method: str, params: dict, auth: str | None = None) -> dict:
     payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": 1}
     if auth:
@@ -54,7 +87,11 @@ async def collect_zabbix(cfg: dict) -> list[dict]:
         )
         if isinstance(maintenances, list):
             for m in maintenances:
-                hosts = ", ".join(h.get("name", h.get("host", "")) for h in m.get("hosts", []))
+                host_list = [
+                    {"name": h.get("name", ""), "host": h.get("host", "")}
+                    for h in m.get("hosts", [])
+                ]
+                hosts = ", ".join(h["name"] or h["host"] for h in host_list)
                 active_from = datetime.fromtimestamp(int(m.get("active_since", 0)), tz=timezone.utc).isoformat()
                 active_till = datetime.fromtimestamp(int(m.get("active_till", 0)), tz=timezone.utc).isoformat()
                 text = (
@@ -72,6 +109,8 @@ async def collect_zabbix(cfg: dict) -> list[dict]:
                             "source": "zabbix",
                             "type": "maintenance",
                             "maintenance_id": m.get("maintenanceid"),
+                            "zabbix_hosts": [h["host"] or h["name"] for h in host_list if h["host"]],
+                            "instituicao": _institution_for_hosts([h["host"] for h in host_list]),
                         },
                     }
                 )

@@ -1,6 +1,6 @@
 """API HTTP do motor de conversação."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +8,10 @@ from app.chat_service import handle_chat
 from app.database import get_session
 from app.memory import get_or_create_user
 from app.rag import ingest_documents
+from app.rate_limit import CHAT_LIMIT, INGEST_LIMIT, limiter
+from app.security import require_api_token
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_api_token)])
 
 
 class ChatRequest(BaseModel):
@@ -26,11 +28,20 @@ class ChatResponse(BaseModel):
 
 class IngestRequest(BaseModel):
     collection: str = "operacional"
-    documents: list[dict]
+    documents: list[dict] = Field(default_factory=list, max_length=1000)
+
+    def model_post_init(self, __context) -> None:
+        if not self.collection.strip():
+            raise ValueError("collection não pode ser vazia")
+        for doc in self.documents:
+            if not doc.get("id") or not doc.get("text"):
+                raise ValueError("documentos precisam de 'id' e 'text'")
 
 
 @router.post("/chat", response_model=ChatResponse)
+@limiter.limit(CHAT_LIMIT)
 async def chat(
+    request: Request,
     body: ChatRequest,
     session: AsyncSession = Depends(get_session),
 ) -> ChatResponse:
@@ -40,6 +51,7 @@ async def chat(
 
 
 @router.post("/rag/ingest")
-async def rag_ingest(body: IngestRequest) -> dict:
+@limiter.limit(INGEST_LIMIT)
+async def rag_ingest(request: Request, body: IngestRequest) -> dict:
     count = ingest_documents(body.collection, body.documents)
     return {"ingested": count, "collection": body.collection}

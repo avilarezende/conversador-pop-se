@@ -34,11 +34,13 @@ class GeminiProvider:
             raise ValueError("GEMINI_API_KEY não configurada")
         url = (
             f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
+            f"{settings.gemini_model}:generateContent"
         )
         payload = {"contents": [{"parts": [{"text": f"{system}\n\n{user_prompt}"}]}]}
+        headers = {"x-goog-api-key": settings.gemini_api_key}
         async with httpx.AsyncClient(timeout=90.0) as client:
-            resp = await client.post(url, json=payload)
+            # A API key vai no header (nunca na URL — evita vazamento em logs/proxies).
+            resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()
             parts = resp.json().get("candidates", [{}])[0].get("content", {}).get("parts", [])
             return parts[0].get("text", "")

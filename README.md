@@ -36,6 +36,7 @@ cp .env.example .env
 | Variável | Obrigatório | O que colocar |
 |----------|-------------|---------------|
 | `POSTGRES_PASSWORD` | Sim | Senha forte para o banco |
+| `ENGINE_API_TOKEN` | **Sim** | Token compartilhado entre engine e módulos — gerar com `openssl rand -hex 32` |
 | `LLM_PROVIDER` | Sim | `ollama` (gratuito local) ou `gemini` / `openai` / `azure` / `grok` |
 | `GEMINI_API_KEY` | Se usar Gemini | Chave em [Google AI Studio](https://aistudio.google.com/apikey) |
 | `GEMINI_MODEL` | Opcional | Modelo Gemini (padrão `gemini-flash-latest`) |
@@ -43,6 +44,9 @@ cp .env.example .env
 | `ADMIN_TOKEN` | Sim | Token do painel de administração (`/admin.html`). **Altere** o padrão `popse-admin` |
 | `ZABBIX_URL`, `ZABBIX_USER`, `ZABBIX_PASSWORD` | Para monitoração | Credenciais do Zabbix do PoP-SE |
 | `CACTI_*`, `GRAFANA_*` | Opcional | Credenciais das ferramentas de monitoração |
+| `CORS_ORIGINS` | Opcional | Origens permitidas no engine, separadas por vírgula (vazio = CORS off) |
+
+> **Importante:** gere um token forte para `ENGINE_API_TOKEN` com `openssl rand -hex 32`. Sem um token forte, o engine recusa (HTTP 503) as chamadas aos endpoints `/api/v1/*`, e os módulos de canal não conseguem conversar.
 
 > Dica: o provedor de IA, as API keys, os guardrails e a base RAG também podem ser configurados sem editar o `.env`, pelo painel de administração em `/admin.html`.
 
@@ -89,10 +93,14 @@ Acesse o chat: **http://localhost:8080** · Administração: **http://localhost:
 
 ### 7. Verificar saúde
 
+A porta 8000 do engine **não é publicada no host** (acesso só pela rede interna). Verifique pelo contêiner:
+
 ```bash
-curl http://localhost:8000/health
+docker compose exec engine curl -f http://localhost:8000/health
 # {"status":"ok","service":"conversador-engine","llm_provider":"ollama"}
 ```
+
+O endpoint `/health` é público (não exige token); os demais `/api/v1/*` exigem o header `X-API-Token`.
 
 ---
 
@@ -114,10 +122,15 @@ Protegido por token (`ADMIN_TOKEN`, enviado no header `X-Admin-Token`). Permite,
 - **Guardrails** de escopo: recusa educada de assuntos fora do PoP-SE/RNP
 - **Administração** de IA/API keys, guardrails e base de conhecimento (RAG)
 - Memória persistente: nome, instituição, preferências, contatos
+- Memória conversacional: últimas 8 mensagens do usuário injetadas no prompt (perguntas de acompanhamento)
 - RAG: Zabbix, Cacti, Grafana, e-mail Microsoft, site PoP-SE
-- Canais modulares: WhatsApp, Telegram, Discord
+- RAG por instituição: filtro pelos metadados `zabbix_hosts`/`instituicao` (via `config/clients.yaml`)
+- Canais modulares: WhatsApp, Telegram, Discord (autenticados contra o engine via `X-API-Token`)
+- API segura: todos os endpoints `/api/v1/*` exigem `X-API-Token`; porta 8000 não exposta no host
+- Anti prompt-injection: contexto RAG delimitado e tratado como dado, nunca como instrução
+- Rate limiting: 60 msg/min no `/api/v1/chat` e 10/min no `/api/v1/rag/ingest`
 - IA: Ollama (local) ou Gemini / OpenAI / Azure / Grok (remoto)
-- CI/CD: lint, testes, build Docker, imagens no GHCR
+- CI/CD: lint, testes, security-scan (gitleaks + bandit), build Docker, imagens no GHCR
 
 ## Perfis Docker
 

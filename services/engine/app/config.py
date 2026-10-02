@@ -17,9 +17,19 @@ class Settings(BaseSettings):
     config_path: str = "/app/config"
     popse_context_url: str = "https://www.pop-se.rnp.br"
 
+    # --- Segurança da API (obrigatório em produção) ---
+    # Token compartilhado usado pelos módulos (WhatsApp/Telegram/Discord/coletores)
+    # para autenticar contra o engine. Nunca use o valor padrão em produção.
+    engine_api_token: str = "change-me-engine-token"
+
     # --- Provedor de IA ---
     # Valores: ollama | gemini | openai | azure | grok
     llm_provider: LlmProvider = "ollama"
+
+    # Origens CORS permitidas (separadas por vírgula). Vazio/ausente = sem
+    # CORS habilitado; defina explicitamente os domínios do portal e canais,
+    # ex.: "https://painel.pop-se.rnp.br".
+    cors_origins: str = ""
 
     # Ollama (local, gratuito)
     ollama_host: str = "http://ollama:11434"
