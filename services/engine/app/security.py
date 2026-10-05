@@ -1,5 +1,7 @@
 """Segurança da API do engine (autenticação por token entre serviços)."""
 
+import hmac
+
 from fastapi import Header, HTTPException, status
 
 from app.config import settings
@@ -22,7 +24,7 @@ def require_api_token(x_api_token: str = Header(default="")) -> None:
             detail="ENGINE_API_TOKEN não configurado (use um token forte em produção)",
         )
 
-    if not x_api_token or x_api_token != configured:
+    if not x_api_token or not hmac.compare_digest(x_api_token.encode(), configured.encode()):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token de API inválido",

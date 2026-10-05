@@ -1,6 +1,8 @@
 name: conversador-popse
 
 x-engine-env: &engine-env
+  ENGINE_ENV: ${ENGINE_ENV:-production}
+  ENGINE_API_TOKEN: ${ENGINE_API_TOKEN:?Defina ENGINE_API_TOKEN forte}
   DATABASE_URL: ${DATABASE_URL}
   LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
   OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
@@ -24,11 +26,11 @@ x-engine-env: &engine-env
 services:
   # --- Infraestrutura base ---
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     profiles: [core]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-popse}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-altere_em_producao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD forte}
       POSTGRES_DB: ${POSTGRES_DB:-conversador}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -40,7 +42,7 @@ services:
     networks: [popse-net]
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:latest@sha256:292ee7945dfc3d5840a181f3ab86fedb1e66703e02c8af98b50f4da56b7e278c
     profiles: [core, llm]
     volumes:
       - ollama_data:/root/.ollama
@@ -54,7 +56,7 @@ services:
       context: .
       dockerfile: services/engine/Dockerfile
     profiles: [core]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       <<: *engine-env
     volumes:
@@ -95,7 +97,7 @@ services:
       context: .
       dockerfile: services/modules/telegram/Dockerfile
     profiles: [telegram]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       ENGINE_URL: http://engine:8000
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
@@ -109,7 +111,7 @@ services:
       context: .
       dockerfile: services/modules/discord/Dockerfile
     profiles: [discord]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       ENGINE_URL: http://engine:8000
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
@@ -123,11 +125,12 @@ services:
       context: .
       dockerfile: services/modules/whatsapp/Dockerfile
     profiles: [whatsapp]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       ENGINE_URL: http://engine:8000
       WHATSAPP_API_URL: ${WHATSAPP_API_URL}
       WHATSAPP_API_TOKEN: ${WHATSAPP_API_TOKEN}
+      WHATSAPP_BIND_HOST: "0.0.0.0" # Internal Compose network; no host port is published.
     depends_on:
       engine:
         condition: service_healthy
@@ -139,7 +142,7 @@ services:
       context: .
       dockerfile: services/modules/email_microsoft/Dockerfile
     profiles: [email]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       ENGINE_URL: http://engine:8000
       MS_TENANT_ID: ${MS_TENANT_ID}
@@ -159,7 +162,7 @@ services:
       context: .
       dockerfile: services/modules/sources/Dockerfile
     profiles: [sources]
-    env_file: .env
+    env_file: ${ENGINE_ENV_FILE:-.env}
     environment:
       ENGINE_URL: http://engine:8000
       CONFIG_PATH: /app/config

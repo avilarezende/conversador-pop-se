@@ -4,15 +4,16 @@ from pathlib import Path
 from typing import Any
 
 import chromadb
+from chromadb.api import ClientAPI
 from chromadb.config import Settings as ChromaSettings
 
 from app.config import settings
 from app.config_loader import get_clients
 
-_client: chromadb.PersistentClient | None = None
+_client: ClientAPI | None = None
 
 
-def get_chroma() -> chromadb.PersistentClient:
+def get_chroma() -> ClientAPI:
     global _client
     if _client is None:
         Path(settings.chroma_path).mkdir(parents=True, exist_ok=True)

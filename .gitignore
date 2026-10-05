@@ -9,3 +9,6 @@ data/postgres/
 *.log
 .DS_Store
 node_modules/
+
+.env.*
+!.env.*.example
