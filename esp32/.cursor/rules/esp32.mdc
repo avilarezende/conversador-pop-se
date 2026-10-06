@@ -1,0 +1,15 @@
+---
+description: Regras do ambiente esp32 (CYD + Grok + Calisto)
+globs:
+  - "**/*.{cpp,h,hpp,ini,md,html,js,css}"
+alwaysApply: true
+---
+
+# Projeto esp32 (standalone)
+
+- Sem relação com PoP-SE / Conversador / outros monorepos.
+- Stack: PlatformIO + Arduino, alvo `cyd` (ESP32-2432S028).
+- Chat: API Grok direta (`grok_client`); avatar Calisto na UI.
+- Segredos só em `include/secrets.h`.
+- Ambiente Cloud: nome `esp32` (ver `.cursor/environment.json`).
+- Responder em pt-BR; ler `AGENTS.md` e `agents/*.md` conforme a tarefa.
