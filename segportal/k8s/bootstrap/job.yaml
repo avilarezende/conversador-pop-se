@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: segportal-bootstrap
+  namespace: segportal
+  labels:
+    app: segportal-bootstrap
+    component: default-browser
+spec:
+  ttlSecondsAfterFinished: 86400
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        app: segportal-bootstrap
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: bootstrap
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_HOSTNAME
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+            - name: SEGPORTAL_BOOTSTRAP_WAIT_SECONDS
+              value: "600"
+            - name: GUACAMOLE_VERSION
+              value: "1.5.5"
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          command: ["/bin/sh", "/scripts/bootstrap-segportal.sh"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: scripts
+          configMap:
+            name: segportal-bootstrap-scripts
+            defaultMode: 0755

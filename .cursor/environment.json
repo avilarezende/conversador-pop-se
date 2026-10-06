@@ -1,0 +1,6 @@
+{
+  "name": "conversador-pop-se",
+  "repositoryDependencies": [
+    "github.com/avilarezende/segportal"
+  ]
+}

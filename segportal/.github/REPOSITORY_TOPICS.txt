@@ -1,0 +1,16 @@
+segportal
+html5-portal
+ztna
+aqne
+kubernetes
+rancher
+ldap
+mfa
+zero-trust
+remote-access
+vnc
+rdp
+clientless
+squid
+proxy
+brazil
