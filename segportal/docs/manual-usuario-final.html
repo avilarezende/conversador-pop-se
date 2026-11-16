@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>SegPortal — Manual do Usuário Final</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+      @bottom-center {
+        content: "SegPortal · Manual do usuário final · página " counter(page);
+        font-size: 9pt;
+        color: #5a6570;
+      }
+    }
+    :root {
+      --ink: #1a2430;
+      --muted: #5a6570;
+      --line: #d7dde3;
+      --brand: #0b3d5c;
+      --accent: #1f6f8b;
+      --soft: #f3f6f8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font: 11pt/1.45 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+    h1, h2, h3 {
+      color: var(--brand);
+      page-break-after: avoid;
+      line-height: 1.25;
+    }
+    h1 { font-size: 22pt; margin: 0 0 8pt; }
+    h2 {
+      font-size: 14pt;
+      margin: 22pt 0 8pt;
+      padding-bottom: 4pt;
+      border-bottom: 2px solid var(--accent);
+    }
+    h3 { font-size: 12pt; margin: 14pt 0 6pt; }
+    p, li { margin: 0 0 8pt; }
+    ul, ol { margin: 0 0 10pt; padding-left: 18pt; }
+    a { color: var(--accent); text-decoration: none; }
+    .cover {
+      min-height: 240mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      background:
+        linear-gradient(160deg, #0b3d5c 0%, #1f6f8b 48%, #2d8aa8 100%);
+      color: #fff;
+      padding: 28mm 18mm;
+      margin: -18mm -16mm 0;
+    }
+    .cover h1 { color: #fff; font-size: 28pt; margin-top: 40mm; }
+    .cover .lead { font-size: 13pt; max-width: 42em; opacity: .95; }
+    .cover .meta { font-size: 10pt; opacity: .9; }
+    .badge {
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 999px;
+      padding: 4pt 10pt;
+      font-size: 9pt;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .note, .warn {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 8pt 10pt;
+      margin: 10pt 0 14pt;
+    }
+    .warn { border-left-color: #b45309; background: #fff7ed; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0 14pt;
+      font-size: 10pt;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 6pt 8pt;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--soft); color: var(--brand); }
+    figure {
+      margin: 10pt 0 16pt;
+      page-break-inside: avoid;
+    }
+    figure img {
+      width: 100%;
+      max-height: 95mm;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    figcaption {
+      font-size: 9pt;
+      color: var(--muted);
+      margin-top: 4pt;
+    }
+    .toc a { color: var(--ink); }
+    .toc li { margin-bottom: 4pt; }
+    .footer-note {
+      margin-top: 24pt;
+      padding-top: 8pt;
+      border-top: 1px solid var(--line);
+      font-size: 9pt;
+      color: var(--muted);
+    }
+    .step { font-weight: 600; color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <span class="badge">Manual do usuário final</span>
+    <h1>SegPortal</h1>
+    <p class="lead">
+      Portal de acesso seguro do Tribunal de Justiça de Sergipe.
+      Entre pelo navegador, abra arquivos corporativos e nuvem pessoal,
+      e use sessões remotas sem instalar VPN.
+    </p>
+  </div>
+  <div class="meta">
+    <p><strong>Público:</strong> servidores, magistrados e colaboradores</p>
+    <p><strong>Versão do documento:</strong> 2026-11-16</p>
+    <p><strong>Produto:</strong> SegPortal · ZTNA clientless</p>
+  </div>
+</section>
+
+<h2>Sumário</h2>
+<ol class="toc">
+  <li><a href="#o-que-e">O que é o SegPortal</a></li>
+  <li><a href="#como-entrar">Como entrar</a></li>
+  <li><a href="#dashboard">Dashboard pessoal</a></li>
+  <li><a href="#arquivos">Gerenciador de arquivos</a></li>
+  <li><a href="#sessoes">Sessões remotas</a></li>
+  <li><a href="#octelium">Acesso pela borda ZTNA (Octelium)</a></li>
+  <li><a href="#seguranca">Boas práticas de segurança</a></li>
+  <li><a href="#problemas">Problemas comuns</a></li>
+</ol>
+
+<h2 id="o-que-e">1. O que é o SegPortal</h2>
+<p>
+  O SegPortal substitui a VPN tradicional por um portal no navegador.
+  Depois de autenticar, você pode:
+</p>
+<ul>
+  <li>abrir pastas do Active Directory (home, departamental, público);</li>
+  <li>montar OneDrive e Google Drive;</li>
+  <li>enviar, baixar e organizar arquivos;</li>
+  <li>abrir o <strong>Navegador Web SegPortal</strong> (Firefox HTML5);</li>
+  <li>usar desktops e terminais remotos (RDP, VNC, SSH) liberados pelo administrador.</li>
+</ul>
+
+<figure>
+  <img src="images/segportal-mockup.jpg" alt="Visão geral do SegPortal" />
+  <figcaption>Visão geral: login, dashboard, sessão remota e painel administrativo.</figcaption>
+</figure>
+
+<table>
+  <thead>
+    <tr><th>Função</th><th>Onde</th><th>Para quê</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Login local ou Active Directory</td>
+      <td>Dashboard</td>
+      <td>Autenticar e liberar pastas do AD</td>
+    </tr>
+    <tr>
+      <td>Arquivos corporativos</td>
+      <td>Início → Arquivos do AD</td>
+      <td>Trabalhar em compartilhamentos liberados</td>
+    </tr>
+    <tr>
+      <td>Nuvem pessoal</td>
+      <td>Início → Nuvem</td>
+      <td>OneDrive / Google Drive</td>
+    </tr>
+    <tr>
+      <td>Sessões remotas</td>
+      <td>Aba Sessões / Guacamole</td>
+      <td>Navegador HTML5, RDP, VNC, SSH</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="como-entrar">2. Como entrar</h2>
+<ol>
+  <li>Abra o navegador (Chrome, Edge ou Firefox atualizado).</li>
+  <li>Acesse a URL institucional do SegPortal informada pela TI.
+    Em laboratório local: <code>http://localhost:8090</code>.</li>
+  <li>Informe <strong>usuário</strong> e <strong>senha</strong>.</li>
+  <li>Se for conta de domínio, marque <strong>Autenticar via Active Directory</strong>.</li>
+  <li>Clique em <strong>Entrar no portal</strong>.</li>
+</ol>
+
+<figure>
+  <img src="images/usage-login.jpg" alt="Tela de login" />
+  <figcaption>Tela de login do dashboard pessoal.</figcaption>
+</figure>
+
+<div class="note">
+  <strong>Contas de demonstração (ambiente de testes):</strong>
+  usuário padrão <code>usuario</code> / <code>usuario</code> ·
+  administrador <code>guacadmin</code> / <code>guacadmin</code>.
+  Em produção use apenas a sua conta institucional.
+</div>
+
+<p>
+  Se o MFA (segunda autenticação) estiver ligado nas sessões remotas,
+  o Guacamole pedirá o código do autenticador ou do token RADIUS depois do login.
+</p>
+
+<h2 id="dashboard">3. Dashboard pessoal</h2>
+<p>Após o login você vê quatro áreas principais:</p>
+<ol>
+  <li><strong>Arquivos do Active Directory</strong> — home, departamental e público.</li>
+  <li><strong>Nuvem pessoal</strong> — OneDrive e Google Drive.</li>
+  <li><strong>Acesso rápido</strong> — atalhos para arquivos e para o navegador web.</li>
+  <li><strong>Abrir Guacamole</strong> — portal de sessões remotas.</li>
+</ol>
+
+<figure>
+  <img src="images/usage-portal.jpg" alt="Dashboard do portal" />
+  <figcaption>Dashboard com pastas, nuvem e atalhos.</figcaption>
+</figure>
+
+<h3>3.1 Abrir uma pasta do AD</h3>
+<ol>
+  <li>No cartão desejado (ex.: <strong>Meu Home</strong>), clique em <strong>Abrir</strong>.</li>
+  <li>O SegPortal abre a aba <strong>Arquivos</strong> com o conteúdo da pasta.</li>
+</ol>
+
+<figure>
+  <img src="images/portal-home-ad.jpg" alt="Pastas do Active Directory" />
+  <figcaption>Cartões de pastas do Active Directory no início.</figcaption>
+</figure>
+
+<h3>3.2 Montar OneDrive ou Google Drive</h3>
+<ol>
+  <li>Em <strong>Nuvem pessoal</strong>, clique em <strong>Montar</strong>.</li>
+  <li>Autorize o acesso na tela do provedor (quando OAuth estiver configurado).</li>
+  <li>Depois use <strong>Abrir</strong> ou a seção <strong>Nuvem</strong> na aba Arquivos.</li>
+</ol>
+
+<figure>
+  <img src="images/portal-cloud-mounted.jpg" alt="Nuvem montada" />
+  <figcaption>OneDrive ou Google Drive montados no dashboard.</figcaption>
+</figure>
+
+<div class="note">
+  Sem OAuth configurado, o ambiente de demonstração usa pastas de exemplo.
+  Isso é esperado em laboratório.
+</div>
+
+<h2 id="arquivos">4. Gerenciador de arquivos</h2>
+<figure>
+  <img src="images/portal-files.jpg" alt="Gerenciador de arquivos" />
+  <figcaption>Lista de arquivos com locais corporativos e nuvem.</figcaption>
+</figure>
+
+<table>
+  <thead>
+    <tr><th>Ação</th><th>Como fazer</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Entrar em pasta</td><td>Clique no nome da pasta</td></tr>
+    <tr><td>Voltar</td><td>Botão <strong>↑</strong></td></tr>
+    <tr><td>Nova pasta</td><td><strong>Nova pasta</strong> → digite o nome</td></tr>
+    <tr><td>Enviar</td><td><strong>Enviar</strong> ou arraste os arquivos</td></tr>
+    <tr><td>Baixar</td><td><strong>Baixar</strong> na linha do arquivo</td></tr>
+    <tr><td>Renomear</td><td><strong>Renomear</strong> → confirme o novo nome</td></tr>
+    <tr><td>Excluir</td><td><strong>Excluir</strong> → confirme</td></tr>
+  </tbody>
+</table>
+
+<figure>
+  <img src="images/portal-files-folder.jpg" alt="Nova pasta criada" />
+  <figcaption>Exemplo de pasta criada no gerenciador.</figcaption>
+</figure>
+
+<ul>
+  <li>Pastas somente leitura (ex.: público) não aceitam envio nem exclusão.</li>
+  <li>O tamanho máximo de upload costuma ser 100&nbsp;MB, salvo orientação da TI.</li>
+</ul>
+
+<h2 id="sessoes">5. Sessões remotas</h2>
+<ol>
+  <li>Abra a aba <strong>Sessões remotas</strong> ou clique em <strong>Abrir Guacamole</strong>.</li>
+  <li>Conecte no <strong>Navegador Web SegPortal</strong> — disponível para todos os usuários.</li>
+  <li>Use esse navegador para sites que exigem IP institucional (ex.: Bacen).</li>
+  <li>Desktops RDP/VNC/SSH aparecem somente se o administrador liberar o seu acesso.</li>
+</ol>
+
+<figure>
+  <img src="images/portal-sessions.jpg" alt="Lista de sessões remotas" />
+  <figcaption>Lista de conexões disponíveis no portal.</figcaption>
+</figure>
+
+<figure>
+  <img src="images/usage-browser-bacen.jpg" alt="Navegador HTML5 no Bacen" />
+  <figcaption>Navegador HTML5 do SegPortal acessando o site do Bacen.</figcaption>
+</figure>
+
+<div class="note">
+  Prefira o <strong>Navegador Web SegPortal</strong> em vez do navegador do seu computador
+  quando o sistema externo exigir o IP do tribunal.
+</div>
+
+<h2 id="octelium">6. Acesso pela borda ZTNA (Octelium)</h2>
+<p>
+  Em alguns ambientes o SegPortal fica atrás do <strong>Octelium</strong>.
+  Nesse caso você não abre o portal pela internet aberta: primeiro autentica
+  no Cluster e só então chega ao dashboard ou às sessões.
+</p>
+
+<figure>
+  <img src="images/octelium-funcoes.png" alt="Funções do Octelium com o SegPortal" />
+  <figcaption>O Octelium autentica, aplica a política e encaminha ao SegPortal.</figcaption>
+</figure>
+
+<ol>
+  <li>Abra a URL fornecida pela TI, no formato
+    <code>https://segportal.&lt;domínio-do-cluster&gt;</code>
+    ou <code>https://portal-auth.&lt;domínio-do-cluster&gt;</code>.</li>
+  <li>Faça login no portal do Octelium com a identidade corporativa.</li>
+  <li>Se a política permitir, o navegador abre o SegPortal normalmente.</li>
+  <li>Desktops RDP/SSH protegidos podem exigir o cliente
+    <code>octelium connect</code> — a TI orienta quando isso for necessário.</li>
+</ol>
+
+<div class="warn">
+  Sem identidade válida o acesso é negado (resposta 401).
+  Isso é o comportamento esperado da borda Zero Trust.
+</div>
+
+<h2 id="seguranca">7. Boas práticas de segurança</h2>
+<ul>
+  <li>Encerre a sessão e use <strong>Sair</strong> ao terminar o expediente.</li>
+  <li>Não compartilhe senha nem deixe a sessão aberta em computador público.</li>
+  <li>Não fotografe nem encaminhe dados sensíveis por canais não oficiais.</li>
+  <li>Use o navegador do SegPortal para sistemas que exigem IP institucional.</li>
+  <li>Em dúvida sobre permissão de pasta ou conexão, fale com o suporte / Nuvem TJSE.</li>
+</ul>
+
+<h2 id="problemas">8. Problemas comuns</h2>
+<table>
+  <thead>
+    <tr><th>Sintoma</th><th>O que tentar</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Login inválido</td>
+      <td>Confira Caps Lock e se a conta é local ou de domínio</td>
+    </tr>
+    <tr>
+      <td>Nenhuma pasta do AD</td>
+      <td>Marque Active Directory no login; peça liberação ao administrador</td>
+    </tr>
+    <tr>
+      <td>Montar nuvem não abre OAuth</td>
+      <td>Ambiente pode estar em modo demonstração — confirme com a TI</td>
+    </tr>
+    <tr>
+      <td>Não envia arquivo</td>
+      <td>Pasta somente leitura ou arquivo acima do limite de tamanho</td>
+    </tr>
+    <tr>
+      <td>Guacamole / sessão não abre</td>
+      <td>Recarregue a página; se persistir, informe a TI</td>
+    </tr>
+    <tr>
+      <td>Erro 401 na URL do Octelium</td>
+      <td>Faça login no Cluster antes; peça o IdentityProvider correto à TI</td>
+    </tr>
+    <tr>
+      <td>Aviso de certificado no laboratório</td>
+      <td>Esperado com certificado de teste; em produção use o certificado institucional</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="footer-note">
+  Documento gerado para o SegPortal (usuário final).
+  Não substitui políticas internas de segurança da informação do TJSE.
+  Administradores e infraestrutura: consulte o Manual do administrador e o guia de Deploy.
+</div>
+
+</body>
+</html>

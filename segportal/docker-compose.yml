@@ -1,5 +1,7 @@
 # SegPortal TJSE — stack local
 # No boot: web-browser (Firefox/VNC) + bootstrap cria a conexão padrão para todos.
+# Octelium não é um serviço deste Compose. O Cluster sobe numa instância Linux
+# separada: octelium/instance/create-instance.sh
 
 services:
   postgres:

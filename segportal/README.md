@@ -14,10 +14,11 @@
 
 | Público | O que encontrar aqui |
 |---------|----------------------|
-| **Usuário final** | [Manual do usuário](docs/USER_MANUAL.md) · [guia visual](docs/USAGE.md) · [arquivos/nuvem](docs/FILES.md) |
+| **Usuário final** | [Manual PDF](docs/pdf/manual-usuario-final.pdf) · [Manual do usuário](docs/USER_MANUAL.md) · [guia visual](docs/USAGE.md) · [arquivos/nuvem](docs/FILES.md) |
 | **Administrador** | [Manual do administrador](docs/ADMIN_MANUAL.md) · [Configuração](docs/CONFIGURATION.md) |
 | **Infraestrutura** | [Deploy](docs/DEPLOYMENT.md) — Rancher, pods, secrets |
 | **Desenvolvimento** | [Arquitetura](docs/ARCHITECTURE.md) e [CI/CD](docs/CI_CD.md) |
+| **ZTNA com Octelium** | [Fork Octelium](octelium/README.md) — `./octelium/scripts/guided.sh` pergunta domínio, IP e certificado |
 
 ---
 

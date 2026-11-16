@@ -50,6 +50,17 @@ Usuários normais recebem `READ` no **Navegador Web SegPortal** (padrão) e nas 
 
 O proxy Squid permite apenas destinos na whitelist (ex.: `*.tjse.jus.br`, `*.jus.br`, `*.gov.br`). Demais destinos são **negados**. O IP de saída é o institucional do tribunal.
 
+## Borda ZTNA (Octelium)
+
+O fork em [`octelium/`](../octelium/README.md) coloca o [Octelium](https://octelium.com/) na frente do SegPortal:
+
+- O overlay `k8s/overlays/octelium` **remove o Ingress público** e só aceita tráfego do namespace `octelium`.
+- Cada aplicação vira um Service Octelium com Policy (`segportal-users` / `segportal-admins`).
+- HTTP (`segportal`, `portal-auth`) é público no sentido BeyondCorp: o navegador autentica no Cluster antes do upstream.
+- RDP/SSH não abrem porta na internet; o usuário usa `octelium connect`.
+- Acesso sem identidade válida permanece negado (não há ALLOW implícito).
+- O Cluster não entra no Docker Compose. Ele roda numa instância Linux própria (`octelium/instance/`).
+
 ## Dados sensíveis
 
 - Secrets Kubernetes para credenciais (não em ConfigMaps)

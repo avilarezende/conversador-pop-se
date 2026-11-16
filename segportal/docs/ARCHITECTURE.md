@@ -73,6 +73,17 @@ segportal/
 | LDAP opcional | Homologação e emergência sem AD |
 | Pods separados | Escala e blast radius independentes |
 | Squid whitelist | Egress controlado no lugar da VPN HTTP |
+| Octelium como borda ZTNA | Ingress público removido; acesso só depois de identidade + Policy. O Cluster é uma instância Linux, não um container. Ver [octelium/README.md](../octelium/README.md) |
+
+## Fluxo e funções com Octelium
+
+![Fluxo guiado](images/octelium-fluxo-guiado.png)
+
+O script `octelium/scripts/guided.sh` pergunta domínio, IP público, NAT, certificado PEM ou laboratório, e os upstreams do SegPortal antes de criar a instância.
+
+![Funções](images/octelium-funcoes.png)
+
+A instância Octelium autentica, avalia a Policy e faz o proxy. Guacamole e portal-auth continuam no Docker do host. Desktops RDP e o jump SSH só aparecem via `octelium connect`.
 
 ## Referências
 
