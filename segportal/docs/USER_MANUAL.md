@@ -2,6 +2,8 @@
 
 Guia prático para **servidores, magistrados e colaboradores** que usam o SegPortal no dia a dia.
 
+**PDF para distribuição:** [pdf/manual-usuario-final.pdf](pdf/manual-usuario-final.pdf) · fonte HTML: [manual-usuario-final.html](manual-usuario-final.html)
+
 Documentos relacionados: [USAGE.md](USAGE.md) (resumo visual) · [FILES.md](FILES.md) (arquivos/nuvem) · [MANUAL.md](MANUAL.md) (visão geral).
 
 ---
