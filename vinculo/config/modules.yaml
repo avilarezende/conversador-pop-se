@@ -6,6 +6,8 @@ modules:
     enabled: true
   trust_graph:
     enabled: true
+    # Limite só para convites/canais indivíduo↔indivíduo via contato_direto.
+    # Entidades reconhecidas não entram nesse teto.
     max_path_edges: 2
     require_anchor_for_entity_bridge: false
   ledger:

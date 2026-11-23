@@ -10,7 +10,7 @@ Vínculo é um aplicativo de mensagens (texto, voz e vídeo) focado em **seguran
 
 ## Em uma frase
 
-Mensageiro estilo WhatsApp com grafo de confiança (máx. 2 saltos), ledger criptografado por conversa, marca d’água em mídia exportada e criptografia pós-quântica de código aberto.
+Mensageiro estilo WhatsApp com grafo de confiança (máx. 2 arestas em convites indivíduo–indivíduo; entidades reconhecidas sem esse teto), ledger criptografado por conversa, marca d’água em mídia exportada e criptografia pós-quântica de código aberto.
 
 ---
 
@@ -80,7 +80,7 @@ uvicorn vinculo_api.main:app --app-dir apps/api --reload
 
 ## Princípios não negociáveis
 
-- **Sem vínculo válido, sem canal.** Contato só com 1º grau, ou até 2 saltos com entidade reconhecida como ponte/autorizadora.
+- **Sem vínculo válido, sem canal.** Entre indivíduos: 1º grau ou convite com no máx. 2 arestas; entidades reconhecidas contactam/autorizam **sem** limite de arestas.
 - **Ledger por conversa.** Texto e mídia da conversa vivem em cadeia append-only criptografada, isolada de outras mídias do aparelho.
 - **Exportação rastreável.** Toda mídia interna exportada leva marca d’água e metadados do responsável/criador.
 - **PQC open-source.** Troca de chaves e assinaturas com algoritmos pós-quânticos de código livre (ex.: ML-KEM / ML-DSA via liboqs).

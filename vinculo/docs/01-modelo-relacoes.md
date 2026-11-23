@@ -24,25 +24,37 @@ aresta.*  --ancorada_em--> local_ou_evento
 
 ## Regras de contato (política v0)
 
-Seja `A` e `B` indivíduos. Um canal `A ↔ B` é permitido se **qualquer** condição for verdadeira:
+### Escopo do limite de arestas
+
+| Par | Limite `max_path_edges` (padrão: 2) |
+|-----|-------------------------------------|
+| **Indivíduo ↔ indivíduo** (convite / canal via `contato_direto`) | **Sim** — no máximo 2 arestas no caminho |
+| **Entidade reconhecida** (contato com indivíduo ou ponte `autoriza_par` / membros) | **Não** — a restrição de arestas **não se aplica** |
 
 ### R1 — Contato direto (1º grau)
 
 Existe aresta mútua `contato_direto` entre `A` e `B`.
 
+### R1b — Convite indivíduo–indivíduo (≤ 2 arestas)
+
+`A` e `B` são indivíduos e existe caminho de `contato_direto` **mútuo** com **no máximo 2 arestas** (ex.: amigo do amigo: `A→B→C`).
+
+Caminhos com 3 ou mais arestas só de indivíduos **não** abrem canal por esta regra.
+
 ### R2 — Entidade contacta indivíduo
 
 Uma **entidade reconhecida** `E` pode abrir canal com `A` se `A` **reconhece** `E` (ou `A` é `membro_de` `E` conforme política).
 
-### R3 — Ponte por entidade (máx. 2 saltos)
+Sem limite de distância no grafo de indivíduos: a restrição de arestas não vale para entidades.
 
-`A` e `B` podem conversar se existe entidade `E` tal que:
+### R3 — Ponte por entidade (sem teto de arestas)
+
+`A` e `B` (indivíduos) podem conversar se existe entidade `E` tal que:
 
 1. `A` reconhece `E` **e** `B` reconhece `E`; **e**
-2. `E` emite `autoriza_par(A, B)` (explícito) **ou** ambos são `membro_de E` sob política que permita peer-to-peer intramembro; **e**
-3. O caminho efetivo no grafo tem **no máximo 2 arestas** entre `A` e `B` passando por `E` (ex.: `A→E→B`).
+2. `E` emite `autoriza_par(A, B)` (explícito) **ou** ambos são `membro_de E` sob política que permita peer-to-peer intramembro.
 
-> **Hard limit:** pesquisa / autorização de canal **não** desce além de **2 níveis de arestas**. Não há “amigo do amigo do amigo”.
+A entidade pode autorizar o par mesmo quando `A` e `B` estariam além de 2 arestas no grafo de contatos pessoais.
 
 ### R4 — Âncora de local/evento
 
@@ -57,19 +69,25 @@ Quando a política do módulo exigir:
 function can_open_channel(A, B, graph, now):
   if A == B: return deny
 
-  if graph.has_mutual_direct_contact(A, B):
-    return allow(reason=DIRECT_1ST_DEGREE)
-
-  for E in graph.recognized_entities_shared_by(A, B):
-    path = shortest_path(A, B, via=E, edge_types=ALLOWED)
-    if path.length <= 2 and E.permits_pair(A, B, now):
-      if policy.requires_anchor and not path.anchor_valid(now):
-        continue
-      return allow(reason=ENTITY_BRIDGE, entity=E, path=path)
-
-  # Entidade como endpoint (não par indivíduo-indivíduo)
+  # Entidade: sem limite de arestas
   if is_entity(B) and A.recognizes(B):
     return allow(reason=ENTITY_TO_INDIVIDUAL)
+  if is_entity(A) and B.recognizes(A):
+    return allow(reason=ENTITY_TO_INDIVIDUAL)
+
+  if both_individuals(A, B):
+    if graph.has_mutual_direct_contact(A, B):
+      return allow(reason=DIRECT_1ST_DEGREE)
+
+    path = shortest_mutual_contact_path(A, B)   # só indivíduos
+    if path is not None and path.edge_count <= max_path_edges:  # default 2
+      return allow(reason=INDIVIDUAL_INVITE_WITHIN_MAX_EDGES, path=path)
+
+    for E in graph.recognized_entities_shared_by(A, B):
+      if E.permits_pair(A, B, now):
+        if policy.requires_anchor and not E.pair_anchor_valid(A, B, now):
+          continue
+        return allow(reason=ENTITY_BRIDGE, entity=E)  # sem teto de arestas
 
   return deny(reason=NO_VALID_PATH)
 ```

@@ -20,7 +20,7 @@ Não é “mais um chat com E2EE”. É um sistema em que:
 | Princípio | Significado prático |
 |-----------|---------------------|
 | Ancoragem | Relação preferencialmente ligada a local/evento real |
-| Menor privilégio social | Contato direto (1º grau) por padrão; 2 saltos só com ponte válida |
+| Menor privilégio social | Entre indivíduos: 1º grau ou no máx. 2 arestas por convite; entidades reconhecidas sem teto de arestas |
 | Entidade como âncora de confiança | Instituições/organizações reconhecidas podem contactar e autorizar pares |
 | Integridade > conveniência | Preferir bloquear a conversa a permitir canal ambíguo |
 | Separação de cofres | Ledger da conversa ≠ galeria do aparelho |
@@ -38,7 +38,7 @@ Não é “mais um chat com E2EE”. É um sistema em que:
 
 1. Usuário se identifica e registra chaves (incluindo PQC).
 2. Estabelece reconhecimento mútuo com uma **entidade** e/ou contato de **1º grau** (presença, QR no evento, convite assinado).
-3. Para falar com alguém a 2 saltos, precisa de caminho no grafo com entidade reconhecida pelos envolvidos.
+3. Convite indivíduo–indivíduo só até 2 arestas de `contato_direto`; além disso, só com ponte/autorização de entidade reconhecida (sem teto de arestas para a entidade).
 4. Mensagens e mídias vão ao **ledger da conversa**; a galeria do celular permanece isolada.
 5. Exportar mídia aplica marca d’água + metadados do criador/responsável.
 6. Chamada de voz/vídeo usa canal E2EE com handshake PQC.
