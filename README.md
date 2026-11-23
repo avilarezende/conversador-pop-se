@@ -143,7 +143,10 @@ vi/          # Ví (mensageiro seguro) — em extração para repositório próp
 
 ## Iniciativa Ví
 
-Planejamento e esqueleto do mensageiro **Ví** (docs de conceito/lógica publicáveis; código proprietário). Cópia de trabalho neste monorepo em [`vi/`](vi/); destino: **repositório GitHub próprio** (privado).
+Planejamento e esqueleto do mensageiro **Ví** (docs de conceito/lógica publicáveis; código proprietário).
+
+- Repositório próprio: **https://github.com/avilarezende/vi** (privado)
+- Cópia espelhada neste monorepo: [`vi/`](vi/)
 
 Ver [`vi/README.md`](vi/README.md) e [`vi/docs/INDEX.md`](vi/docs/INDEX.md).
 
