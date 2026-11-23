@@ -1,0 +1,32 @@
+# Núcleo local do esqueleto Ví (fase 0 — API + Postgres + MinIO opcional).
+# O chatbot Conversador PoP-SE permanece no compose da raiz do repositório.
+
+services:
+  vi-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      MODULES_CONFIG_PATH: /app/config/modules.yaml
+    profiles: ["vi"]
+
+  vi-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: vi
+      POSTGRES_PASSWORD: vi
+      POSTGRES_DB: vi
+    profiles: ["vi"]
+    # Persistência real entra na fase 1; serviço reservado no compose.
+
+  vi-minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: vi
+      MINIO_ROOT_PASSWORD: videv
+    profiles: ["vi"]

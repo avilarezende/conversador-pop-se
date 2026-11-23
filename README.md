@@ -138,14 +138,14 @@ services/
   web/            # Apache + interface de chat
   modules/        # canais e integrações
 docs/             # arquitetura, configuração, CI/CD
-vinculo/          # NOVO: mensageiro seguro (planejamento + esqueleto modular)
+vi/          # Ví (mensageiro seguro) — em extração para repositório próprio
 ```
 
-## Iniciativa Vínculo
+## Iniciativa Ví
 
-Planejamento e esqueleto de um mensageiro focado em **segurança e integridade**: grafo de relações (máx. 2 arestas em convites indivíduo–indivíduo; entidades sem esse teto), ledger criptografado por conversa, marca d’água em exportação de mídia e criptografia pós-quântica open-source.
+Planejamento e esqueleto do mensageiro **Ví** (docs de conceito/lógica publicáveis; código proprietário). Cópia de trabalho neste monorepo em [`vi/`](vi/); destino: **repositório GitHub próprio** (privado).
 
-Ver [`vinculo/README.md`](vinculo/README.md) — padrão: **monólito modular + arquitetura hexagonal**.
+Ver [`vi/README.md`](vi/README.md) e [`vi/docs/INDEX.md`](vi/docs/INDEX.md).
 
 ## Documentação
 

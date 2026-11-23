@@ -1,0 +1,23 @@
+# Feature flags do monólito modular Ví.
+# Novos módulos: adicionar entrada aqui + pacote em packages/ + wiring em apps/api.
+
+modules:
+  identity:
+    enabled: true
+  trust_graph:
+    enabled: true
+    # Limite só para convites/canais indivíduo↔indivíduo via contato_direto.
+    # Entidades reconhecidas não entram nesse teto.
+    max_path_edges: 2
+    require_anchor_for_entity_bridge: false
+  ledger:
+    enabled: true
+  media_watermark:
+    enabled: true
+  realtime_av:
+    enabled: false
+  crypto_pqc:
+    enabled: true
+    hybrid: true
+    # mock = determinístico para testes; liboqs = implementação real (fase 1+)
+    provider: mock
