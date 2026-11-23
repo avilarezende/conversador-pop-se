@@ -13,9 +13,13 @@
 Executa em todo Pull Request:
 
 1. **security-scan** — varredura de segredos (gitleaks) e análise estática Python (bandit)
-2. **lint-and-test** — qualidade e regressão
+2. **lint-and-test** — `pip-audit` fail-closed no lock do engine, Ruff e Pytest
 3. **docker-build** — garante que Dockerfiles compilam
 4. **compose-validate** — `docker compose config` sem erros
+
+### `pip-audit` e ChromaDB
+
+O job `lint-and-test` ignora apenas `PYSEC-2026-3813`, `PYSEC-2026-3814` e `PYSEC-2026-3815` (ChromaDB): não há versão corrigida publicada (advisory cobre até 1.5.9). O engine usa `PersistentClient` local para RAG, não o modo servidor multi-tenant descrito nos advisories. Revisar o ignore quando o projeto Chroma publicar correção.
 
 ### Rodar localmente (equivalente ao CI)
 

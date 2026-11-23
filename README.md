@@ -140,6 +140,11 @@ services/
 docs/             # arquitetura, configuração, CI/CD
 ```
 
+## Projeto relacionado: Ví
+
+O mensageiro **Ví** vive em repositório próprio (não faz parte deste monorepo):
+**https://github.com/avilarezende/vi**
+
 ## Documentação
 
 | Documento | Conteúdo |
