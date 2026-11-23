@@ -138,17 +138,12 @@ services/
   web/            # Apache + interface de chat
   modules/        # canais e integrações
 docs/             # arquitetura, configuração, CI/CD
-vi/          # Ví (mensageiro seguro) — em extração para repositório próprio
 ```
 
-## Iniciativa Ví
+## Projeto relacionado: Ví
 
-Planejamento e esqueleto do mensageiro **Ví** (docs de conceito/lógica publicáveis; código proprietário).
-
-- Repositório próprio: **https://github.com/avilarezende/vi** (privado)
-- Cópia espelhada neste monorepo: [`vi/`](vi/)
-
-Ver [`vi/README.md`](vi/README.md) e [`vi/docs/INDEX.md`](vi/docs/INDEX.md).
+O mensageiro **Ví** vive em repositório próprio (não faz parte deste monorepo):
+**https://github.com/avilarezende/vi**
 
 ## Documentação
 
