@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vínculo — Painel de Entidade (esqueleto)</title>
+    <style>
+      :root {
+        --bg: #0f1c18;
+        --fg: #e7f2ec;
+        --accent: #3d9b74;
+        --muted: #8aa899;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(ellipse at 20% 0%, #1a3a2f 0%, transparent 50%),
+          radial-gradient(ellipse at 80% 100%, #243528 0%, transparent 45%),
+          var(--bg);
+        color: var(--fg);
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+      main {
+        max-width: 36rem;
+      }
+      h1 {
+        font-family: "IBM Plex Serif", Georgia, serif;
+        font-weight: 600;
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 0.5rem;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .brand {
+        color: var(--accent);
+        font-size: 0.85rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">Vínculo</div>
+      <h1>Painel de entidade</h1>
+      <p>
+        Esqueleto da fase 0. Em breve: autorizar pares, publicar âncoras de
+        evento/local e auditar exportações — sem conversas abertas sem vínculo.
+      </p>
+    </main>
+  </body>
+</html>

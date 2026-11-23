@@ -138,7 +138,14 @@ services/
   web/            # Apache + interface de chat
   modules/        # canais e integrações
 docs/             # arquitetura, configuração, CI/CD
+vinculo/          # NOVO: mensageiro seguro (planejamento + esqueleto modular)
 ```
+
+## Iniciativa Vínculo
+
+Planejamento e esqueleto de um mensageiro focado em **segurança e integridade**: grafo de relações (máx. 2 saltos), entidades reconhecidas, ledger criptografado por conversa, marca d’água em exportação de mídia e criptografia pós-quântica open-source.
+
+Ver [`vinculo/README.md`](vinculo/README.md) — padrão: **monólito modular + arquitetura hexagonal**.
 
 ## Documentação
 

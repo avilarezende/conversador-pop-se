@@ -1,0 +1,32 @@
+# Núcleo local do esqueleto Vínculo (fase 0 — API + Postgres + MinIO opcional).
+# O chatbot Conversador PoP-SE permanece no compose da raiz do repositório.
+
+services:
+  vinculo-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      MODULES_CONFIG_PATH: /app/config/modules.yaml
+    profiles: ["vinculo"]
+
+  vinculo-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: vinculo
+      POSTGRES_PASSWORD: vinculo
+      POSTGRES_DB: vinculo
+    profiles: ["vinculo"]
+    # Persistência real entra na fase 1; serviço reservado no compose.
+
+  vinculo-minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: vinculo
+      MINIO_ROOT_PASSWORD: vinculodev
+    profiles: ["vinculo"]
